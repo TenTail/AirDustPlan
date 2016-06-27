@@ -16,11 +16,11 @@
 
 ## Laravel 檔案命名規則
 
-**Controller**=>大駝峰式命名法、複數
+**Controller**=>大駝峰式命名法、複數(ex:UsersController.php)
 
-**Model**=>大駝峰式命名法、單數
+**Model**=>大駝峰式命名法、單數(ex:User.php)
 
-**Blade**=>全小寫蛇底式
+**Blade**=>全小寫蛇底式(ex:user_login.blade.php)
 
 # Laravel PHP Framework
 
