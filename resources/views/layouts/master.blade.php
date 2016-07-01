@@ -2,15 +2,19 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    @yield("csrf-token")
+
     <title>@yield("title")</title>
 
     <!-- css -->
     <link rel="stylesheet" href="{{ asset("css/bootstrap.css") }}">
     <link rel="stylesheet" href="{{ asset("css/master.css") }}">
+    @yield("head-css")
 
     <!-- javascript -->
     <script src="{{ asset("js/jquery-1.12.4.js") }}"></script>
     <script src="{{ asset("js/bootstrap.js") }}"></script>
+    @yield("head-javascript")
 
 </head>
 <body>
@@ -27,5 +31,6 @@
     
     <!-- javascript -->
     <script src="{{ asset("js/master.js") }}"></script>
+    @yield("page-javascript")
 </body>
 </html>

@@ -21,7 +21,8 @@ body {
 .header .text {
     padding-top: 220px;
     text-align: center;
-    font-size: 16pt;
+    font-size: 18pt;
+    font-weight: bold;
     color: #FFFFFF;
 }
 
@@ -32,17 +33,22 @@ body {
 .navbar-header {
     display: none;
 }
-.navbar-default .nav>li:hover {
+.navbar-default .nav > li > a:hover {
     color: #000000;
     background: #FFFFFF;
     font-weight: bold;
 }
-.navbar-default .nav>li>a {
+.navbar-default .nav > .activate > a {
+    color: #000000;
+    background: #FFFFFF;
+    font-weight: bold;
+}
+.navbar-default .nav > li > a {
     color: #FFFFFF;
     padding: 20px 30px;
     font-weight: bold;
 }
-.navbar-default .nav>li>a {
+.navbar-default .nav > li > a {
     line-height: normal;
 }
 .navbar-default .nav {

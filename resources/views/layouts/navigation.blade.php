@@ -14,11 +14,21 @@
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="main-navbar">
             <ul class="nav navbar-nav">
-                <li><a href="{{ route('index') }}"><span class="glyphicon glyphicon-home" aria-hidden="true"></span></a></li>
-                <li><a href="">細懸浮微粒?</a></li>
-                <li><a href=""><span class="glyphicon glyphicon-object-align-bottom" aria-hidden="true"></span>即時空汙資訊</a></li>
-                <li><a href=""><span class="glyphicon glyphicon-hourglass" aria-hidden="true"></span>歷年空汙比較</a></li>
-                <li><a href=""><span class="glyphicon glyphicon-save" aria-hidden="true"></span>歷史資料下載</a></li>
+                <li class="{{ Request::is('/') ? 'activate' : '' }}">
+                    <a href="{{ route('index') }}"><span class="glyphicon glyphicon-home" aria-hidden="true"></span></a>
+                </li>
+                <li class="{{ Request::is('introduction') ? 'activate' : '' }}">
+                    <a href="{{ route('introduction') }}">細懸浮微粒?</a>
+                </li>
+                <li class="{{ Request::is('immediate') ? 'activate' : '' }}">
+                    <a href="{{ route('immediate') }}"><span class="glyphicon glyphicon-object-align-bottom" aria-hidden="true"></span>即時空汙資訊</a>
+                </li>
+                <li class="{{ Request::is('history-compare') ? 'activate' : '' }}">
+                    <a href="{{ route('history-compare.index') }}"><span class="glyphicon glyphicon-hourglass" aria-hidden="true"></span>歷年空汙比較</a>
+                </li>
+                <li class="{{ Request::is('excel-export') ? 'activate' : '' }}">
+                    <a href="{{ route('excel-export.index') }}"><span class="glyphicon glyphicon-save" aria-hidden="true"></span>歷史資料下載</a>
+                </li>
             </ul>
         </div>
         <!-- /.navbar-collapse -->

@@ -1,6 +1,6 @@
 @extends("layouts.master")
 
-@section("title", "Hello World")
+@section("title", "空塵計")
 
 @section("content")
 
