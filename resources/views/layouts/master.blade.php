@@ -7,13 +7,13 @@
     <title>@yield("title")</title>
 
     <!-- css -->
-    <link rel="stylesheet" href="{{ asset("css/bootstrap.css") }}">
-    <link rel="stylesheet" href="{{ asset("css/master.css") }}">
+    <link rel="stylesheet" href="{{ asset('css/bootstrap.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/master.css') }}">
     @yield("head-css")
 
     <!-- javascript -->
-    <script src="{{ asset("js/jquery-1.12.4.js") }}"></script>
-    <script src="{{ asset("js/bootstrap.js") }}"></script>
+    <script src="{{ asset('js/jquery-1.12.4.js') }}"></script>
+    <script src="{{ asset('js/bootstrap.js') }}"></script>
     @yield("head-javascript")
 
 </head>
@@ -30,7 +30,7 @@
     @include("layouts.footer")
     
     <!-- javascript -->
-    <script src="{{ asset("js/master.js") }}"></script>
+    <script src="{{ asset('js/master.js') }}"></script>
     @yield("page-javascript")
 </body>
 </html>
