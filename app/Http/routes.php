@@ -41,3 +41,9 @@ Route::get('history-compare', ['as' => 'history-compare.index', function () {
  */
 Route::get('excel-export',  ['as' => 'excel-export.index',  'uses' => 'DataExportController@index']);
 Route::post('excel-export', ['as' => 'excel-export.export', 'uses' => 'DataExportController@export']);
+
+/**
+ *  PM2.5 instant info
+**/
+
+Route::get('instant_info', ['as' => 'instant_info.index', 'uses' => 'InstantInfomationController@index']);
