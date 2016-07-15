@@ -32,9 +32,8 @@ Route::get('immediate', ['as' => 'immediate', function () {
 /**
  * PM2.5 history-compare
  */
-Route::get('history-compare', ['as' => 'history-compare.index', function () {
-    return view('history-compare');
-}]);
+Route::get('history-compare', ['as' => 'history-compare.index', 'uses' => 'HistoryCompareController@index']);
+Route::post('history-compare', ['as' => 'history-compare.compare', 'uses' => 'HistoryCompareController@compare']);
 
 /**
  * excel export

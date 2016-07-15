@@ -9,11 +9,13 @@
     <!-- css -->
     <link rel="stylesheet" href="{{ asset('css/bootstrap.css') }}">
     <link rel="stylesheet" href="{{ asset('css/master.css') }}">
+    {{-- the other css --}}
     @yield("head-css")
 
     <!-- javascript -->
     <script src="{{ asset('js/jquery-1.12.4.js') }}"></script>
     <script src="{{ asset('js/bootstrap.js') }}"></script>
+    {{-- the other javascript --}}
     @yield("head-javascript")
 
 </head>

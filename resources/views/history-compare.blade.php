@@ -1,29 +1,30 @@
 @extends("layouts.master")
 
+@section('csrf-token')
+<meta name="csrf-token" content="{{ csrf_token() }}" />
+@stop
+
 @section("title", "空塵計")
 
 @section('head-javascript')
 <script src="{{ asset('highstock/js/highstock.js') }}"></script>
+<script src="{{ asset('highstock/js/themes/grid-light.js') }}"></script>
 @stop
 
 @section("content")
 
 <div class="col-md-3">
     <h2>選擇年份</h2>
-    <div class="col-md-6">
-        <select id="year" class="form-control">
-            @for ($i = 2015; $i < 2017; $i++)
-                <option value="{{ $i }}">{{ $i }}年</option>
-            @endfor
-        </select>
-    </div>
-    <div class="col-md-6">
-        <select id="month" class="form-control">
-            @for ($i = 1; $i < 13; $i++)
-                <option value="{{ sprintf('%02d', $i) }}">{{ $i }}月</option>
-            @endfor
-        </select>
-    </div>
+    <select id="year" class="form-control" style="align: center">
+        @for ($i = 2016; $i != 2013; $i--)
+            <option value="{{ $i }}">{{ $i."年" }}</option>
+        @endfor
+    </select>
+    <select id="month" class="form-control">
+        @for ($i = 1; $i < 13; $i++)
+            <option value="{{ sprintf('%02d', $i) }}">{{ $i."月" }}</option>
+        @endfor
+    </select>
     <h2>選擇縣市</h2>
     <select id="county" class="form-control">
         <?php $county = ['新北市', '屏東縣', '臺南市', '宜蘭縣', '嘉義縣', '臺東縣', '澎湖縣', '臺北市', '嘉義市', '臺中市', '雲林縣', '高雄市', '臺北市', '新竹市', '新竹縣', '基隆市', '苗栗縣', '桃園市', '彰化縣', '花蓮縣', '南投縣'];?>
@@ -33,11 +34,12 @@
     </select>
     <h2>選擇測站</h2>
     <select id="sitename" class="form-control">
-        
+        {{-- option --}}
     </select>
+    <button id="stock" class="btn btn-success" style="margin: 20px 0;width: 100%;font-size: 24pt">繪製圖表</button>
 </div>
 <div class="col-md-9">
-    
+    <div id="container" style="height: 400px; min-width: 100%"></div>
 </div>
 
 @endsection
@@ -94,5 +96,129 @@
     $(document).ready(function () {
         loadSite();
     });
+
+    function createStock(data) {
+        $('#container').highcharts('StockChart', {
+            title: {
+                text: 'PM2.5濃度年度比較圖:'+$('#sitename').val()+'測站',
+                align: 'center',
+                style: {
+                    color: '#000000',
+                    fontWeight: 'bold',
+                },
+                y: 50
+            },
+            rangeSelector: {
+                allButtonsEnabled: true,
+                buttons: [{
+                    type: 'day',
+                    count: 1,
+                    text: '天',
+                },{
+                    type: 'week',
+                    count: 1,
+                    text: '週'
+                },{
+                    type: 'all',
+                    text: '月'
+                }],
+                selected: 2,
+                inputDateFormat: '%m月%d日',
+                inputEditDateFormat: '%m月%d日'
+            },
+            navigator : {
+                xAxis: {
+                    dateTimeLabelFormats: {
+                        week: '%d日'
+                    }
+                }
+            },
+            legend: {
+                enabled: true,
+                layout: 'vertical',
+                align: 'left',
+                verticalAlign: 'middle',
+                floating: true,
+                y: -80
+            },
+            xAxis: {
+                type: 'datetime',
+                dateTimeLabelFormats: {
+                    day: '%m/%d',
+                    week: '%m月%e日',
+                }
+            },
+            yAxis: {
+                title: {
+                    text: "PM2.5濃度"
+                },
+                labels: {
+                    useHTML: true,
+                    formatter: function () {
+                        return isNaN(this.value) ? 12 : this.value + 'μg/m<sup>3</sup>';
+                    },
+                },
+                min: 0,
+                max: 100,
+                plotLines: [{
+                    value: 0,
+                    width: 2,
+                    color: 'silver'
+                }]
+            },
+            tooltip: {
+                useHTML: true,
+                formatter: function () {
+                    var s = '<b style="font-size: 14pt; color: #000000;">' + Highcharts.dateFormat('%m月%d日 %H:%M', this.x) + '</b>';
+
+                    $.each(this.points, function () {
+                        s += '<br/>' + '<span style="color:'+this.point.color+'">\u25CF</span>' + this.series.name + ' : ';
+                        s += (this.y == 0) ? '沒有資料' : this.y + ' μg/m<sup>3</sup>';
+                    });
+
+                    return s;
+                }
+            },
+            series: [{
+                name: $('#year').val()+'年'+$('#month').val()+'月',
+                data: data[0]
+            },{
+                name: parseInt($('#year').val()-1)+'年'+$('#month').val()+'月',
+                data: data[1]
+            }]
+        });
+        $('.highcharts-range-selector-buttons > text').text('範圍：').css(['color', '#000000','font-weight','normal']);
+        $($('.highcharts-input-group > g > text')[0]).text('');
+        $($('.highcharts-input-group > g > text')[2]).text('至');
+        $('svg > text[text-anchor=end]').css('display', 'none');
+    }
+
+    $('#stock').click(function () {
+        $.ajaxSetup({
+            headers: { 'X-CSRF-TOKEN': $('meta[name=csrf-token]').attr('content') }
+        });
+
+        var post_data = {
+            _token: $('meta[name=csrf-token]').attr('content'),
+            year: $('#year').val(),
+            month: $('#month').val(),
+            sitename: $('#sitename').val(),
+        };
+
+        $.ajax({
+            type: 'POST',
+            url: '{{ route('history-compare.compare') }}',
+            data: post_data,
+            success: function (data) {
+                // console.log(data);
+                createStock(data);
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                alert("查無資料");
+                console.log(jqXHR, textStatus);
+            }
+        });
+    });
+
 </script>
 @stop
