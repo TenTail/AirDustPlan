@@ -42,6 +42,12 @@ Route::get('excel-export',  ['as' => 'excel-export.index',  'uses' => 'DataExpor
 Route::post('excel-export', ['as' => 'excel-export.export', 'uses' => 'DataExportController@export']);
 
 /**
+ * upload files
+ */
+Route::get('file-upload', ['as' => 'file-upload.index', 'uses' => 'UploadFilesController@index']);
+Route::post('file-upload', ['as' => 'file-upload.upload', 'uses' => 'UploadFilesController@upload']);
+
+/**
  *  PM2.5 instant info
 **/
 
