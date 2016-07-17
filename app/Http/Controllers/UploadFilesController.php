@@ -18,6 +18,12 @@ class UploadFilesController extends Controller
     private $file_content;
 
     /**
+     * 
+     * @var array
+     */
+    private $existed = array();
+
+    /**
      * This array is used to transform sitename and county.
      *
      * @var array
@@ -61,12 +67,12 @@ class UploadFilesController extends Controller
     {
         if ($request->hasFile('file_json')) {
             $file = $request->file('file_json');
+            // $file->getClientOriginalName(); // file name
             $this->file_content = file_get_contents($file->getRealPath());
             $data = json_decode($this->file_content, true);
             $this->check($data);
-            dd('success');
-            // $fileName = $file->getClientOriginalName(); // file name
-            // $request->file('file_json')->move($destinationPath, $fileName);
+            $this->store($data);
+            dd('success', count($data));
         } else {
             dd("上傳失敗");
         }
@@ -83,16 +89,18 @@ class UploadFilesController extends Controller
             dd("您上傳的json檔案內容我問題");
         }
 
+        $site = $data[0]['SiteName'];
+        $p_t = array();
+
         foreach ($data as $value) {
-            $result = AirPollution::where('publish_time', $value['PublishTime'])
-                          ->where('sitename', $value['SiteName'])
-                          ->get();
-            if (!($result->isEmpty())) {
-                $this->store($value);
-            } 
-            // else {
-            //     dd(AirPollution::where('publish_time', '=', $value['PublishTime'])->get());
-            // }
+            array_push($p_t, $value['PublishTime']);
+        }
+
+        $result = AirPollution::select('publish_time')->where('sitename', $site)->whereIn('publish_time', $p_t)->get()->toArray();
+        
+        array_push($this->existed, '*'); // set index 0 to *
+        foreach ($result as $key => $value) {
+            array_push($this->existed, $value['publish_time']);
         }
     }
 
@@ -103,23 +111,53 @@ class UploadFilesController extends Controller
      */
     public function store($data)
     {
-        $airpollution = new AirPollution;
+        $ready_insert = array();
 
-        $airpollution->sitename = $data['SiteName'];
-        $airpollution->pm25 = $data['PM2.5'];
-        $airpollution->county = $this->site_to_county[$data['SiteName']];
-        $airpollution->so2 = $data['SO2'];
-        $airpollution->co = $data['CO'];
-        $airpollution->o3 = $data['O3'];
-        $airpollution->pm10 = $data['PM10'];
-        $airpollution->no2 = $data['NO2'];
-        $airpollution->wind_speed = $data['WIND_SPEED'];
-        $airpollution->wind_direction = $data['WIND_DIREC'];
-        $airpollution->publish_time = str_replace('/', '-', $data['PublishTime']);
-        $airpollution->date = substr($data['PublishTime'],0,10);
-        $airpollution->temp = $data['AMB_TEMP'];
+        $timer = 500;
+        foreach ($data as $value) {
+            if (array_search($value['PublishTime'], $this->existed) == false) {
+                $temp = array(
+                    'sitename' => $this->hasIndex($value['SiteName']),
+                    'pm25' => $this->hasIndex($value['PM25']),
+                    'county' => $this->site_to_county[$value['SiteName']],
+                    'so2' => $this->hasIndex($value['SO2']),
+                    'co' => $this->hasIndex($value['CO']),
+                    'o3' => $this->hasIndex($value['O3']),
+                    'pm10' => $this->hasIndex($value['PM10']),
+                    'no2' => $this->hasIndex($value['NO2']),
+                    'wind_speed' => $this->hasIndex($value['WIND_SPEED']),
+                    'wind_direction' => $this->hasIndex($value['WIND_DIREC']),
+                    'publish_time' => str_replace('/', '-', $value['PublishTime']),
+                    'date' => substr($value['PublishTime'],0,10),
+                    'temp' => $this->hasIndex($value['AMB_TEMP']),);
+                array_push($ready_insert, $temp);
+            }
+            if ($timer-- == 0) {
+                $airpollution = new AirPollution;
 
-        $airpollution->save();
+                $airpollution->insert($ready_insert);
+
+                $ready_insert = array();
+                $timer = 500;
+            }
+        }
+
+        if ($timer != 500) {
+            $airpollution = new AirPollution;
+
+            $airpollution->insert($ready_insert);
+        }
+    }
+
+    /**
+     * Check out array whether has this index.
+     *
+     * @param string $value
+     * @return $value|empty string
+     */
+    public function hasIndex($value)
+    {
+        return isset($value) ? $value : "";
     }
 
     /**
