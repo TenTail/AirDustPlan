@@ -40,3 +40,9 @@ Route::post('history-compare', ['as' => 'history-compare.compare', 'uses' => 'Hi
  */
 Route::get('excel-export',  ['as' => 'excel-export.index',  'uses' => 'DataExportController@index']);
 Route::post('excel-export', ['as' => 'excel-export.export', 'uses' => 'DataExportController@export']);
+
+/**
+ * upload files
+ */
+Route::get('file-upload', ['as' => 'file-upload.index', 'uses' => 'UploadFilesController@index']);
+Route::post('file-upload', ['as' => 'file-upload.upload', 'uses' => 'UploadFilesController@upload']);
