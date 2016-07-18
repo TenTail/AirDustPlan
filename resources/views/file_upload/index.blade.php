@@ -18,6 +18,16 @@
     {!! Form::close() !!}
 </div>
 
+<div class="col-md-12" style="text-align: center;">
+    <div class="flash-message">
+        @foreach (['danger', 'warning', 'success', 'info'] as $msg)
+            @if(Session::has('alert-' . $msg))
+            <h2 class="alert alert-{{ $msg }}">{{ Session::get('alert-' . $msg) }} <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a></h2>
+            @endif
+        @endforeach
+    </div> <!-- end .flash-message -->
+</div>
+
 @stop
 
 @section('page-javascript')

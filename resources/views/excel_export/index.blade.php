@@ -19,14 +19,14 @@
 {!! Form::open(array('route' => 'excel-export.export', 'method' => 'post')) !!}
 <div class="col-md-6">
     <h2>選擇年份</h2>
-    <select name="year">
-        @for($i = 2013; $i < 2016; $i++)
-        <option value="{{ $i }}">{{ $i }}</option>
+    <select id="year" class="form-control" style="width: 50%">
+        @for ($i = 2016; $i != 2013; $i--)
+            <option value="{{ $i }}">{{ $i."年" }}</option>
         @endfor
     </select>
-    <select name="month">
+    <select id="month" class="form-control" style="width: 50%">
         @for ($i = 1; $i < 13; $i++)
-        <option value="{{ $i }}">{{ $i }}</option>
+            <option value="{{ sprintf('%02d', $i) }}">{{ $i."月" }}</option>
         @endfor
     </select>
     <h2>選擇欄位</h2>
@@ -83,8 +83,8 @@ $(function () {
                     headerFormat: '',
                     pointFormatter: function () {
                         var c_en = ['Pingtung County', 'Tainan City', 'Yilan County', 'Chiayi County', 'Taitung County', 'Penghu County', 'Taipei City', 'Chiayi City', 'Taichung City', 'Yunlin County', 'Kaohsiung City', 'Taipei County', 'Hsinchu City', 'Hsinchu County', 'Keelung City', 'Miaoli County', 'Taoyuan County', 'Changhua County', 'Hualien County', 'Nantou County'];
-                        var c_tw = ['屏東線', '臺南縣', '宜蘭縣', '嘉義縣', '臺東縣', '澎湖縣', '臺北市', '嘉義市', '臺中縣', '雲林縣', '高雄市', '臺北縣', '新竹市', '新竹縣', '基隆市', '苗栗縣', '桃園線', '彰化縣', '花蓮縣', '南投縣'];
-                        
+                        var c_tw = ['屏東線', '臺南市', '宜蘭縣', '嘉義縣', '臺東縣', '澎湖縣', '臺北市', '嘉義市', '臺中市', '雲林縣', '高雄市', '臺北市', '新竹市', '新竹縣', '基隆市', '苗栗縣', '桃園市', '彰化縣', '花蓮縣', '南投縣'];
+
                         return c_tw[c_en.indexOf(this.code)];
                     }
                 },
@@ -132,17 +132,17 @@ function excelDownload(county) {
         data: data_string,
         success: function (data) {
             console.log(data);
-            alert('success download!');
+            alert('完成下載!');
         },
         error: function () {
-            alert('error...');
+            alert('Oops 發生錯誤...');
         }
     });
 }
 
 function countyTranslate (county) {
     var c_en = ['Pingtung', 'Tainan City', 'Yilan', 'Chiayi', 'Taitung', 'Penghu', 'Taipei City', 'Chiayi City', 'Taichung City', 'Yunlin', 'Kaohsiung City', 'Taipei', 'Hsinchu City', 'Hsinchu', 'Keelung City', 'Miaoli', 'Taoyuan', 'Changhua', 'Hualien', 'Nantou'];
-    var c_tw = ['屏東線', '臺南縣', '宜蘭縣', '嘉義縣', '臺東縣', '澎湖縣', '臺北市', '嘉義市', '臺中縣', '雲林縣', '高雄市', '臺北縣', '新竹市', '新竹縣', '基隆市', '苗栗縣', '桃園線', '彰化縣', '花蓮縣', '南投縣'];
+    var c_tw = ['屏東線', '臺南市', '宜蘭縣', '嘉義縣', '臺東縣', '澎湖縣', '臺北市', '嘉義市', '臺中市', '雲林縣', '高雄市', '臺北市', '新竹市', '新竹縣', '基隆市', '苗栗縣', '桃園市', '彰化縣', '花蓮縣', '南投縣'];
 
     return c_tw[c_en.indexOf(county)];
 }

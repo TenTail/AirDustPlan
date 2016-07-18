@@ -11,6 +11,13 @@ use App\Models\AirPollution;
 class UploadFilesController extends Controller
 {
     /**
+     * The original name of uploaded file.
+     *
+     * @var string
+     */
+    private $file_name;
+
+    /**
      * The original content of uploaded file.
      * 
      * @var string
@@ -18,7 +25,8 @@ class UploadFilesController extends Controller
     private $file_content;
 
     /**
-     * 
+     * Record publish_time if sitename && publish_time find in DB. 
+     *
      * @var array
      */
     private $existed = array();
@@ -67,14 +75,16 @@ class UploadFilesController extends Controller
     {
         if ($request->hasFile('file_json')) {
             $file = $request->file('file_json');
-            // $file->getClientOriginalName(); // file name
+            $this->file_name = $file->getClientOriginalName(); // file name
             $this->file_content = file_get_contents($file->getRealPath());
             $data = json_decode($this->file_content, true);
             $this->check($data);
             $this->store($data);
-            dd('success', count($data));
+            $request->session()->flash('alert-success', '成功上傳 '.$this->file_name.' 資料');
+            return redirect()->route('file-upload.index');  
         } else {
-            dd("上傳失敗");
+            $request->session()->flash('alert-danger', '檔案上傳失敗');
+            return redirect()->route('file-upload.index');
         }
     }
 
@@ -85,14 +95,19 @@ class UploadFilesController extends Controller
      */
     public function check($data)
     {
-        if (empty($data)) {
-            dd("您上傳的json檔案內容我問題");
-        }
+        if (empty($data) || $data == null) {
+            $request->session()->flash('alert-danger', '喔不～您上傳的json檔案格式有問題');
+            return redirect()->route('file-upload.index');
+        } 
 
         $site = $data[0]['SiteName'];
         $p_t = array();
 
         foreach ($data as $value) {
+            if ($this->hasIndex($value['PublishTime']) == "") {
+                $request->session()->flash('alert-error', '喔不～您上傳的json檔案內容有問題');
+                return redirect()->route('file-upload.index');
+            }
             array_push($p_t, $value['PublishTime']);
         }
 
