@@ -8,6 +8,7 @@
 
 @section('head-javascript')
 <script src="{{ asset('highstock/js/highstock.js') }}"></script>
+<script src="{{ asset('highstock/js/modules/exporting.js') }}"></script>
 <script src="{{ asset('highstock/js/themes/grid-light.js') }}"></script>
 @stop
 
@@ -15,7 +16,7 @@
 
 <div class="col-md-3">
     <h2>選擇年份</h2>
-    <select id="year" class="form-control" style="align: center">
+    <select id="year" class="form-control">
         @for ($i = 2016; $i != 2013; $i--)
             <option value="{{ $i }}">{{ $i."年" }}</option>
         @endfor
@@ -37,9 +38,10 @@
         {{-- option --}}
     </select>
     <button id="stock" class="btn btn-success" style="margin: 20px 0;width: 100%;font-size: 24pt">繪製圖表</button>
+    <button class="btn btn-warning" style="margin: 20px 0;width: 100%;font-size: 24pt" onclick="svg_to_png()">下載圖表</button>
 </div>
 <div class="col-md-9">
-    <div id="container" style="height: 400px; min-width: 100%"></div>
+    <div id="container" style="height: 400px; min-width: 100%;margin-top: 20px;"></div>
 </div>
 
 @endsection
@@ -71,6 +73,7 @@
         {county: '金門縣', sitename: ['金門']}
     ];
     
+    // search county then return index
     function searchSiteIndex(county) {
         for(var i = 0, length1 = all_site.length; i < length1; i++){
             if (all_site[i].county == county) {
@@ -79,6 +82,7 @@
         }
     }
 
+    // change sitename option
     function loadSite() {
         var index = searchSiteIndex($('#county').val());
         $('#sitename').empty(); // 清空
@@ -89,11 +93,8 @@
         }
     }
 
+    // change sitename when county selected
     $('#county').change(function () {
-        loadSite();
-    });
-
-    $(document).ready(function () {
         loadSite();
     });
 
@@ -106,7 +107,7 @@
                     color: '#000000',
                     fontWeight: 'bold',
                 },
-                y: 50
+                y: 10
             },
             rangeSelector: {
                 allButtonsEnabled: true,
@@ -191,9 +192,12 @@
         $($('.highcharts-input-group > g > text')[0]).text('');
         $($('.highcharts-input-group > g > text')[2]).text('至');
         $('svg > text[text-anchor=end]').css('display', 'none');
+        $('svg').attr('id', 'svg_compare');
     }
 
-    $('#stock').click(function () {
+    // ajax post 
+    function stockPost()
+    {
         $.ajaxSetup({
             headers: { 'X-CSRF-TOKEN': $('meta[name=csrf-token]').attr('content') }
         });
@@ -218,7 +222,26 @@
                 console.log(jqXHR, textStatus);
             }
         });
+    }
+
+    // stock button click
+    $('#stock').click(function () {
+        stockPost();
     });
 
+    // 網頁第一次載入
+    $(document).ready(function () {
+        loadSite();
+        stockPost();
+    });
+
+    // stock export png
+    function svg_to_png() {
+        // the button handler
+        var chart = $('#container').highcharts();
+        chart.exportChart(null, {
+            
+        });
+    }
 </script>
 @stop

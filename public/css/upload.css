@@ -2,7 +2,7 @@ label.file input {position:absolute; width:0; overflow:hidden; opacity:0;}
 label.file {
     width:0%; /* Use for fluid design */
     min-width:200px;
-    height:30px;
+    height:34px;
     line-height:28px!important;
     cursor:pointer;
     position:relative;
@@ -42,12 +42,13 @@ label.file:after {
     width:74px;
     height:inherit;
     padding:0 4px;
+    /*padding: 6px 12px;*/
     border-radius:0 3px 3px 0;
-    background-color:#a0b7c5;
+    background-color:#5cb85c;
     color:#fff;
     overflow:hidden;
-    font-size:9px;
-    font-weight:bold;
+    font-size:14px;
+    /*font-weight:bold;*/
     text-overflow:ellipsis;
     text-align:center;
     vertical-align:middle;

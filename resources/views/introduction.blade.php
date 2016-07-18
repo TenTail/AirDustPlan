@@ -4,15 +4,6 @@
 
 @section("content")
 
-<h1>this is introduction page.</h1>
-<h1>this is introduction page.</h1>
-<h1>this is introduction page.</h1>
-<h1>this is introduction page.</h1>
-<h1>this is introduction page.</h1>
-<h1>this is introduction page.</h1>
-<h1>this is introduction page.</h1>
-<h1>this is introduction page.</h1>
-<h1>this is introduction page.</h1>
-<h1>this is introduction page.</h1>
+{{-- this is introduction page. --}}
 
 @endsection
