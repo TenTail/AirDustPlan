@@ -32,6 +32,27 @@ class UploadFilesController extends Controller
     private $existed = array();
 
     /**
+     * Temp array to save one row history data.
+     *
+     * @var array
+     */
+    private $db_column = array(
+        'sitename' => '',
+        'pm25' => '',
+        'county' => '',
+        'so2' => '',
+        'co' => '',
+        'o3' => '',
+        'pm10' => '',
+        'no2' => '',
+        'wind_speed' => '',
+        'wind_direction' => '',
+        'publish_time' => '',
+        'date' => '',
+        'temp' => '',
+    );
+
+    /**
      * This array is used to transform sitename and county.
      *
      * @var array
@@ -104,10 +125,6 @@ class UploadFilesController extends Controller
         $p_t = array();
 
         foreach ($data as $value) {
-            if ($this->hasIndex($value['PublishTime']) == "") {
-                $request->session()->flash('alert-error', '喔不～您上傳的json檔案內容有問題');
-                return redirect()->route('file-upload.index');
-            }
             array_push($p_t, $value['PublishTime']);
         }
 
@@ -131,21 +148,62 @@ class UploadFilesController extends Controller
         $timer = 500;
         foreach ($data as $value) {
             if (array_search($value['PublishTime'], $this->existed) == false) {
-                $temp = array(
-                    'sitename' => $this->hasIndex($value['SiteName']),
-                    'pm25' => $this->hasIndex($value['PM25']),
-                    'county' => $this->site_to_county[$value['SiteName']],
-                    'so2' => $this->hasIndex($value['SO2']),
-                    'co' => $this->hasIndex($value['CO']),
-                    'o3' => $this->hasIndex($value['O3']),
-                    'pm10' => $this->hasIndex($value['PM10']),
-                    'no2' => $this->hasIndex($value['NO2']),
-                    'wind_speed' => $this->hasIndex($value['WIND_SPEED']),
-                    'wind_direction' => $this->hasIndex($value['WIND_DIREC']),
-                    'publish_time' => str_replace('/', '-', $value['PublishTime']),
-                    'date' => substr($value['PublishTime'],0,10),
-                    'temp' => $this->hasIndex($value['AMB_TEMP']),);
-                array_push($ready_insert, $temp);
+                // 改成foreach($value as $key => $value)
+                foreach ($value as $key => $v) {
+                    switch ($key) {
+                        case 'SiteName':
+                            $this->db_column['sitename'] = $v;
+                            $this->db_column['county'] = $this->site_to_county[$v];
+                            break;
+                        case 'PM25';
+                            $this->db_column['pm25'] = $v;
+                            break;
+                        case 'SO2';
+                            $this->db_column['so2'] = $v;
+                            break;
+                        case 'CO';
+                            $this->db_column['co'] = $v;
+                            break;
+                        case 'O3';
+                            $this->db_column['o3'] = $v;
+                            break;
+                        case 'PM10';
+                            $this->db_column['pm10'] = $v;
+                            break;
+                        case 'NO2';
+                            $this->db_column['no2'] = $v;
+                            break;
+                        case 'WIND_SPEED':
+                            $this->db_column['wind_speed'] = $v;
+                            break;
+                        case 'WIND_DIREC':
+                            $this->db_column['wind_direction'] = $v;
+                            break;
+                        case 'PublishTime':
+                            $this->db_column['publish_time'] = $v;
+                            $this->db_column['date'] =substr($v, 0, 10);
+                            break;
+                        case 'AMB_TEMP':
+                            $this->db_column['temp'] = $v;
+                            break;
+                    }
+                }
+                array_push($ready_insert, $this->db_column);
+                $this->db_column = array(
+                    'sitename' => '',
+                    'pm25' => '',
+                    'county' => '',
+                    'so2' => '',
+                    'co' => '',
+                    'o3' => '',
+                    'pm10' => '',
+                    'no2' => '',
+                    'wind_speed' => '',
+                    'wind_direction' => '',
+                    'publish_time' => '',
+                    'date' => '',
+                    'temp' => '',
+                );
             }
             if ($timer-- == 0) {
                 $airpollution = new AirPollution;
@@ -162,61 +220,5 @@ class UploadFilesController extends Controller
 
             $airpollution->insert($ready_insert);
         }
-    }
-
-    /**
-     * Check out array whether has this index.
-     *
-     * @param string $value
-     * @return $value|empty string
-     */
-    public function hasIndex($value)
-    {
-        return isset($value) ? $value : "";
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
     }
 }
