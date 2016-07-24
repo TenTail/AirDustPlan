@@ -42,6 +42,7 @@
 </div>
 <div class="col-md-9">
     <div id="container" style="height: 400px; min-width: 100%;margin-top: 20px;"></div>
+    <div id="containerAQI" style="height: 500px; min-width: 100%;margin-top: 20px;padding-top: 50px;"></div>
 </div>
 
 @endsection
@@ -160,7 +161,7 @@
                     },
                 },
                 min: 0,
-                max: 100,
+                max: 120,
                 plotLines: [{
                     value: 0,
                     width: 2,
@@ -195,6 +196,119 @@
         $('svg').attr('id', 'svg_compare');
     }
 
+    // AQI圖表
+    function createStockAQI(data) {
+        $('#containerAQI').highcharts('StockChart', {
+            title: {
+                text: 'PM2.5 AQI指標年度比較圖:'+$('#sitename').val()+'測站',
+                align: 'center',
+                style: {
+                    color: '#000000',
+                    fontWeight: 'bold',
+                },
+                y: 10
+            },
+            rangeSelector: {
+                allButtonsEnabled: true,
+                buttons: [{
+                    type: 'day',
+                    count: 1,
+                    text: '天',
+                },{
+                    type: 'week',
+                    count: 1,
+                    text: '週'
+                },{
+                    type: 'all',
+                    text: '月'
+                }],
+                selected: 2,
+                inputDateFormat: '%m月%d日',
+                inputEditDateFormat: '%m月%d日'
+            },
+            navigator : {
+                xAxis: {
+                    dateTimeLabelFormats: {
+                        week: '%d日'
+                    }
+                }
+            },
+            legend: {
+                enabled: true,
+                layout: 'vertical',
+                align: 'left',
+                verticalAlign: 'middle',
+                floating: true,
+                y: -80
+            },
+            xAxis: {
+                type: 'datetime',
+                dateTimeLabelFormats: {
+                    day: '%m/%d',
+                    week: '%m月%e日',
+                }
+            },
+            yAxis: {
+                title: {
+                    text: "PM2.5 AQI指標"
+                },
+                labels: {
+                    useHTML: true,
+                    formatter: function () {
+                        return isNaN(this.value) ? 12 : this.value;
+                    },
+                },
+                min: 0,
+                max: 500,
+                plotLines: [{
+                    value: 0,
+                    width: 2,
+                    color: 'silver'
+                }],
+                plotBands: [{
+                    from: 0, to: 50, color: 'rgba(00, 255, 0, 0.5)'
+                },{
+                    from: 50, to: 100, color: 'rgba(255, 255, 0, 0.5)'
+                },{
+                    from: 100, to: 150, color: 'rgba(255, 150, 00, 0.5)'
+                },{
+                    from: 150, to: 200, color: 'rgba(255, 00, 00, 0.5)'
+                },{
+                    from: 200, to: 300, color: 'rgba(255, 00, 255, 0.5)'
+                },{
+                    from: 300, to: 500, color: 'rgba(85, 00, 00, 0.5)'
+                },]
+            },
+            tooltip: {
+                useHTML: true,
+                formatter: function () {
+                    var s = '<b style="font-size: 14pt; color: #000000;">' + Highcharts.dateFormat('%m月%d日 %H:%M', this.x) + '</b>';
+
+                    $.each(this.points, function () {
+                        s += '<br/>' + '<span style="color:'+this.point.color+'">\u25CF</span>' + this.series.name + ' : ';
+                        s += (this.y == 0) ? '沒有資料' : this.y;
+                    });
+
+                    return s;
+                }
+            },
+            series: [{
+                name: $('#year').val()+'年'+$('#month').val()+'月',
+                data: data[2],
+                color: 'rgb(0, 0, 255)'
+            },{
+                name: parseInt($('#year').val()-1)+'年'+$('#month').val()+'月',
+                data: data[3],
+                color: 'rgb(0, 0, 0)'
+            }]
+        });
+        $('.highcharts-range-selector-buttons > text').text('範圍：').css(['color', '#000000','font-weight','normal']);
+        $($('.highcharts-input-group > g > text')[0]).text('');
+        $($('.highcharts-input-group > g > text')[2]).text('至');
+        $('svg > text[text-anchor=end]').css('display', 'none');
+        $('svg').attr('id', 'svg_compare');
+    }
+
     // ajax post 
     function stockPost()
     {
@@ -216,6 +330,7 @@
             success: function (data) {
                 // console.log(data);
                 createStock(data);
+                createStockAQI(data);
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 alert("查無資料");
