@@ -8,6 +8,10 @@ use App\Http\Requests;
 
 use App\Models\AirPollution;
 
+use \Exception;
+
+use File;
+
 class UploadFilesController extends Controller
 {
     /**
@@ -85,6 +89,28 @@ class UploadFilesController extends Controller
     public function index()
     {
         return view('file_upload.index');
+    }
+
+    /**
+     * 資料夾批次作業
+     * 請放在/public/history-files/
+     */
+    public function batch()
+    {
+        $files = File::files(public_path().'/history-files');
+        foreach ($files as $key => $file) {
+            $this->file_content = file_get_contents($file);
+            $data = json_decode($this->file_content, true);
+            $this->check($data);
+            try {
+                $this->store($data);
+                echo "<p><span style='color: green'>成功上傳</span>".$file."</p>";
+                File::delete($file);
+                echo "<p style='color: blue'>已刪除".$file."</p>";
+            } catch (Exception $e) {
+                echo "<p><span style='color: red'>上傳失敗</span>".$file."</p>";
+            }
+        }
     }
 
     /**
