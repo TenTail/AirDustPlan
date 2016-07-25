@@ -46,3 +46,4 @@ Route::post('excel-export', ['as' => 'excel-export.export', 'uses' => 'DataExpor
  */
 Route::get('file-upload', ['as' => 'file-upload.index', 'uses' => 'UploadFilesController@index']);
 Route::post('file-upload', ['as' => 'file-upload.upload', 'uses' => 'UploadFilesController@upload']);
+Route::get('file-batch', ['uses' => 'UploadFilesController@batch']);
