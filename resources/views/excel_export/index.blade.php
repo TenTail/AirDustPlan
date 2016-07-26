@@ -20,7 +20,7 @@
 <div class="col-md-6">
     <h2>選擇年份</h2>
     <select id="year" class="form-control" style="width: 50%">
-        @for ($i = 2016; $i != 2013; $i--)
+        @for ($i = getdate()['year']; $i != 1984; $i--)
             <option value="{{ $i }}">{{ $i."年" }}</option>
         @endfor
     </select>
