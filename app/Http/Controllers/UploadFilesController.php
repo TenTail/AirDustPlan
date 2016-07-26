@@ -182,35 +182,35 @@ class UploadFilesController extends Controller
                             $this->db_column['county'] = $this->site_to_county[$v];
                             break;
                         case 'PM25';
-                            $this->db_column['pm25'] = $v;
+                            $this->db_column['pm25'] = $this->matchValue("/^\d+(\.\d+)?$/", $v);
                             break;
                         case 'SO2';
-                            $this->db_column['so2'] = $v;
+                            $this->db_column['so2'] = $this->matchValue("/^\d+(\.\d+)?$/", $v);
                             break;
                         case 'CO';
-                            $this->db_column['co'] = $v;
+                            $this->db_column['co'] = $this->matchValue("/^\d+(\.\d+)?$/", $v);
                             break;
                         case 'O3';
-                            $this->db_column['o3'] = $v;
+                            $this->db_column['o3'] = $this->matchValue("/^\d+(\.\d+)?$/", $v);
                             break;
                         case 'PM10';
-                            $this->db_column['pm10'] = $v;
+                            $this->db_column['pm10'] = $this->matchValue("/^\d+(\.\d+)?$/", $v);
                             break;
                         case 'NO2';
-                            $this->db_column['no2'] = $v;
+                            $this->db_column['no2'] = $this->matchValue("/^\d+(\.\d+)?$/", $v);
                             break;
                         case 'WIND_SPEED':
-                            $this->db_column['wind_speed'] = $v;
+                            $this->db_column['wind_speed'] = $this->matchValue("/^\d+(\.\d+)?$/", $v);
                             break;
                         case 'WIND_DIREC':
-                            $this->db_column['wind_direction'] = $v;
+                            $this->db_column['wind_direction'] = $this->matchValue("/^\d+(\.\d+)?$/", $v);
                             break;
                         case 'PublishTime':
                             $this->db_column['publish_time'] = $v;
                             $this->db_column['date'] =substr($v, 0, 10);
                             break;
                         case 'AMB_TEMP':
-                            $this->db_column['temp'] = $v;
+                            $this->db_column['temp'] = $this->matchValue("/^\d+(\.\d+)?$/", $v);
                             break;
                     }
                 }
@@ -246,5 +246,17 @@ class UploadFilesController extends Controller
 
             $airpollution->insert($ready_insert);
         }
+    }
+
+    /**
+     * 回傳符合 $pattern 的 $value 否則回傳 ""
+     * 
+     * @param string $pattern 符合的條件
+     * @param int|double|string $value 要判斷的數值
+     * @return ""|$value
+     */
+    public function matchValue($pattern, $value)
+    {
+        return preg_match($pattern, $value) ? $value : "";
     }
 }
