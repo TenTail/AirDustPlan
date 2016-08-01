@@ -19,16 +19,16 @@
 {!! Form::open(array('route' => 'excel-export.export', 'method' => 'post')) !!}
 <div class="col-md-6">
     <h2>選擇年份</h2>
-    <select id="year" class="form-control" style="width: 50%">
+    <select name="year" class="form-control" style="width: 50%">
         @for ($i = getdate()['year']; $i != 1984; $i--)
             <option value="{{ $i }}">{{ $i."年" }}</option>
         @endfor
     </select>
-    <select id="month" class="form-control" style="width: 50%">
+    {{-- <select name="month" class="form-control" style="width: 50%">
         @for ($i = 1; $i < 13; $i++)
             <option value="{{ sprintf('%02d', $i) }}">{{ $i."月" }}</option>
         @endfor
-    </select>
+    </select> --}}
     <h2>選擇欄位</h2>
     <input type="checkbox" id="pm25" name="output_data[]" value="pm25" checked>
     <label for="pm25">PM2.5</label>
@@ -100,7 +100,6 @@ $(function () {
                 events: {
                     click: function (e) {
                         $('#county').val(countyTranslate(event.point.name));
-                        // excelDownload(event.point.name);
                     }
                 }
             }
@@ -116,29 +115,6 @@ $(function () {
     });
     $('svg > text[text-anchor=end]').css('display', 'none');
 });
-
-function excelDownload(county) {
-    var data_string = {};
-    data_string._token = $('meta[name=csrf-token]').attr('content');
-    data_string.year = $('select[name=year]').val();
-    data_string.output_data = $('input:checkbox').map(function() { 
-        if ($(this).prop('checked')) return $(this).val(); 
-    }).get();
-    data_string.county = countyTranslate(county);
-
-    $.ajax({
-        type: 'POST',
-        url: '{{ route('excel-export.export') }}',
-        data: data_string,
-        success: function (data) {
-            console.log(data);
-            alert('完成下載!');
-        },
-        error: function () {
-            alert('Oops 發生錯誤...');
-        }
-    });
-}
 
 function countyTranslate (county) {
     var c_en = ['Pingtung', 'Tainan City', 'Yilan', 'Chiayi', 'Taitung', 'Penghu', 'Taipei City', 'Chiayi City', 'Taichung City', 'Yunlin', 'Kaohsiung City', 'Taipei', 'Hsinchu City', 'Hsinchu', 'Keelung City', 'Miaoli', 'Taoyuan', 'Changhua', 'Hualien', 'Nantou'];

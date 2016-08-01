@@ -7,48 +7,121 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 
 use DB;
+use App\Models\AirPollution;
 use Excel;
 
 class DataExportController extends Controller
 {
+    /**
+     * Select time (yyyy) 
+     *
+     * @var Carbon\Carbon
+     */
+    private $year;
+
+    /**
+     * Choose county.
+     *
+     * @var string
+     */
+    private $county;
+
+    /**
+     * Choose sitename.
+     *
+     * @var string
+     */
+    private $sitename;
+
+    /**
+     * The column want to output.
+     *
+     * @var array
+     */
+    private $output = [];
+
+    /**
+     * Column title of Excel.
+     *
+     * @var array
+     */
+    private $xls_row = [];
+
+    /**
+     * Data of Excel
+     *
+     * @var array
+     */
+    private $xls_data = [];
+
     public function index()
     {
         return view("excel_export.index");
     }
     
+    /**
+     * Data process.
+     *
+     * @param Request $request
+     */
     public function export(Request $request)
     {
-        $time = $request->input("year")."-".sprintf("%02d", $request->input("month"))."%";
-        $output_data = $request->input("output_data");
-        $country = $request->input("county");
-        $output = "`sitename`,";
-        $row1 = array();
-        array_push($row1, '測站');
-        for ($i=0, $size = count($output_data); $i < $size; $i++) { 
-            $output = $output."`".$output_data[$i]."`,";
-            array_push($row1, $output_data[$i]);
+        $this->year = $request->input("year");
+        $this->county = $request->input("county");
+        $this->sitename = $request->input("sitename");
+        $this->output = $request->input("output_data");
+
+        $result = ($this->county !== NULL) ? $this->getExcelData('county') : $this->getExcelData('sitename');
+        
+        array_push($this->xls_row, 'sitename');
+        if (empty($this->output)) {
+            array_push($this->xls_row, 'pm25');
+        } else {
+            foreach ($this->output as $key => $value) {
+                array_push($this->xls_row, $value);
+            }
         }
-        $output = $output."`publish_time`";
-        array_push($row1, '時間');
+        array_push($this->xls_row, 'publish_time');
 
-        $result = DB::select("SELECT $output 
-                              FROM `airpollutions` 
-                              WHERE `publish_time` LIKE '$time' AND `country` = '$country'");
+        $i = 0;
+        foreach ($result as $key => $value) {
+            $this->xls_data[$i] = [];
+            foreach ($this->xls_row as $k => $v) {
+                array_push($this->xls_data[$i], $value[$v]);
+            }
+            $i++;
+        }
 
-        Excel::create($time.'-'.$country, function($excel) use($row1, $result) {
-            $excel->sheet('Sheet 1', function($sheet) use($row1, $result) {
-                $sheet->row(1, $row1);
-                $i = 2;
-                foreach ($result as $key => $value) {
-                    $excel_data = array();
-                    foreach ($value as $key => $data) {
-                        array_push($excel_data, $data);
-                    }
-                    $sheet->row($i++, $excel_data);
-                }
+        $result = ($this->county !== NULL) ? $this->createExcel($this->county, 'xls') : $this->createExcel($this->sitename, 'xls');
+    }
+
+    /**
+     * Create and Output Excel.
+     *
+     * @param string $fname
+     * @param string $file_type
+     */
+    public function createExcel($fname, $file_type)
+    {
+        $file_name = $fname."-".$this->year;
+        $row = $this->xls_row;
+        $data = $this->xls_data;
+
+        Excel::create($file_name, function($excel) use($row, $data) {
+            $excel->sheet('Sheet 1', function($sheet) use($row, $data) {
+                $sheet->fromArray($data, null, 'A1', true);
+                $sheet->row(1, $row);
             });
-        })->download('xls');
+        })->download($file_type);
+    }
 
-        return redirect()->route('excel-export.index');
+    /**
+     * SQL to get DB data.
+     *
+     * @param string $col_name
+     */
+    public function getExcelData($col_name)
+    {
+        return AirPollution::where($col_name, $this->$col_name)->where('publish_time', 'LIKE', $this->year."%")->get()->toArray();
     }
 }
