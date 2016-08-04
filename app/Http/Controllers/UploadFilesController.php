@@ -52,7 +52,6 @@ class UploadFilesController extends Controller
         'wind_speed' => '',
         'wind_direction' => '',
         'publish_time' => '',
-        'date' => '',
         'temp' => '',
     );
 
@@ -207,7 +206,6 @@ class UploadFilesController extends Controller
                             break;
                         case 'PublishTime':
                             $this->db_column['publish_time'] = $v;
-                            $this->db_column['date'] =substr($v, 0, 10);
                             break;
                         case 'AMB_TEMP':
                             $this->db_column['temp'] = $this->matchValue("/^\d+(\.\d+)?$/", $v);
@@ -227,7 +225,6 @@ class UploadFilesController extends Controller
                     'wind_speed' => '',
                     'wind_direction' => '',
                     'publish_time' => '',
-                    'date' => '',
                     'temp' => '',
                 );
             }
