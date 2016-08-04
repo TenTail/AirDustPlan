@@ -14,6 +14,12 @@ use File;
 
 class UploadFilesController extends Controller
 {
+    const MACHINE = '#'; // 機器檢測無效
+    const PROGRAM = '*'; // 程式檢查無效
+    const PEOPLE = 'x'; // 人工檢查無效
+    const NO_DATA = ''; // 缺值
+    const NO_RAIN = 'NR'; // 無下雨
+
     /**
      * The original name of uploaded file.
      *
@@ -23,13 +29,13 @@ class UploadFilesController extends Controller
 
     /**
      * The original content of uploaded file.
-     * 
+     *
      * @var string
      */
     private $file_content;
 
     /**
-     * Record publish_time if sitename && publish_time find in DB. 
+     * Record publish_time if sitename && publish_time find in DB.
      *
      * @var array
      */
@@ -52,7 +58,6 @@ class UploadFilesController extends Controller
         'wind_speed' => '',
         'wind_direction' => '',
         'publish_time' => '',
-        'date' => '',
         'temp' => '',
     );
 
@@ -128,7 +133,7 @@ class UploadFilesController extends Controller
             $this->check($data);
             $this->store($data);
             $request->session()->flash('alert-success', '成功上傳 '.$this->file_name.' 資料');
-            return redirect()->route('file-upload.index');  
+            return redirect()->route('file-upload.index');
         } else {
             $request->session()->flash('alert-danger', '檔案上傳失敗');
             return redirect()->route('file-upload.index');
@@ -145,7 +150,7 @@ class UploadFilesController extends Controller
         if (empty($data) || $data == null) {
             $request->session()->flash('alert-danger', '喔不～您上傳的json檔案格式有問題');
             return redirect()->route('file-upload.index');
-        } 
+        }
 
         $site = $data[0]['SiteName'];
         $p_t = array();
@@ -155,7 +160,7 @@ class UploadFilesController extends Controller
         }
 
         $result = AirPollution::select('publish_time')->where('sitename', $site)->whereIn('publish_time', $p_t)->get()->toArray();
-        
+
         array_push($this->existed, '*'); // set index 0 to *
         foreach ($result as $key => $value) {
             array_push($this->existed, $value['publish_time']);
@@ -207,7 +212,6 @@ class UploadFilesController extends Controller
                             break;
                         case 'PublishTime':
                             $this->db_column['publish_time'] = $v;
-                            $this->db_column['date'] =substr($v, 0, 10);
                             break;
                         case 'AMB_TEMP':
                             $this->db_column['temp'] = $this->matchValue("/^\d+(\.\d+)?$/", $v);
@@ -227,7 +231,6 @@ class UploadFilesController extends Controller
                     'wind_speed' => '',
                     'wind_direction' => '',
                     'publish_time' => '',
-                    'date' => '',
                     'temp' => '',
                 );
             }
@@ -249,14 +252,36 @@ class UploadFilesController extends Controller
     }
 
     /**
-     * 回傳符合 $pattern 的 $value 否則回傳 ""
-     * 
+     * 回傳符合 $pattern 的 $value 否則回傳0 ~ -5 代表問題值
+     *
      * @param string $pattern 符合的條件
      * @param int|double|string $value 要判斷的數值
      * @return ""|$value
      */
     public function matchValue($pattern, $value)
     {
-        return preg_match($pattern, $value) ? $value : "";
+        switch (true) {
+            case preg_match($pattern, $value):
+                return $value;
+                break;
+            case preg_match(self::MACHINE, $value):
+                return -1;
+                break;
+            case preg_match(self::PROGRAM, $value):
+                return -2;
+                break;
+            case preg_match(self::PEOPLE, $value):
+                return -3;
+                break;
+            case (self::NO_DATA === $value):
+                return -4;
+                break;
+            case preg_match(self::NO_RAIN, $value):
+                return 0;
+                break;
+            default:
+                return -5;
+                break;
+        }
     }
 }
