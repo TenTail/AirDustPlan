@@ -6,6 +6,10 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 
+use DB;
+use App\Http\Controllers\Controller;
+use Carbon\Carbon;
+
 class InstantInfomationController extends Controller
 {
     /**
@@ -45,9 +49,29 @@ class InstantInfomationController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request)
     {
-        //
+        // $data = $request->id;
+        // dd($data);
+        // $now = Carbon::now();
+        // $time = $now->year.'-'.sprintf("%02d", $now->month).'-'.sprintf("%02d", $now->day).' '.sprintf("%02d", $now->hour).':'.'00';
+        // // echo($time);
+        // $req = DB::table('airpollutions')->select('pm25')
+        //             ->where('publish_time', $time)
+        //             ->where('country', $data)
+        //             ->get();
+
+        $url = "http://opendata.epa.gov.tw/ws/Data/AQX/?format=json";
+        $data = file_get_contents($url);
+        $data = json_decode($data);
+        $req = [];
+
+        foreach ($data as $key => $value) {
+            if(preg_match($request->id, $key->county)){
+
+            }
+        }
+        return json($req);
     }
 
     /**
