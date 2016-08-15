@@ -60,28 +60,39 @@ class HistoryCompareController extends Controller
         $data2 = array();
         $aqi_data2 = array();
 
+        // avg
+        $avg1 = 0;
+        $avg2 = 0;
+        $a1 = 0;
+        $a2 = 0;
+
         $result2 = DB::select("
             SELECT `pm25`, `publish_time`
             FROM `airpollutions`
             WHERE `sitename` = '$sitename' AND `publish_time` LIKE '$r_timer2' 
             ORDER BY `publish_time`
         ");
-        
-        for ($i=0, $ptr1=0, $ptr2=0; $s_timer1 != $e_timer1; ) { 
+
+        $i=0;
+        for ($ptr1=0, $ptr2=0; $s_timer1 != $e_timer1; ) { 
             $time = mktime($s_timer1->hour,$s_timer1->minute,0,$s_timer1->month,$s_timer1->day,$s_timer1->year)*1000;
 
             // data1 and aqi_data1
             $check_time = $s_timer1->year."-".$month."-".sprintf("%02d", $s_timer1->day)." ".sprintf("%02d", $s_timer1->hour).":00";
             if ($ptr1 < count($result1) && str_split($result1[$ptr1]->publish_time, 16)[0] == $check_time) {
                 $data1[$i][0] = $time;
-                $data1[$i][1] = ($result1[$ptr1]->pm25 == -1) ? 0 : $result1[$ptr1]->pm25;
+                $data1[$i][1] = ($result1[$ptr1]->pm25 == -1 || $result1[$ptr1]->pm25 == 0) ? null : $result1[$ptr1]->pm25;
                 $aqi_data1[$i][0] = $time;
-                $aqi_data1[$i][1] = round($this->convertAQI($data1[$i][1]), 1);
+                $aqi_data1[$i][1] = ($data1[$i][1] == null) ? null : round($this->convertAQI($data1[$i][1]), 1);
+                if ($data1[$i][1] != null) {
+                    $avg1 = $avg1+$data1[$i][1];
+                    $a1++;
+                }
             } else {
                 $data1[$i][0] = $time;
-                $data1[$i][1] = 0;
+                $data1[$i][1] = null;
                 $aqi_data1[$i][0] = $time;
-                $aqi_data1[$i][1] = 0;
+                $aqi_data1[$i][1] = null;
                 $ptr1--;
             }
 
@@ -89,14 +100,18 @@ class HistoryCompareController extends Controller
             $check_time = $s_timer2->year."-".$month."-".sprintf("%02d", $s_timer2->day)." ".sprintf("%02d", $s_timer2->hour).":00";
             if ($ptr2 < count($result2) && str_split($result2[$ptr2]->publish_time, 16)[0] == $check_time) {
                 $data2[$i][0] = $time;
-                $data2[$i][1] = ($result2[$ptr2]->pm25 == -1) ? 0 : $result2[$ptr2]->pm25;
+                $data2[$i][1] = ($result2[$ptr2]->pm25 == -1 || $result2[$ptr2]->pm25 == 0) ? null : $result2[$ptr2]->pm25;
                 $aqi_data2[$i][0] = $time;
-                $aqi_data2[$i][1] = round($this->convertAQI($data2[$i][1]), 1);
+                $aqi_data2[$i][1] = ($data2[$i][1] == null) ? null : round($this->convertAQI($data2[$i][1]), 1);
+                if ($data2[$i][1] != null) {
+                    $avg2 = $avg2+$data2[$i][1];
+                    $a2++;
+                }
             } else {
                 $data2[$i][0] = $time;
-                $data2[$i][1] = 0;
+                $data2[$i][1] = null;
                 $aqi_data2[$i][0] = $time;
-                $aqi_data2[$i][1] = 0;
+                $aqi_data2[$i][1] = null;
                 $ptr2--;
             }
 
@@ -108,7 +123,35 @@ class HistoryCompareController extends Controller
             $s_timer2->addHour();
         }
 
-        return array($data1, $data2, $aqi_data1, $aqi_data2);
+        $avg3 = DB::select("
+            SELECT `sitename`, AVG(`pm25`) AS 'pm25'
+            FROM `airpollutions`
+            WHERE `publish_time` LIKE '$r_timer1' AND `sitename` IN ('淡水','宜蘭','萬里')
+            GROUP BY `sitename`
+            ");
+
+        $avg = [($a1 == 0) ? 0 : $avg1/$a1, ($a2 == 0) ? 0 : $avg2/$a2];
+
+        $s = ['淡水','宜蘭','萬里'];
+        for ($i=0, $button=0; $i < 3; $i++) { 
+            for ($j=0; $j < count($avg3); $j++) { 
+                if ($avg3[$j]->sitename == $s[$i]) {
+                    array_push($avg, $avg3[$i]->pm25);
+                    $button = 1;
+                    break;
+                }
+            }
+            if ($button == 0) {
+                array_push($avg, null);
+            } else {
+                $button = 0;
+            }
+        }
+        // array_search('淡水', $)
+        // array_search('宜蘭', $)
+        // array_search('萬里', $)
+
+        return array($data1, $data2, $aqi_data1, $aqi_data2, $avg);
     }
 
     /**

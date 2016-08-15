@@ -14,33 +14,82 @@
 
 @section("content")
 
-<div class="col-md-3">
-    <h2>選擇年份</h2>
-    <select id="year" class="form-control">
-        @for ($i = getdate()['year']; $i != 1984; $i--)
-            <option value="{{ $i }}">{{ $i."年" }}</option>
-        @endfor
-    </select>
-    <select id="month" class="form-control">
-        @for ($i = 1; $i < 13; $i++)
-            <option value="{{ sprintf('%02d', $i) }}">{{ $i."月" }}</option>
-        @endfor
-    </select>
-    <h2>選擇縣市</h2>
-    <select id="county" class="form-control">
-        <?php $county = ['新北市', '屏東縣', '臺南市', '宜蘭縣', '嘉義縣', '臺東縣', '澎湖縣', '臺北市', '嘉義市', '臺中市', '雲林縣', '高雄市', '臺北市', '新竹市', '新竹縣', '基隆市', '苗栗縣', '桃園市', '彰化縣', '花蓮縣', '南投縣'];?>
-        @for ($i = 0, $length = count($county); $i < $length; $i++)
-            <option value="{{ $county[$i] }}">{{ $county[$i] }}</option>
-        @endfor
-    </select>
-    <h2>選擇測站</h2>
-    <select id="sitename" class="form-control">
-        {{-- option --}}
-    </select>
-    <button id="stock" class="btn btn-success" style="margin: 20px 0;width: 100%;font-size: 24pt">繪製圖表</button>
-    <button class="btn btn-warning" style="margin: 20px 0;width: 100%;font-size: 24pt" onclick="svg_to_png()">下載圖表</button>
+<div class="col-md-12">
+    <div class="col-md-4">
+        <h2 style="text-align: center;">選擇年份</h2>
+        <div class="col-md-6">
+            <select id="year" class="form-control">
+                @for ($i = getdate()['year']; $i != 1984; $i--)
+                    <option value="{{ $i }}">{{ $i."年" }}</option>
+                @endfor
+            </select>
+        </div>
+        <div class="col-md-6">
+            <select id="month" class="form-control">
+                @for ($i = 1; $i < 13; $i++)
+                    <option value="{{ sprintf('%02d', $i) }}">{{ $i."月" }}</option>
+                @endfor
+            </select>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <h2 style="text-align: center;">選擇縣市</h2>
+        <select id="county" class="form-control">
+            <?php $county = ['新北市', '屏東縣', '臺南市', '宜蘭縣', '嘉義縣', '臺東縣', '澎湖縣', '臺北市', '嘉義市', '臺中市', '雲林縣', '高雄市', '臺北市', '新竹市', '新竹縣', '基隆市', '苗栗縣', '桃園市', '彰化縣', '花蓮縣', '南投縣'];?>
+            @for ($i = 0, $length = count($county); $i < $length; $i++)
+                <option value="{{ $county[$i] }}">{{ $county[$i] }}</option>
+            @endfor
+        </select>
+    </div>
+    <div class="col-md-4">
+        <h2 style="text-align: center;">選擇測站</h2>
+        <select id="sitename" class="form-control">
+            {{-- option --}}
+        </select>
+    </div>
 </div>
-<div class="col-md-9">
+
+<div class="col-md-12">
+    <div class="col-md-3">
+        <button id="stock" class="btn btn-success" style="margin: 20px 0;width: 100%;font-size: 24pt">繪製圖表</button>
+    </div>
+    <div class="col-md-3">
+        <button class="btn btn-warning" style="margin: 20px 0;width: 100%;font-size: 24pt" onclick="svg_to_png()">下載圖表</button>
+    </div>
+</div>
+
+<style>
+    table tr td 
+    {
+        border: 1px solid black;
+        text-align: center;
+        font-size: 16px;
+    }
+    td
+    {
+        width: 25%;
+    }
+</style>
+
+<div id="avg" class="col-md-12">
+    <h2 id="avg_h" style="text-align: center">測站平均值</h2>
+    <table width="100%">
+        <tr>
+            <td>淡水</td>
+            <td>宜蘭</td>
+            <td>萬里</td>
+            <td id="select_site_h"></td>
+        </tr>
+        <tr>
+            <td id="淡水">μg/m<sup>3</sup></td>
+            <td id="宜蘭">μg/m<sup>3</sup></td>
+            <td id="萬里">μg/m<sup>3</sup></td>
+            <td id="select_site">μg/m<sup>3</sup></td>
+        </tr>
+    </table>
+</div>
+
+<div class="col-md-12">
     <div id="container" style="height: 400px; min-width: 100%;margin-top: 20px;"></div>
     <div id="containerAQI" style="height: 500px; min-width: 100%;margin-top: 20px;padding-top: 50px;"></div>
 </div>
@@ -101,6 +150,9 @@
 
     function createStock(data) {
         $('#container').highcharts('StockChart', {
+            chart: {
+                type: 'spline'
+            },
             title: {
                 text: 'PM2.5濃度年度比較圖:'+$('#sitename').val()+'測站',
                 align: 'center',
@@ -148,7 +200,13 @@
                 dateTimeLabelFormats: {
                     day: '%m/%d',
                     week: '%m月%e日',
-                }
+                },
+                tickInterval: 24 * 60 * 60 * 1000,
+                lineWidth: 2,
+                lineColor: '#92A8CD',
+                tickWidth: 3,
+                tickLength: 6,
+                tickColor: '#92A8CD',
             },
             yAxis: {
                 title: {
@@ -163,6 +221,24 @@
                 min: 0,
                 max: 120,
                 plotLines: [{
+                    value: data[4][0],
+                    color: '#7cb5ec',
+                    dashStyle: 'solid',
+                    width: 3,
+                    // label: {
+                    //     align: 'right',
+                    //     text: $('#year').val()+'年'+$('#month').val()+'月平均'
+                    // }
+                },{
+                    value: data[4][1],
+                    color: '#f7a35c',
+                    dashStyle: 'solid',
+                    width: 2,
+                    // label: {
+                    //     align: 'right',
+                    //     text: parseInt($('#year').val()-1)+'年'+$('#month').val()+'月平均'
+                    // }
+                },{
                     value: 0,
                     width: 2,
                     color: 'silver'
@@ -183,10 +259,30 @@
             },
             series: [{
                 name: $('#year').val()+'年'+$('#month').val()+'月',
-                data: data[0]
+                data: data[0],
+                lineWidth: 1,
+                marker : {
+                    enabled : true,
+                    radius : 2
+                },
+                states: {
+                    hover: {
+                        lineWidthPlus: 1
+                    }
+                },
             },{
                 name: parseInt($('#year').val()-1)+'年'+$('#month').val()+'月',
-                data: data[1]
+                data: data[1],
+                lineWidth: 1,
+                marker : {
+                    enabled : true,
+                    radius : 2
+                },
+                states: {
+                    hover: {
+                        lineWidthPlus: 1
+                    }
+                },
             }]
         });
         $('.highcharts-range-selector-buttons > text').text('範圍：').css(['color', '#000000','font-weight','normal']);
@@ -246,7 +342,13 @@
                 dateTimeLabelFormats: {
                     day: '%m/%d',
                     week: '%m月%e日',
-                }
+                },
+                tickInterval: 24 * 60 * 60 * 1000,
+                lineWidth: 2,
+                lineColor: '#92A8CD',
+                tickWidth: 3,
+                tickLength: 6,
+                tickColor: '#92A8CD',
             },
             yAxis: {
                 title: {
@@ -294,10 +396,30 @@
             },
             series: [{
                 name: $('#year').val()+'年'+$('#month').val()+'月',
+                lineWidth: 1,
+                marker : {
+                    enabled : true,
+                    radius : 2
+                },
+                states: {
+                    hover: {
+                        lineWidthPlus: 1
+                    }
+                },
                 data: data[2],
                 color: 'rgb(0, 0, 255)'
             },{
                 name: parseInt($('#year').val()-1)+'年'+$('#month').val()+'月',
+                lineWidth: 1,
+                marker : {
+                    enabled : true,
+                    radius : 2
+                },
+                states: {
+                    hover: {
+                        lineWidthPlus: 1
+                    }
+                },
                 data: data[3],
                 color: 'rgb(0, 0, 0)'
             }]
@@ -331,6 +453,13 @@
                 // console.log(data);
                 createStock(data);
                 createStockAQI(data);
+                $('#avg_h').html('測站平均值比較('+$('#year').val()+'年'+$('#month').val()+'月份)');
+                $('#select_site_h').html($('#sitename').val());
+                $('#select_site').html(Math.round(data[4][0]*100)/100+' μg/m<sup>3</sup>');
+                $('#淡水').html(Math.round(data[4][2]*100)/100+' μg/m<sup>3</sup>');
+                $('#宜蘭').html(Math.round(data[4][3]*100)/100+' μg/m<sup>3</sup>');
+                $('#萬里').html(Math.round(data[4][4]*100)/100+' μg/m<sup>3</sup>');
+                console.log(data[4]);
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 alert("查無資料");
@@ -346,6 +475,7 @@
 
     // 網頁第一次載入
     $(document).ready(function () {
+        $('#select_site_h').html($('#sitename').val());
         loadSite();
         stockPost();
     });
