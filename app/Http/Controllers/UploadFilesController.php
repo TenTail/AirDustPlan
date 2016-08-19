@@ -73,11 +73,11 @@ class UploadFilesController extends Controller
         '豐原'=>'臺中市','沙鹿'=>'臺中市','大里'=>'臺中市','忠明'=>'臺中市','西屯'=>'臺中市',
         '彰化'=>'彰化縣','線西'=>'彰化縣','二林'=>'彰化縣',
         '南投'=>'南投縣','竹山'=>'南投縣','埔里'=>'南投縣',
-        '斗六'=>'雲林縣','崙背'=>'雲林縣','臺西'=>'雲林縣','麥寮'=>'雲林縣',
+        '斗六'=>'雲林縣','崙背'=>'雲林縣','臺西'=>'雲林縣','麥寮'=>'雲林縣','台西'=>'雲林縣',
         '新港'=>'嘉義縣','朴子'=>'嘉義縣',
-        '新營'=>'臺南市','善化'=>'臺南市','安南'=>'臺南市','臺南'=>'臺南市',
+        '新營'=>'臺南市','善化'=>'臺南市','安南'=>'臺南市','臺南'=>'臺南市','台南'=>'臺南市',
         '屏東'=>'屏東縣','潮州'=>'屏東縣','恆春'=>'屏東縣',
-        '臺東'=>'臺東縣','關山'=>'臺東縣',
+        '臺東'=>'臺東縣','關山'=>'臺東縣','台東'=>'臺東縣',
         '宜蘭'=>'宜蘭縣','冬山'=>'宜蘭縣',
         '花蓮'=>'花蓮縣',
         '馬公'=>'澎湖縣',
@@ -177,8 +177,16 @@ class UploadFilesController extends Controller
                 foreach ($value as $key => $v) {
                     switch ($key) {
                         case 'SiteName':
-                            $this->db_column['sitename'] = $v;
-                            $this->db_column['county'] = $this->site_to_county[$v];
+                            if ($v == '台西') {
+                                $this->db_column['sitename'] = '臺西';
+                            } elseif ($v == '台東') {
+                                $this->db_column['sitename'] = '臺東';
+                            } elseif ($v == '台南') {
+                                $this->db_column['sitename'] = '臺南';
+                            } else {
+                                $this->db_column['sitename'] = $v;
+                            }
+                            $this->db_column['county'] = $this->site_to_county[$this->db_column['sitename']];
                             break;
                         case 'PM25';
                             $this->db_column['pm25'] = $this->matchValue("/^\d+(\.\d+)?$/", $v);
