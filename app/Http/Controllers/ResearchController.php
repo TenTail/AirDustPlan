@@ -79,19 +79,19 @@ class ResearchController extends Controller
      */
     public function average()
     {
-        $result = DB::select('
+        $result = DB::select("
             SELECT t1.sitename, SUM(`pm25`) AS SUM_PM25, AVG(`pm25`) AS AVG_PM25,SUBSTR(t1.publish_time, 1, 7) AS p_time
             FROM `airpollutions` as t1
-            inner join ( SELECT `id` FROM `airpollutions` WHERE `sitename` IN ("斗六", "宜蘭", "萬里", "淡水") AND `pm25` > 0 ) as t2
-            on t1.id=t2.id AND SUBSTR(t1.publish_time, 1, 4) IN ("2010", "2011", "2012", "2013", "2014", "2015")
+            inner join ( SELECT `id` FROM `airpollutions` WHERE `sitename` IN ('斗六', '宜蘭', '萬里', '淡水') AND `pm25` > 0 ) as t2
+            on t1.id=t2.id AND SUBSTR(t1.publish_time, 1, 4) IN ('2010', '2011', '2012', '2013', '2014', '2015')
             GROUP BY t1.sitename, SUBSTR(t1.publish_time, 1, 7)
             ORDER BY SUBSTR(t1.publish_time, 1, 7) ASC 
-            ');
+            ");
         
         foreach ($result as $key => $value) {
             $this->distribution($value->sitename, $value->SUM_PM25, $value->AVG_PM25, $value->p_time);
         }
-        // dd($this->r_sum_data);
+        
         $data = [
             'r_sum_data' => $this->r_sum_data,
             'r_avg_data' => $this->r_avg_data
@@ -115,5 +115,24 @@ class ResearchController extends Controller
         }
         array_push($this->r_sum_data[$sitename][substr($p_time, 0, 4)], [$p_time, $sum]);
         array_push($this->r_avg_data[$sitename][substr($p_time, 0, 4)], [$p_time, $avg]);
+    }
+
+    /**
+     * 空汙超標日子
+     */
+    public function excessive()
+    {
+        $result = DB::select("
+            SELECT t1.sitename, AVG(t1.pm25) AS AVG_PM25, SUBSTR(t1.publish_time, 1, 4) AS year, SUBSTR(t1.publish_time, 6, 2) AS month, SUBSTR(t1.publish_time, 9, 2) AS day
+            FROM `airpollutions` AS t1
+            inner join (SELECT `id` FROM `airpollutions` WHERE `publish_time` LIKE '2015%' AND `sitename` = '斗六' AND `pm25` > 0) AS t2
+            ON t1.id = t2.id 
+            GROUP BY t1.sitename, SUBSTR(t1.publish_time, 1, 10)
+            ORDER BY SUBSTR(t1.publish_time, 1, 10) ASC
+            ");
+
+        foreach ($result as $key => $value) {
+            # code...
+        }
     }
 }

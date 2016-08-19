@@ -20,12 +20,16 @@
 </style>
 
 <div class="col-md-12">
+    <button class="btn btn-success" style="margin: 20px 0;font-size: 16pt;" onClick="changeChartMode()">更改樣式</button>
     <h2 class="sitename">斗六</h2>
     <div class="chart" id="斗六"></div>
+    <button class="btn btn-success" style="margin: 20px 0;font-size: 16pt;" onClick="changeChartMode()">更改樣式</button>
     <h2 class="sitename">宜蘭</h2>
     <div class="chart" id="宜蘭"></div>
+    <button class="btn btn-success" style="margin: 20px 0;font-size: 16pt;" onClick="changeChartMode()">更改樣式</button>
     <h2 class="sitename">萬里</h2>
     <div class="chart" id="萬里"></div>
+    <button class="btn btn-success" style="margin: 20px 0;font-size: 16pt;" onClick="changeChartMode()">更改樣式</button>
     <h2 class="sitename">淡水</h2>
     <div class="chart" id="淡水"></div>
 </div>
@@ -34,9 +38,12 @@
 
 @section('page-javascript')
 <script>
+    var chart = {
+        type: 'column'
+    };
     var title = {
         text: ''
-    }
+    };
     var xAxis = {
         type: 'category',
         labels: {
@@ -53,57 +60,42 @@
         min: 0,
         title: {
             text: 'PM2.5濃度平均值'
-        }
+        },
+        labels: {
+            useHTML: true,
+            formatter: function () {
+                return this.value + 'μg/m<sup>3</sup>';
+            },
+        },
     };
     var legend = {
         enabled: true
     };
 
     $(function () {
-        $('#斗六').highcharts({
-            title: title,
-            xAxis: xAxis,
-            yAxis: yAxis,
-            legend: legend,
-            series: [
-            @for ($i = 2010; $i <= 2015; $i++)
-                {!! "{name: '$i',data: ".json_encode($r_avg_data['斗六'][$i])."}," !!}
-            @endfor
-            ]
-        });
-        $('#宜蘭').highcharts({
-            title: title,
-            xAxis: xAxis,
-            yAxis: yAxis,
-            legend: legend,
-            series: [
-            @for ($i = 2010; $i <= 2015; $i++)
-                {!! "{name: '$i',data: ".json_encode($r_avg_data['宜蘭'][$i])."}," !!}
-            @endfor
-            ]
-        });
-        $('#萬里').highcharts({
-            title: title,
-            xAxis: xAxis,
-            yAxis: yAxis,
-            legend: legend,
-            series: [
-            @for ($i = 2010; $i <= 2015; $i++)
-                {!! "{name: '$i',data: ".json_encode($r_avg_data['萬里'][$i])."}," !!}
-            @endfor
-            ]
-        });
-        $('#淡水').highcharts({
-            title: title,
-            xAxis: xAxis,
-            yAxis: yAxis,
-            legend: legend,
-            series: [
-            @for ($i = 2010; $i <= 2015; $i++)
-                {!! "{name: '$i',data: ".json_encode($r_avg_data['淡水'][$i])."}," !!}
-            @endfor
-            ]
-        });
+        createChart();
     });
+
+    function changeChartMode() {
+        chart.type = (chart.type == 'column') ?  'line' : 'column';
+        createChart();
+    }
+
+    function createChart() {
+        @for ($site = ['斗六','宜蘭','萬里','淡水'], $s = 0; $s < count($site); $s++)
+            {!! "$('#$site[$s]').highcharts({
+                    chart: chart,
+                    title: title,
+                    xAxis: xAxis,
+                    yAxis: yAxis,
+                    legend: legend,
+                    series: [" !!}
+            @for ($i = 2010; $i <= 2015; $i++)
+                {!! "{name: '$i',data: ".json_encode($r_avg_data[$site[$s]][$i])."}," !!}
+            @endfor
+            {!! "   ]
+                });" !!}
+        @endfor
+    };
 </script>
 @endsection
