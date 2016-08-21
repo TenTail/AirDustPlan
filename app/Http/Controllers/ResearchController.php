@@ -138,7 +138,7 @@ class ResearchController extends Controller
         $level5 = [];
 
         foreach ($result as $key => $value) {
-            $time = $value->day."/".$value->month."/".$value->year;
+            $time = $value->month."/".$value->day."/".$value->year;
             switch ($this->aqiLevel($value->AVG_PM25)) {
                 case 1:
                     $level1[$time] = $value->AVG_PM25;

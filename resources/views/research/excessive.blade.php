@@ -9,6 +9,9 @@
 
 @section('content')
 <style>
+.title {
+    text-align: center;
+}
 #excessive {
   top: 0;
   bottom: 0;
@@ -18,7 +21,7 @@
   font-family: Helvetica;
 }
 </style>
-
+<h2 class="title">2015年-斗六測站</h2>
 <div style="width: 100%; height: 700px" id="excessive"></div>
 
 @endsection
@@ -52,75 +55,25 @@ while(date.calendar() !== '01/01/2016') {
         month: date.month() + 1,
         day: date.date(),
         year: date.year(),
-        bankH: (bankHolidays[date.calendar()] === true) ? true : false,
-        holiday: (myHolidays[date.calendar()] === true) ? true : false
+        level1: (level1[date.calendar()]) ? level1[date.calendar()] : false,
+        level2: (level2[date.calendar()]) ? level2[date.calendar()] : false,
+        level3: (level3[date.calendar()]) ? level3[date.calendar()] : false,
+        level4: (level4[date.calendar()]) ? level4[date.calendar()] : false,
+        level5: (level5[date.calendar()]) ? level5[date.calendar()] : false,
     });
 
     date.add(1, 'day');
 }
-//
 console.log(dataAll);
 
 //split into months
-dataSplitByMonth.push( {
-    name: '一月',
-    month: 1,
-    days: dataAll.filter( (day)=> { return day.month === 1} )
-});
-dataSplitByMonth.push( {
-    name: '二月',
-    month: 2,
-    days: dataAll.filter( (day)=> { return day.month === 2} )
-});
-dataSplitByMonth.push( {
-    name: '三月',
-    month: 3,
-    days: dataAll.filter( (day)=> { return day.month === 3} )
-});
-dataSplitByMonth.push( {
-    name: '四月',
-    month: 4,
-    days: dataAll.filter( (day)=> { return day.month === 4} )
-});
-dataSplitByMonth.push( {
-    name: '五月',
-    month: 5,
-    days: dataAll.filter( (day)=> { return day.month === 5} )
-});
-dataSplitByMonth.push( {
-    name: '六月',
-    month: 6,
-    days: dataAll.filter( (day)=> { return day.month === 6} )
-});
-dataSplitByMonth.push( {
-    name: '七月',
-    month: 7,
-    days: dataAll.filter( (day)=> { return day.month === 7} )
-});
-dataSplitByMonth.push( {
-    name: '八月',
-    month: 8,
-    days: dataAll.filter( (day)=> { return day.month === 8} )
-});
-dataSplitByMonth.push( {
-    name: '九月',
-    month: 9,
-    days: dataAll.filter( (day)=> { return day.month === 9} )
-});
-dataSplitByMonth.push( {
-    name: '十月',
-    month: 10,
-    days: dataAll.filter( (day)=> { return day.month === 10} )
-});
-dataSplitByMonth.push( {
-    name: '十一月',
-    month: 11,
-    days: dataAll.filter( (day)=> { return day.month === 11} )
-});
-dataSplitByMonth.push( {
-    name: '十二月',
-    month: 12,
-    days: dataAll.filter( (day)=> { return day.month === 12} )
+var m = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+m.forEach( function(element, index) {
+    dataSplitByMonth.push( {
+        name: element,
+        month: index+1,
+        days: dataAll.filter( (day)=> { return day.month === index+1} )
+    });
 });
 
 //calculate layouts
@@ -165,9 +118,6 @@ dataSplitByMonth.forEach( function(month) {
     currentMonthX += month.dimensions.width + monthPadding;
 });
 
-
-
-
 //vis
 var width = $('#excessive')[0].clientWidth;
 var height = $('#excessive')[0].clientHeight;
@@ -201,12 +151,25 @@ months.each(function(node) {
             .attr('x', function(d) { return d.x })
             .attr('y', function(d) { return d.y })
             .attr('fill', function(d) {
-                if(d.bankH || d.weekDay === 0 || d.weekDay === 6) {
-                    return '#EF476F';
-                } else if(d.holiday) {
-                    return '#FFC43D';
-                } else {
-                    return '#1B9AAA';
+                switch (true) {
+                    case (d.level1 !== false):
+                        return 'rgb(00, 255, 0)';
+                        break;
+                    case (d.level2 !== false):
+                        return 'rgb(255, 255, 0)';
+                        break;
+                    case (d.level3 !== false):
+                        return 'rgb(255, 150, 00)';
+                        break;
+                    case (d.level4 !== false):
+                        return 'rgb(255, 00, 00)';
+                        break;
+                    case (d.level5 !== false):
+                        return 'rgb(255, 00, 255)';
+                        break;
+                    default:
+                        return 'rgb(0, 0, 0)';
+                        break;
                 }
             });
 
@@ -223,252 +186,252 @@ months.each(function(node) {
 yearView.attr('transform', function(d) { return 'translate(' + ((width - yearView.node().getBBox().width) /2)+ ',20)' })
     
 
-//vis 2
-var marginStatsViewTop = 150;
+// //vis 2
+// var marginStatsViewTop = 150;
 
-var statsView = svg.append('g')
-    .attr('transform', 'translate( 0,' + (yearView.node().getBBox().height + marginStatsViewTop) + ')');
+// var statsView = svg.append('g')
+//     .attr('transform', 'translate( 0,' + (yearView.node().getBBox().height + marginStatsViewTop) + ')');
 
-var categories = []
+// var categories = []
 
-categories.push( dataAll.filter( (day)=> { 
-    if(day.bankH === true || day.weekDay === 6 || day.weekDay === 0) {
-        return true;
-    } else {
-        return false;
-    }
-}));
-categories.push( dataAll.filter( (day) => { 
+// categories.push( dataAll.filter( (day)=> { 
+//     if(day.bankH === true || day.weekDay === 6 || day.weekDay === 0) {
+//         return true;
+//     } else {
+//         return false;
+//     }
+// }));
+// categories.push( dataAll.filter( (day) => { 
     
-    return day.holiday === true 
-}));
-categories.push( dataAll.filter( (day) => { 
+//     return day.holiday === true 
+// }));
+// categories.push( dataAll.filter( (day) => { 
     
-    if( !day.holiday && !day.bankH && isWeekDay(day.weekDay)) {
-        return true;
-    } else {
-        return false;
-    }
-}));
+//     if( !day.holiday && !day.bankH && isWeekDay(day.weekDay)) {
+//         return true;
+//     } else {
+//         return false;
+//     }
+// }));
 
-categories[0] = categories[0].map((el)=>{ el.type = 'A'; el.text = 'Off'; return el; });
-categories[1] = categories[1].map((el)=>{ el.type = 'B'; el.text = 'Holidays'; return el; });
-categories[2] = categories[2].map((el)=>{ el.type = 'C'; el.text = 'Working'; return el; });
+// categories[0] = categories[0].map((el)=>{ el.type = 'A'; el.text = 'Off'; return el; });
+// categories[1] = categories[1].map((el)=>{ el.type = 'B'; el.text = 'Holidays'; return el; });
+// categories[2] = categories[2].map((el)=>{ el.type = 'C'; el.text = 'Working'; return el; });
 
-categories.sort((a,b) => b.length - a.length);
-console.log(categories);
-var startX = (width - yearView.node().getBBox().width)/2;
-var barPadding = 80;
-var avalWidth = width - ((startX*2) + (barPadding*2));
-var barWidth = avalWidth/3;
-var heightPlusBottomMarg = height - 100;
+// categories.sort((a,b) => b.length - a.length);
 
-var maxLength = d3.max([categories[0].length,categories[1].length,categories[2].length])
-// calc bar heigth;
-var startY = parseInt(statsView.attr('transform').split(',')[1].slice(0,-1));
-var heightScale = d3.scaleLinear()
-    .domain([0,maxLength])
-    .range([0,heightPlusBottomMarg - startY]);
+// var startX = (width - yearView.node().getBBox().width)/2;
+// var barPadding = 80;
+// var avalWidth = width - ((startX*2) + (barPadding*2));
+// var barWidth = avalWidth/3;
+// var heightPlusBottomMarg = height - 100;
 
-var yPosScale = d3.scaleLinear()
-    .domain([0,maxLength])
-    .range([heightPlusBottomMarg - startY,0])
+// var maxLength = d3.max([categories[0].length,categories[1].length,categories[2].length])
+// // calc bar heigth;
+// var startY = parseInt(statsView.attr('transform').split(',')[1].slice(0,-1));
+// var heightScale = d3.scaleLinear()
+//     .domain([0,maxLength])
+//     .range([0,heightPlusBottomMarg - startY]);
 
-var statsData = [
-    {
-        x: startX,
-        y: yPosScale(categories[0].length),
-        w: barWidth,
-        h: heightScale(categories[0].length),
-        type: categories[0][0].type,
-        startY: yPosScale(3),
-        startH: heightScale(3),
-        text: categories[0][0].text,
-        offsetY: startY,
-        length: categories[0].length
-    },
-     {
-        x: startX + barWidth + barPadding,
-        y: yPosScale(categories[1].length),
-        w: barWidth,
-        h: heightScale(categories[1].length),
-        type: categories[1][0].type,
-        startY: yPosScale(3),
-        startH: heightScale(3),
-        text: categories[1][0].text,
-        offsetY: startY,
-        length: categories[1].length
-    },
-     {
-        x: startX + barWidth + barPadding + barWidth + barPadding,
-        y: yPosScale(categories[2].length),
-        w: barWidth,
-        h: heightScale(categories[2].length),
-        type: categories[2][0].type,
-        startY: yPosScale(3),
-        startH: heightScale(3),
-        text: categories[2][0].text,
-        offsetY: startY,
-        length: categories[2].length
-    }
-]
+// var yPosScale = d3.scaleLinear()
+//     .domain([0,maxLength])
+//     .range([heightPlusBottomMarg - startY,0])
 
-var bars = statsView.selectAll('rect')
-    .data(statsData)
-  .enter()
-    .append('rect')
-        .attr('x', function(d) { return d.x; })
-        .attr('y', function(d) { return d.startY; })
-        .attr('width', function(d) { return d.w; })
-        .attr('height', function(d) { return d.startH; })
-        .attr('fill', function(d) {
-            if(d.type === 'A') return '#EF476F';
-            if(d.type === 'B') return '#FFC43D';
-            if(d.type === 'C') return '#1B9AAA';
-        })
+// var statsData = [
+//     {
+//         x: startX,
+//         y: yPosScale(categories[0].length),
+//         w: barWidth,
+//         h: heightScale(categories[0].length),
+//         type: categories[0][0].type,
+//         startY: yPosScale(3),
+//         startH: heightScale(3),
+//         text: categories[0][0].text,
+//         offsetY: startY,
+//         length: categories[0].length
+//     },
+//      {
+//         x: startX + barWidth + barPadding,
+//         y: yPosScale(categories[1].length),
+//         w: barWidth,
+//         h: heightScale(categories[1].length),
+//         type: categories[1][0].type,
+//         startY: yPosScale(3),
+//         startH: heightScale(3),
+//         text: categories[1][0].text,
+//         offsetY: startY,
+//         length: categories[1].length
+//     },
+//      {
+//         x: startX + barWidth + barPadding + barWidth + barPadding,
+//         y: yPosScale(categories[2].length),
+//         w: barWidth,
+//         h: heightScale(categories[2].length),
+//         type: categories[2][0].type,
+//         startY: yPosScale(3),
+//         startH: heightScale(3),
+//         text: categories[2][0].text,
+//         offsetY: startY,
+//         length: categories[2].length
+//     }
+// ]
 
-var barLables = statsView.selectAll('text')
-    .data(statsData)
-  .enter()
-    .append('text')
-        .attr("x", function(d) { return d.x + (d.w/2) } )
-        .attr("y", function(d) { return d.startY + d.startH + 20 } )
-        .attr("text-anchor", "middle")
-        .text(function(d){ return d.text; })
-        .attr('fill', 'black')
-        .style("font-family", "Helvetica")
-        .style("font-size","14pt");
+// var bars = statsView.selectAll('rect')
+//     .data(statsData)
+//   .enter()
+//     .append('rect')
+//         .attr('x', function(d) { return d.x; })
+//         .attr('y', function(d) { return d.startY; })
+//         .attr('width', function(d) { return d.w; })
+//         .attr('height', function(d) { return d.startH; })
+//         .attr('fill', function(d) {
+//             if(d.type === 'A') return '#EF476F';
+//             if(d.type === 'B') return '#FFC43D';
+//             if(d.type === 'C') return '#1B9AAA';
+//         })
 
-// movie
-addTemporaryDayAndMoveTo(barLables, function(maxDur) {
+// var barLables = statsView.selectAll('text')
+//     .data(statsData)
+//   .enter()
+//     .append('text')
+//         .attr("x", function(d) { return d.x + (d.w/2) } )
+//         .attr("y", function(d) { return d.startY + d.startH + 20 } )
+//         .attr("text-anchor", "middle")
+//         .text(function(d){ return d.text; })
+//         .attr('fill', 'black')
+//         .style("font-family", "Helvetica")
+//         .style("font-size","14pt");
+
+// // movie
+// addTemporaryDayAndMoveTo(barLables, function(maxDur) {
     
-    var counter = 0;
+//     var counter = 0;
 
-    bars.transition()
-        .duration(maxDur)
-        .attr('y', function(d) { return d.y})
-        .attr('height', function(d) { return d.h})
-        .on('end', function() {
-            counter ++;
-            if(counter === 2) {
-                console.log('kkk')
-                statsView.selectAll('text').each(function(p,j) {
-                    d3.select(this.parentNode).append('text')
-                        .attr("x",  p.x + (p.w/2))
-                        .attr("y", p.y + (p.h/2) )
-                        .attr("text-anchor", "middle")
-                        .text( p.length)
-                        .attr('fill', 'transparent')
-                        .style("font-family", "Helvetica")
-                        .style("font-size","12pt")
-                        .transition()
-                            .duration(1000)
-                            .attrTween("fill", function() {
-                                return d3.interpolateRgb("transparent", "black");
-                            });
-                })
-            }
-        })
-});
+//     bars.transition()
+//         .duration(maxDur)
+//         .attr('y', function(d) { return d.y})
+//         .attr('height', function(d) { return d.h})
+//         .on('end', function() {
+//             counter ++;
+//             if(counter === 2) {
+//                 console.log('kkk')
+//                 statsView.selectAll('text').each(function(p,j) {
+//                     d3.select(this.parentNode).append('text')
+//                         .attr("x",  p.x + (p.w/2))
+//                         .attr("y", p.y + (p.h/2) )
+//                         .attr("text-anchor", "middle")
+//                         .text( p.length)
+//                         .attr('fill', 'transparent')
+//                         .style("font-family", "Helvetica")
+//                         .style("font-size","12pt")
+//                         .transition()
+//                             .duration(1000)
+//                             .attrTween("fill", function() {
+//                                 return d3.interpolateRgb("transparent", "black");
+//                             });
+//                 })
+//             }
+//         })
+// });
 
 
 
-function addTemporaryDayAndMoveTo(barLables, moveCallback) {
-    var positions = [];
-    //http://stackoverflow.com/questions/6858479/rectangle-coordinates-after-transform
-    yearView.selectAll('rect').each(function(d) {
+// function addTemporaryDayAndMoveTo(barLables, moveCallback) {
+//     var positions = [];
+//     //http://stackoverflow.com/questions/6858479/rectangle-coordinates-after-transform
+//     yearView.selectAll('rect').each(function(d) {
         
-        var pos = getRelPos(this, svg);
+//         var pos = getRelPos(this, svg);
 
-        pos.cx = pos.x + (dayWidth / 2);
-        pos.cy = pos.y + (dayHeight / 2);
-        pos.color = d3.select(this).attr('fill');
-        pos.type = d.type;
-        positions.push(pos);
-    });
+//         pos.cx = pos.x + (dayWidth / 2);
+//         pos.cy = pos.y + (dayHeight / 2);
+//         pos.color = d3.select(this).attr('fill');
+//         pos.type = d.type;
+//         positions.push(pos);
+//     });
 
-    function getRelPos(node, svg) {
-        var m = node.getCTM();
-        var pos = svg.node().createSVGPoint();
-        pos.x = d3.select(node).attr('x');
-        pos.y = d3.select(node).attr('y');
+//     function getRelPos(node, svg) {
+//         var m = node.getCTM();
+//         var pos = svg.node().createSVGPoint();
+//         pos.x = d3.select(node).attr('x');
+//         pos.y = d3.select(node).attr('y');
         
-        pos = pos.matrixTransform(m);
+//         pos = pos.matrixTransform(m);
 
-        return pos;
-    }
+//         return pos;
+//     }
 
-    var textPos = {};
+//     var textPos = {};
 
-    statsView.selectAll('text').each( function(d) {
-        //console.log(d)
-        textPos[d.type] = d;
-    })
+//     statsView.selectAll('text').each( function(d) {
+//         //console.log(d)
+//         textPos[d.type] = d;
+//     })
     
 
-    var tempG = svg.append('g');
+//     var tempG = svg.append('g');
     
-    //var tempPos = getRelPos(circpack.node(), svg);
-    //var counter = 0;
-    var counter = false;
-    var maxDur = -Infinity;
+//     //var tempPos = getRelPos(circpack.node(), svg);
+//     //var counter = 0;
+//     var counter = false;
+//     var maxDur = -Infinity;
 
-    var delayScale = d3.scaleLinear()
-        .domain([0,positions.length])
-        .range([300,2000]);
+//     var delayScale = d3.scaleLinear()
+//         .domain([0,positions.length])
+//         .range([300,2000]);
 
-    tempG.selectAll('rect')
-         .data(positions)
-         .enter()
-            .append('rect')
-                .attr('x', function(d) { return d.x })
-                .attr('y', function(d) { return d.y })
-                .attr('width', dayWidth)
-                .attr('height', dayHeight)
-                .attr('fill', function(d) { return d.color })
-                .transition()
-                    .delay(function(d,i) { return delayScale(i) })
-                    //.delay(d3.randomUniform(1000, 5000)() )
-                    .attr('x', function(d){
-                        return (textPos[d.type].x + textPos[d.type].w / 2);
-                    })
-                    .attr('y', function(d){
-                        return (textPos[d.type].offsetY + textPos[d.type].startY);
-                    })
-                    .duration(function(d,i) { 
-                        var dur = d3.randomUniform(500, 2000)();
+//     tempG.selectAll('rect')
+//          .data(positions)
+//          .enter()
+//             .append('rect')
+//                 .attr('x', function(d) { return d.x })
+//                 .attr('y', function(d) { return d.y })
+//                 .attr('width', dayWidth)
+//                 .attr('height', dayHeight)
+//                 .attr('fill', function(d) { return d.color })
+//                 .transition()
+//                     .delay(function(d,i) { return delayScale(i) })
+//                     //.delay(d3.randomUniform(1000, 5000)() )
+//                     .attr('x', function(d){
+//                         return (textPos[d.type].x + textPos[d.type].w / 2);
+//                     })
+//                     .attr('y', function(d){
+//                         return (textPos[d.type].offsetY + textPos[d.type].startY);
+//                     })
+//                     .duration(function(d,i) { 
+//                         var dur = d3.randomUniform(500, 2000)();
 
-                        if(dur > maxDur) maxDur = dur;
+//                         if(dur > maxDur) maxDur = dur;
 
-                        return dur;
-                    })
-                    //.ease(d3.easeQuadIn)
-                    .on('end', function() {
-                        //counter++
-                        //if(!counter === positions.length) {
-                        if(!counter) {
-                            moveCallback(maxDur);
-                            counter = true;
-                        }
-                    })
-                    .remove();
+//                         return dur;
+//                     })
+//                     //.ease(d3.easeQuadIn)
+//                     .on('end', function() {
+//                         //counter++
+//                         //if(!counter === positions.length) {
+//                         if(!counter) {
+//                             moveCallback(maxDur);
+//                             counter = true;
+//                         }
+//                     })
+//                     .remove();
      
-}
+// }
 
 
-//Helper functions
-function isWeekDay(num) {
-    var o = {
-        0: false,
-        1: true,
-        2: true,
-        3: true,
-        4: true,
-        5: true,
-        6: false
-    }
+// //Helper functions
+// function isWeekDay(num) {
+//     var o = {
+//         0: false,
+//         1: true,
+//         2: true,
+//         3: true,
+//         4: true,
+//         5: true,
+//         6: false
+//     }
 
-    return o[num];
-}
+//     return o[num];
+// }
 </script>
 @endsection
