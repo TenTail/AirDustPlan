@@ -25,57 +25,19 @@
 
 @section('page-javascript')
 <script>
+var level1 = {!! json_encode($level1) !!};
+var level2 = {!! json_encode($level2) !!};
+var level3 = {!! json_encode($level3) !!};
+var level4 = {!! json_encode($level4) !!};
+var level5 = {!! json_encode($level5) !!};
+
 var bankHolidays = {
     '01/01/2015': true,
-    '03/17/2015': true,
-    '03/25/2015': true,
-    '03/08/2015': true,
-    '05/02/2015': true,
-    '06/06/2015': true,
-    '08/01/2015': true,
-    '10/31/2015': true,
-    '12/26/2015': true,
-    '12/27/2015': true
 };
 
 var myHolidays = {
     '01/04/2015': true,
     '01/05/2015': true,
-    '01/06/2015': true,  
-    '03/07/2015': true,
-    '03/09/2015': true,
-    '03/10/2015': true,
-    '03/11/2015': true,
-    '04/13/2015': true,
-    '04/14/2015': true,
-    '04/15/2015': true,
-    '06/15/2015': true,
-    '06/16/2015': true,
-    '06/17/2015': true,
-    '08/08/2015': true,
-    '08/09/2015': true,
-    '08/10/2015': true,
-    '08/11/2015': true,
-    '08/12/2015': true,
-    '08/15/2015': true,
-    '08/16/2015': true,
-    '08/17/2015': true,
-    '08/18/2015': true,
-    '08/19/2015': true,
-    '08/22/2015': true,
-    '08/23/2015': true,
-    '08/24/2015': true,
-    '08/25/2015': true,
-    '08/26/2015': true,
-    '08/08/2015': true,
-    '09/09/2015': true,
-    '09/12/2015': true,
-    '09/13/2015': true,
-    '10/10/2015': true,
-    '10/11/2015': true,
-    '12/28/2015': true,
-    '12/29/2015': true,
-    '12/30/2015': true
 };
 
 var date = moment('2015-01-01','YYYY-MM-DD');

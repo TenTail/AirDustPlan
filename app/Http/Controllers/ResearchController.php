@@ -131,8 +131,65 @@ class ResearchController extends Controller
             ORDER BY SUBSTR(t1.publish_time, 1, 10) ASC
             ");
 
+        $level1 = [];
+        $level2 = [];
+        $level3 = [];
+        $level4 = [];
+        $level5 = [];
+
         foreach ($result as $key => $value) {
-            # code...
+            $time = $value->day."/".$value->month."/".$value->year;
+            switch ($this->aqiLevel($value->AVG_PM25)) {
+                case 1:
+                    $level1[$time] = $value->AVG_PM25;
+                    break;
+                case 2:
+                    $level2[$time] = $value->AVG_PM25;
+                    break;
+                case 3:
+                    $level3[$time] = $value->AVG_PM25;
+                    break;
+                case 4:
+                    $level4[$time] = $value->AVG_PM25;
+                    break;
+                case 5:
+                    $level5[$time] = $value->AVG_PM25;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        $data = [
+            'level1' => $level1,
+            'level2' => $level2,
+            'level3' => $level3,
+            'level4' => $level4,
+            'level5' => $level5,
+        ];
+
+        return view('research.excessive', $data);
+    }
+
+    /**
+     * Return AQI Level.
+     *
+     * @return int
+     */
+    public function aqiLevel($pm25_value)
+    {
+        if ($pm25_value <= 15) {
+            return 1;
+        } elseif ($pm25_value > 15 && $pm25_value <= 40) {
+            return 2;
+        } elseif ($pm25_value > 40 && $pm25_value <= 65) {
+            return 3;
+        } elseif ($pm25_value > 65 && $pm25_value <= 150) {
+            return 4;
+        } elseif ($pm25_value > 150 && $pm25_value <= 250) {
+            return 5;
+        } elseif ($pm25_value > 250) {
+            return 6;
         }
     }
 }
