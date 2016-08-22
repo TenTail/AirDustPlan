@@ -9,25 +9,131 @@
 
 @section('content')
 <style>
+.excessive-group {
+    margin-top: 10px;
+}
 .title {
     text-align: center;
 }
+.remove-btn {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+}
 #excessive {
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  margin: 0;
-  font-family: Helvetica;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: 0;
+    font-family: Helvetica;
 }
 </style>
-<h2 class="title">2015年-斗六測站</h2>
-<div style="width: 100%; height: 700px" id="excessive"></div>
+
+<div class="col-md-12">
+    <div class="col-md-3">
+        <h2 style="text-align: center;">選擇年份</h2>
+        <select id="year" class="form-control">
+            @for ($i = getdate()['year']; $i != 1984; $i--)
+                <option value="{{ $i }}">{{ $i."年" }}</option>
+            @endfor
+        </select>
+    </div>
+    <div class="col-md-3">
+        <h2 style="text-align: center;">選擇縣市</h2>
+        <select id="county" class="form-control">
+            <?php $county = ['新北市', '屏東縣', '臺南市', '宜蘭縣', '嘉義縣', '臺東縣', '澎湖縣', '臺北市', '嘉義市', '臺中市', '雲林縣', '高雄市', '臺北市', '新竹市', '新竹縣', '基隆市', '苗栗縣', '桃園市', '彰化縣', '花蓮縣', '南投縣'];?>
+            @for ($i = 0, $length = count($county); $i < $length; $i++)
+                <option value="{{ $county[$i] }}">{{ $county[$i] }}</option>
+            @endfor
+        </select>
+    </div>
+    <div class="col-md-3">
+        <h2 style="text-align: center;">選擇測站</h2>
+        <select id="sitename" class="form-control">
+            {{-- option --}}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <button class="btn btn-success" onClick="addExcessive()" style="margin-top: 10px">
+            <h2>
+                <span class="glyphicon glyphicon-plus" aria-hidden="true">新增比較測站</span>
+            </h2>
+        </button>
+    </div>
+</div>
+
+<div class="excessive-group" id="淡水">
+    <div style="position: relative;">
+        <h2 class="title">2015年-淡水測站</h2>
+        <button class="remove-btn btn btn-danger" onClick="removeExcessive('淡水')"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+    </div>
+    <div style="width: 100%; height: 700px" id="excessive"></div>
+</div>
 
 @endsection
 
 @section('page-javascript')
 <script>
+var all_site = [
+    {county: '基隆市', sitename: ['基隆']},
+    {county: '嘉義市', sitename: ['嘉義']},
+    {county: '高雄市', sitename: ['美濃','大寮','橋頭','仁武','鳳山','林園','楠梓','左營','前金','前鎮','小港','復興']},
+    {county: '新北市', sitename: ['汐止','萬里','新店','土城','板橋','新莊','菜寮','林口','淡水','三重','永和']},
+    {county: '臺北市', sitename: ['士林','中山','萬華','古亭','松山','大同','陽明']},
+    {county: '桃園市', sitename: ['桃園','大園','觀音','平鎮','龍潭','中壢']},
+    {county: '新竹縣', sitename: ['湖口','竹東']},
+    {county: '新竹市', sitename: ['新竹']},
+    {county: '苗栗縣', sitename: ['頭份','苗栗','三義']},
+    {county: '臺中市', sitename: ['豐原','沙鹿','大里','忠明','西屯']},
+    {county: '彰化縣', sitename: ['彰化','線西','二林']},
+    {county: '南投縣', sitename: ['南投','竹山','埔里']},
+    {county: '雲林縣', sitename: ['斗六','崙背','臺西','麥寮']},
+    {county: '嘉義縣', sitename: ['新港','朴子']},
+    {county: '臺南市', sitename: ['新營','善化','安南','臺南']},
+    {county: '屏東縣', sitename: ['屏東','潮州','恆春']},
+    {county: '臺東縣', sitename: ['臺東','關山']},
+    {county: '宜蘭縣', sitename: ['宜蘭','冬山']},
+    {county: '花蓮縣', sitename: ['花蓮']},
+    {county: '澎湖縣', sitename: ['馬公']},
+    {county: '連江縣', sitename: ['馬祖']},
+    {county: '金門縣', sitename: ['金門']}
+];
+
+// search county then return index
+function searchSiteIndex(county) {
+    for(var i = 0, length1 = all_site.length; i < length1; i++){
+        if (all_site[i].county == county) {
+            return i;
+        }
+    }
+}
+
+// change sitename option
+function loadSite() {
+    var index = searchSiteIndex($('#county').val());
+    $('#sitename').empty(); // 清空
+    // 加入新的<option>
+    for(var i = 0, length1 = all_site[index].sitename.length; i < length1; i++){
+        var option = $('<option></option>').attr('value', all_site[index].sitename[i]).text(all_site[index].sitename[i]);
+        $('#sitename').append(option);
+    }
+}
+
+// change sitename when county selected
+$('#county').change(function () {
+    loadSite();
+});
+
+// remove excessive-group
+function removeExcessive(sitename) {
+    $('#'+sitename).empty();
+}
+
+$(document).ready(function () {
+    loadSite();
+});
+
 var level1 = {!! json_encode($level1) !!};
 var level2 = {!! json_encode($level2) !!};
 var level3 = {!! json_encode($level3) !!};
@@ -64,7 +170,6 @@ while(date.calendar() !== '01/01/2016') {
 
     date.add(1, 'day');
 }
-console.log(dataAll);
 
 //split into months
 var m = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
@@ -433,5 +538,6 @@ yearView.attr('transform', function(d) { return 'translate(' + ((width - yearVie
 
 //     return o[num];
 // }
+
 </script>
 @endsection
