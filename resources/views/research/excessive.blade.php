@@ -9,7 +9,7 @@
 
 @section('content')
 <style>
-.excessive-group {
+.excessive-child {
     margin-top: 10px;
 }
 .title {
@@ -62,13 +62,14 @@
         </button>
     </div>
 </div>
-
-<div class="excessive-group" id="淡水">
-    <div style="position: relative;">
-        <h2 class="title">2015年-淡水測站</h2>
-        <button class="remove-btn btn btn-danger" onClick="removeExcessive('淡水')"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+<div class="col-md-12" id="excessive-group">
+    <div class="excessive-child" id="淡水">
+        <div style="position: relative;">
+            <h2 class="title">2015年-淡水測站</h2>
+            <button class="remove-btn btn btn-danger" onClick="removeExcessive('淡水')"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+        </div>
+        <div class="excessive-avg" id="excessive-淡水" style="width: 100%; height: 400px"></div>
     </div>
-    <div style="width: 100%; height: 700px" id="excessive"></div>
 </div>
 
 @endsection
@@ -125,6 +126,22 @@ $('#county').change(function () {
     loadSite();
 });
 
+// add excessive-group
+function addExcessive() {
+    var year = $('#year').val();
+    var s = $('#sitename').val();
+    var ss = "'"+s+"'";
+    var html = '<div class="col-md-12 excessive-child" id="'+s+'">';
+    html = html+'<div style="position: relative;">';
+    html = html+'<h2 class="title">'+year+'年-'+s+'測站</h2>';
+    html = html+'<button class="remove-btn btn btn-danger" onClick="removeExcessive('+ss+')"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>';
+    html = html+'</div>';
+    html = html+'<div class="excessive-avg" id="excessive-'+s+'" style="width: 100%; height: 400px"></div>';
+    html = html+'</div>';
+
+    $('#excessive-group').append(html);
+}
+
 // remove excessive-group
 function removeExcessive(sitename) {
     $('#'+sitename).empty();
@@ -134,161 +151,161 @@ $(document).ready(function () {
     loadSite();
 });
 
-var level1 = {!! json_encode($level1) !!};
-var level2 = {!! json_encode($level2) !!};
-var level3 = {!! json_encode($level3) !!};
-var level4 = {!! json_encode($level4) !!};
-var level5 = {!! json_encode($level5) !!};
+// var level1 = {!! json_encode($level1) !!};
+// var level2 = {!! json_encode($level2) !!};
+// var level3 = {!! json_encode($level3) !!};
+// var level4 = {!! json_encode($level4) !!};
+// var level5 = {!! json_encode($level5) !!};
 
-var bankHolidays = {
-    '01/01/2015': true,
-};
+// var bankHolidays = {
+//     '01/01/2015': true,
+// };
 
-var myHolidays = {
-    '01/04/2015': true,
-    '01/05/2015': true,
-};
+// var myHolidays = {
+//     '01/04/2015': true,
+//     '01/05/2015': true,
+// };
 
-var date = moment('2015-01-01','YYYY-MM-DD');
-var dataAll = [];
-var dataSplitByMonth = [];
+// var date = moment('2015-01-01','YYYY-MM-DD');
+// var dataAll = [];
+// var dataSplitByMonth = [];
 
-while(date.calendar() !== '01/01/2016') {
+// while(date.calendar() !== '01/01/2016') {
     
-    dataAll.push({ 
-        date: date.calendar(),
-        weekDay: date.day(),
-        month: date.month() + 1,
-        day: date.date(),
-        year: date.year(),
-        level1: (level1[date.calendar()]) ? level1[date.calendar()] : false,
-        level2: (level2[date.calendar()]) ? level2[date.calendar()] : false,
-        level3: (level3[date.calendar()]) ? level3[date.calendar()] : false,
-        level4: (level4[date.calendar()]) ? level4[date.calendar()] : false,
-        level5: (level5[date.calendar()]) ? level5[date.calendar()] : false,
-    });
+//     dataAll.push({ 
+//         date: date.calendar(),
+//         weekDay: date.day(),
+//         month: date.month() + 1,
+//         day: date.date(),
+//         year: date.year(),
+//         level1: (level1[date.calendar()]) ? level1[date.calendar()] : false,
+//         level2: (level2[date.calendar()]) ? level2[date.calendar()] : false,
+//         level3: (level3[date.calendar()]) ? level3[date.calendar()] : false,
+//         level4: (level4[date.calendar()]) ? level4[date.calendar()] : false,
+//         level5: (level5[date.calendar()]) ? level5[date.calendar()] : false,
+//     });
 
-    date.add(1, 'day');
-}
+//     date.add(1, 'day');
+// }
 
-//split into months
-var m = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
-m.forEach( function(element, index) {
-    dataSplitByMonth.push( {
-        name: element,
-        month: index+1,
-        days: dataAll.filter( (day)=> { return day.month === index+1} )
-    });
-});
+// //split into months
+// var m = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+// m.forEach( function(element, index) {
+//     dataSplitByMonth.push( {
+//         name: element,
+//         month: index+1,
+//         days: dataAll.filter( (day)=> { return day.month === index+1} )
+//     });
+// });
 
-//calculate layouts
-// each month becomes a g element
+// //calculate layouts
+// // each month becomes a g element
 
-var dayWidth = 10;
-var dayHeight = 10;
-var dayPadding = 2;
+// var dayWidth = 10;
+// var dayHeight = 10;
+// var dayPadding = 2;
 
-var monthPadding = 10;
-var currentMonthX = 0;
+// var monthPadding = 10;
+// var currentMonthX = 0;
 
-var dayOfWeekX = {
-    0: 0,                                   // sunday
-    1: dayWidth + dayPadding,               // monday 
-    2: (dayWidth * 2) + (dayPadding * 2),   // tuesday
-    3: (dayWidth * 3) + (dayPadding * 3),   // wendsday
-    4: (dayWidth * 4) + (dayPadding * 4),   // thursday
-    5: (dayWidth * 5) + (dayPadding * 5),   // friday
-    6: (dayWidth * 6) + (dayPadding * 6)    // saturday
-};
+// var dayOfWeekX = {
+//     0: 0,                                   // sunday
+//     1: dayWidth + dayPadding,               // monday 
+//     2: (dayWidth * 2) + (dayPadding * 2),   // tuesday
+//     3: (dayWidth * 3) + (dayPadding * 3),   // wendsday
+//     4: (dayWidth * 4) + (dayPadding * 4),   // thursday
+//     5: (dayWidth * 5) + (dayPadding * 5),   // friday
+//     6: (dayWidth * 6) + (dayPadding * 6)    // saturday
+// };
 
-dataSplitByMonth.forEach( function(month) {
+// dataSplitByMonth.forEach( function(month) {
 
-    var yPos = 20; //start y
-    month.days.forEach( function(day) {
-        day.x = dayOfWeekX[day.weekDay];
-        day.y = yPos;
+//     var yPos = 20; //start y
+//     month.days.forEach( function(day) {
+//         day.x = dayOfWeekX[day.weekDay];
+//         day.y = yPos;
 
-        if(day.weekDay === 6) {
-            yPos += dayHeight + dayPadding;
-        }
-    });
+//         if(day.weekDay === 6) {
+//             yPos += dayHeight + dayPadding;
+//         }
+//     });
 
-    month.dimensions = {
-        height: month.days[month.days.length-1].y + dayHeight,
-        width: (dayWidth * 7) + (dayPadding * 7)
-    };
+//     month.dimensions = {
+//         height: month.days[month.days.length-1].y + dayHeight,
+//         width: (dayWidth * 7) + (dayPadding * 7)
+//     };
 
-    month.x = currentMonthX;
+//     month.x = currentMonthX;
 
-    currentMonthX += month.dimensions.width + monthPadding;
-});
+//     currentMonthX += month.dimensions.width + monthPadding;
+// });
 
-//vis
-var width = $('#excessive')[0].clientWidth;
-var height = $('#excessive')[0].clientHeight;
+// //vis
+// var width = $('#excessive')[0].clientWidth;
+// var height = $('#excessive')[0].clientHeight;
 
-var svg = d3.select('#excessive').append('svg')
-    .attr('width', width)
-    .attr('height', height)
-    .style('display', 'block')
-    .style('margin-right', 'auto')
-    .style('margin-left', 'auto')
-    .style('background-color', '#FFFFFF');
+// var svg = d3.select('#excessive').append('svg')
+//     .attr('width', width)
+//     .attr('height', height)
+//     .style('display', 'block')
+//     .style('margin-right', 'auto')
+//     .style('margin-left', 'auto')
+//     .style('background-color', '#FFFFFF');
 
-var yearView = svg.append('g');
+// var yearView = svg.append('g');
 
 
-var months = yearView.selectAll('g') 
-   .data(dataSplitByMonth)
-   .enter()
-        .append('g')
-            .attr('transform', function(d) { return 'translate(' + d.x + ',0)' })
+// var months = yearView.selectAll('g') 
+//    .data(dataSplitByMonth)
+//    .enter()
+//         .append('g')
+//             .attr('transform', function(d) { return 'translate(' + d.x + ',0)' })
 
-months.each(function(node) {
+// months.each(function(node) {
     
-    d3.select(this)
-      .selectAll('rect')
-      .data(node.days)
-      .enter()
-        .append('rect')
-            .attr('height', dayWidth)
-            .attr('width', dayHeight)
-            .attr('x', function(d) { return d.x })
-            .attr('y', function(d) { return d.y })
-            .attr('fill', function(d) {
-                switch (true) {
-                    case (d.level1 !== false):
-                        return 'rgb(00, 255, 0)';
-                        break;
-                    case (d.level2 !== false):
-                        return 'rgb(255, 255, 0)';
-                        break;
-                    case (d.level3 !== false):
-                        return 'rgb(255, 150, 00)';
-                        break;
-                    case (d.level4 !== false):
-                        return 'rgb(255, 00, 00)';
-                        break;
-                    case (d.level5 !== false):
-                        return 'rgb(255, 00, 255)';
-                        break;
-                    default:
-                        return 'rgb(0, 0, 0)';
-                        break;
-                }
-            });
+//     d3.select(this)
+//       .selectAll('rect')
+//       .data(node.days)
+//       .enter()
+//         .append('rect')
+//             .attr('height', dayWidth)
+//             .attr('width', dayHeight)
+//             .attr('x', function(d) { return d.x })
+//             .attr('y', function(d) { return d.y })
+//             .attr('fill', function(d) {
+//                 switch (true) {
+//                     case (d.level1 !== false):
+//                         return 'rgb(00, 255, 0)';
+//                         break;
+//                     case (d.level2 !== false):
+//                         return 'rgb(255, 255, 0)';
+//                         break;
+//                     case (d.level3 !== false):
+//                         return 'rgb(255, 150, 00)';
+//                         break;
+//                     case (d.level4 !== false):
+//                         return 'rgb(255, 00, 00)';
+//                         break;
+//                     case (d.level5 !== false):
+//                         return 'rgb(255, 00, 255)';
+//                         break;
+//                     default:
+//                         return 'rgb(0, 0, 0)';
+//                         break;
+//                 }
+//             });
 
-    d3.select(this)
-      .append('text')
-      .text(function(d) { return d.name })
-      .attr("text-anchor", "middle")
-      .attr('x', function(d) { return d.dimensions.width/2})
-      .attr('y', 10)
-      .style("font-family", "Helvetica")
-      .style("font-size","14pt")
-});
+//     d3.select(this)
+//       .append('text')
+//       .text(function(d) { return d.name })
+//       .attr("text-anchor", "middle")
+//       .attr('x', function(d) { return d.dimensions.width/2})
+//       .attr('y', 10)
+//       .style("font-family", "Helvetica")
+//       .style("font-size","14pt")
+// });
 
-yearView.attr('transform', function(d) { return 'translate(' + ((width - yearView.node().getBBox().width) /2)+ ',20)' })
+// yearView.attr('transform', function(d) { return 'translate(' + ((width - yearView.node().getBBox().width) /2)+ ',20)' })
     
 
 // //vis 2
