@@ -1,5 +1,9 @@
 @extends('layouts.master')
 
+@section('csrf-token')
+<meta name="csrf-token" content="{{ csrf_token() }}" />
+@stop
+
 @section('title', '空塵計')
 
 @section('head-javascript')
@@ -10,7 +14,11 @@
 @section('content')
 <style>
 .excessive-child {
-    margin-top: 10px;
+    margin: 10px 0;
+    padding: 0 5px;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 5px;
 }
 .title {
     text-align: center;
@@ -19,6 +27,10 @@
     position: absolute;
     right: 0;
     bottom: 0;
+}
+.excessive-svg {
+    width: 100%;
+    height: 120px;
 }
 #excessive {
     top: 0;
@@ -31,6 +43,20 @@
 </style>
 
 <div class="col-md-12">
+    <h1>好日子與壞日子</h1>
+    <h3>此頁面顯示的顏色代表AQI級別，是依照美國標準進行轉換。</h3>
+    <table>
+        <tr>
+            <td><h3 style="color: rgb(00, 255, 0);">綠色：一級（優）</h3></td>
+            <td><h3 style="color: rgb(255, 255, 0);">黃色：二級（中等）</h3></td>
+            <td><h3 style="color: rgb(255, 150, 00);">橘色：三級（不適於敏感人群）</h3></td>
+        </tr>
+        <tr>
+            <td><h3 style="color: rgb(255, 00, 00);">紅色：四級（不健康）</h3></td>
+            <td><h3 style="color: rgb(255, 00, 255);">紫色：五級（重度污染）</h3></td>
+            <td><h3 style="color: rgb(0, 0, 0);">黑色：無資料</h3></td>
+        </tr>
+    </table>
     <div class="col-md-3">
         <h2 style="text-align: center;">選擇年份</h2>
         <select id="year" class="form-control">
@@ -62,14 +88,14 @@
         </button>
     </div>
 </div>
-<div class="col-md-12" id="excessive-group">
-    <div class="excessive-child" id="淡水">
+<div class="col-md-12" id="excessive-group" style="padding: 0;">
+    {{-- <div class="excessive-child" id="淡水">
         <div style="position: relative;">
             <h2 class="title">2015年-淡水測站</h2>
             <button class="remove-btn btn btn-danger" onClick="removeExcessive('淡水')"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
         </div>
-        <div class="excessive-avg" id="excessive-淡水" style="width: 100%; height: 400px"></div>
-    </div>
+        <div class="excessive-svg" id="excessive-淡水"></div>
+    </div> --}}
 </div>
 
 @endsection
@@ -130,182 +156,206 @@ $('#county').change(function () {
 function addExcessive() {
     var year = $('#year').val();
     var s = $('#sitename').val();
-    var ss = "'"+s+"'";
-    var html = '<div class="col-md-12 excessive-child" id="'+s+'">';
-    html = html+'<div style="position: relative;">';
-    html = html+'<h2 class="title">'+year+'年-'+s+'測站</h2>';
-    html = html+'<button class="remove-btn btn btn-danger" onClick="removeExcessive('+ss+')"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>';
-    html = html+'</div>';
-    html = html+'<div class="excessive-avg" id="excessive-'+s+'" style="width: 100%; height: 400px"></div>';
-    html = html+'</div>';
+    var ss = "'"+year+s+"'";
+    if (document.getElementById(year+s)) {
+        alert(year+"年"+s+"已新增");
+    } else {
+        var html = '<div class="col-md-12 excessive-child" id="'+year+s+'">';
+        html = html+'<div style="position: relative;">';
+        html = html+'<h2 class="title">'+year+'年-'+s+'測站</h2>';
+        html = html+'<button class="remove-btn btn btn-danger" onClick="removeExcessive('+ss+')"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>';
+        html = html+'</div>';
+        html = html+'<div class="excessive-svg" id="excessive-'+year+s+'"></div>';
+        html = html+'</div>';
+        $('#excessive-group').append(html);
 
-    $('#excessive-group').append(html);
+        getSvgData(year, s);
+    }
 }
 
 // remove excessive-group
-function removeExcessive(sitename) {
-    $('#'+sitename).empty();
+function removeExcessive(ss) {
+    $('#'+ss).remove();
 }
 
 $(document).ready(function () {
     loadSite();
 });
 
-// var level1 = {!! json_encode($level1) !!};
-// var level2 = {!! json_encode($level2) !!};
-// var level3 = {!! json_encode($level3) !!};
-// var level4 = {!! json_encode($level4) !!};
-// var level5 = {!! json_encode($level5) !!};
 
-// var bankHolidays = {
-//     '01/01/2015': true,
-// };
+// draw data
+var level1 ;
+var level2 ;
+var level3 ;
+var level4 ;
+var level5 ;
+function drawSvg(year, sitename) {
+    var date = moment(year+'-01-01','YYYY-MM-DD');
+    var dataAll = [];
+    var dataSplitByMonth = [];
 
-// var myHolidays = {
-//     '01/04/2015': true,
-//     '01/05/2015': true,
-// };
+    while(date.calendar() !== '01/01/'+(parseInt(year)+1)) {
+        
+        dataAll.push({ 
+            date: date.calendar(),
+            weekDay: date.day(),
+            month: date.month() + 1,
+            day: date.date(),
+            year: date.year(),
+            level1: (level1[date.calendar()]) ? level1[date.calendar()] : false,
+            level2: (level2[date.calendar()]) ? level2[date.calendar()] : false,
+            level3: (level3[date.calendar()]) ? level3[date.calendar()] : false,
+            level4: (level4[date.calendar()]) ? level4[date.calendar()] : false,
+            level5: (level5[date.calendar()]) ? level5[date.calendar()] : false,
+        });
 
-// var date = moment('2015-01-01','YYYY-MM-DD');
-// var dataAll = [];
-// var dataSplitByMonth = [];
+        date.add(1, 'day');
+    }
 
-// while(date.calendar() !== '01/01/2016') {
-    
-//     dataAll.push({ 
-//         date: date.calendar(),
-//         weekDay: date.day(),
-//         month: date.month() + 1,
-//         day: date.date(),
-//         year: date.year(),
-//         level1: (level1[date.calendar()]) ? level1[date.calendar()] : false,
-//         level2: (level2[date.calendar()]) ? level2[date.calendar()] : false,
-//         level3: (level3[date.calendar()]) ? level3[date.calendar()] : false,
-//         level4: (level4[date.calendar()]) ? level4[date.calendar()] : false,
-//         level5: (level5[date.calendar()]) ? level5[date.calendar()] : false,
-//     });
+    //split into months
+    var m = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+    m.forEach( function(element, index) {
+        dataSplitByMonth.push( {
+            name: element,
+            month: index+1,
+            days: dataAll.filter( (day)=> { return day.month === index+1} )
+        });
+    });
 
-//     date.add(1, 'day');
-// }
+    //calculate layouts
+    // each month becomes a g element
 
-// //split into months
-// var m = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
-// m.forEach( function(element, index) {
-//     dataSplitByMonth.push( {
-//         name: element,
-//         month: index+1,
-//         days: dataAll.filter( (day)=> { return day.month === index+1} )
-//     });
-// });
+    var dayWidth = 10;
+    var dayHeight = 10;
+    var dayPadding = 2;
 
-// //calculate layouts
-// // each month becomes a g element
+    var monthPadding = 10;
+    var currentMonthX = 0;
 
-// var dayWidth = 10;
-// var dayHeight = 10;
-// var dayPadding = 2;
+    var dayOfWeekX = {
+        0: 0,                                   // sunday
+        1: dayWidth + dayPadding,               // monday 
+        2: (dayWidth * 2) + (dayPadding * 2),   // tuesday
+        3: (dayWidth * 3) + (dayPadding * 3),   // wendsday
+        4: (dayWidth * 4) + (dayPadding * 4),   // thursday
+        5: (dayWidth * 5) + (dayPadding * 5),   // friday
+        6: (dayWidth * 6) + (dayPadding * 6)    // saturday
+    };
 
-// var monthPadding = 10;
-// var currentMonthX = 0;
+    dataSplitByMonth.forEach( function(month) {
 
-// var dayOfWeekX = {
-//     0: 0,                                   // sunday
-//     1: dayWidth + dayPadding,               // monday 
-//     2: (dayWidth * 2) + (dayPadding * 2),   // tuesday
-//     3: (dayWidth * 3) + (dayPadding * 3),   // wendsday
-//     4: (dayWidth * 4) + (dayPadding * 4),   // thursday
-//     5: (dayWidth * 5) + (dayPadding * 5),   // friday
-//     6: (dayWidth * 6) + (dayPadding * 6)    // saturday
-// };
+        var yPos = 20; //start y
+        month.days.forEach( function(day) {
+            day.x = dayOfWeekX[day.weekDay];
+            day.y = yPos;
 
-// dataSplitByMonth.forEach( function(month) {
+            if(day.weekDay === 6) {
+                yPos += dayHeight + dayPadding;
+            }
+        });
 
-//     var yPos = 20; //start y
-//     month.days.forEach( function(day) {
-//         day.x = dayOfWeekX[day.weekDay];
-//         day.y = yPos;
+        month.dimensions = {
+            height: month.days[month.days.length-1].y + dayHeight,
+            width: (dayWidth * 7) + (dayPadding * 7)
+        };
 
-//         if(day.weekDay === 6) {
-//             yPos += dayHeight + dayPadding;
-//         }
-//     });
+        month.x = currentMonthX;
 
-//     month.dimensions = {
-//         height: month.days[month.days.length-1].y + dayHeight,
-//         width: (dayWidth * 7) + (dayPadding * 7)
-//     };
+        currentMonthX += month.dimensions.width + monthPadding;
+    });
 
-//     month.x = currentMonthX;
+    //vis
+    var width = $('#excessive-'+year+sitename)[0].clientWidth;
+    var height = $('#excessive-'+year+sitename)[0].clientHeight;
 
-//     currentMonthX += month.dimensions.width + monthPadding;
-// });
+    var svg = d3.select('#excessive-'+year+sitename).append('svg')
+        .attr('width', width)
+        .attr('height', height)
+        .style('display', 'block')
+        .style('margin-right', 'auto')
+        .style('margin-left', 'auto')
+        .style('background-color', '#FFFFFF');
 
-// //vis
-// var width = $('#excessive')[0].clientWidth;
-// var height = $('#excessive')[0].clientHeight;
-
-// var svg = d3.select('#excessive').append('svg')
-//     .attr('width', width)
-//     .attr('height', height)
-//     .style('display', 'block')
-//     .style('margin-right', 'auto')
-//     .style('margin-left', 'auto')
-//     .style('background-color', '#FFFFFF');
-
-// var yearView = svg.append('g');
+    var yearView = svg.append('g');
 
 
-// var months = yearView.selectAll('g') 
-//    .data(dataSplitByMonth)
-//    .enter()
-//         .append('g')
-//             .attr('transform', function(d) { return 'translate(' + d.x + ',0)' })
+    var months = yearView.selectAll('g') 
+       .data(dataSplitByMonth)
+       .enter()
+            .append('g')
+                .attr('transform', function(d) { return 'translate(' + d.x + ',0)' })
 
-// months.each(function(node) {
-    
-//     d3.select(this)
-//       .selectAll('rect')
-//       .data(node.days)
-//       .enter()
-//         .append('rect')
-//             .attr('height', dayWidth)
-//             .attr('width', dayHeight)
-//             .attr('x', function(d) { return d.x })
-//             .attr('y', function(d) { return d.y })
-//             .attr('fill', function(d) {
-//                 switch (true) {
-//                     case (d.level1 !== false):
-//                         return 'rgb(00, 255, 0)';
-//                         break;
-//                     case (d.level2 !== false):
-//                         return 'rgb(255, 255, 0)';
-//                         break;
-//                     case (d.level3 !== false):
-//                         return 'rgb(255, 150, 00)';
-//                         break;
-//                     case (d.level4 !== false):
-//                         return 'rgb(255, 00, 00)';
-//                         break;
-//                     case (d.level5 !== false):
-//                         return 'rgb(255, 00, 255)';
-//                         break;
-//                     default:
-//                         return 'rgb(0, 0, 0)';
-//                         break;
-//                 }
-//             });
+    months.each(function(node) {
+        
+        d3.select(this)
+          .selectAll('rect')
+          .data(node.days)
+          .enter()
+            .append('rect')
+                .attr('height', dayWidth)
+                .attr('width', dayHeight)
+                .attr('x', function(d) { return d.x })
+                .attr('y', function(d) { return d.y })
+                .attr('fill', function(d) {
+                    switch (true) {
+                        case (d.level1 !== false):
+                            return 'rgb(00, 255, 0)';
+                            break;
+                        case (d.level2 !== false):
+                            return 'rgb(255, 255, 0)';
+                            break;
+                        case (d.level3 !== false):
+                            return 'rgb(255, 150, 00)';
+                            break;
+                        case (d.level4 !== false):
+                            return 'rgb(255, 00, 00)';
+                            break;
+                        case (d.level5 !== false):
+                            return 'rgb(255, 00, 255)';
+                            break;
+                        default:
+                            return 'rgb(0, 0, 0)';
+                            break;
+                    }
+                });
 
-//     d3.select(this)
-//       .append('text')
-//       .text(function(d) { return d.name })
-//       .attr("text-anchor", "middle")
-//       .attr('x', function(d) { return d.dimensions.width/2})
-//       .attr('y', 10)
-//       .style("font-family", "Helvetica")
-//       .style("font-size","14pt")
-// });
+        d3.select(this)
+          .append('text')
+          .text(function(d) { return d.name })
+          .attr("text-anchor", "middle")
+          .attr('x', function(d) { return d.dimensions.width/2})
+          .attr('y', 10)
+          .style("font-family", "Helvetica")
+          .style("font-size","14pt")
+    });
 
-// yearView.attr('transform', function(d) { return 'translate(' + ((width - yearView.node().getBBox().width) /2)+ ',20)' })
+    yearView.attr('transform', function(d) { return 'translate(' + ((width - yearView.node().getBBox().width) /2)+ ',20)' })
+}
+
+function getSvgData(year, sitename) {
+        var post_data = {
+            _token: $('meta[name=csrf-token]').attr('content'),
+            year: $('#year').val(),
+            sitename: sitename,
+        }
+        
+        $.ajax({
+            type: 'POST',
+            url: '{{ route('research.excessive-post') }}',
+            data: post_data,
+            success: function (data) {
+                level1 = JSON.parse(data['level1']);
+                level2 = JSON.parse(data['level2']);
+                level3 = JSON.parse(data['level3']);
+                level4 = JSON.parse(data['level4']);
+                level5 = JSON.parse(data['level5']);
+                drawSvg(data['year'], sitename);
+            },
+            error: function () {
+                alert("查無資料");
+            }
+        });
+}
     
 
 // //vis 2

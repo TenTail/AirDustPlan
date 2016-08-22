@@ -62,3 +62,4 @@ Route::post('instant_info/show/{id}', 'InstantInfomationController@show');
 Route::get('research', ['as' => 'research.index', 'uses' => 'ResearchController@index']);
 Route::get('average', ['as' => 'research.average', 'uses' => 'ResearchController@average']);
 Route::get('excessive', ['as' => 'research.excessive', 'uses' => 'ResearchController@excessive']);
+Route::post('excessive', ['as' => 'research.excessive-post', 'uses' => 'ResearchController@excessiveGetData']);

@@ -122,10 +122,21 @@ class ResearchController extends Controller
      */
     public function excessive()
     {
+        return view('research.excessive');
+    }
+
+    /**
+     * 
+     */
+    public function excessiveGetData(Request $request)
+    {
+        $year = $request->input('year')."%";
+        $sitename = $request->input('sitename');
+
         $result = DB::select("
             SELECT t1.sitename, AVG(t1.pm25) AS AVG_PM25, SUBSTR(t1.publish_time, 1, 4) AS year, SUBSTR(t1.publish_time, 6, 2) AS month, SUBSTR(t1.publish_time, 9, 2) AS day
             FROM `airpollutions` AS t1
-            inner join (SELECT `id` FROM `airpollutions` WHERE `publish_time` LIKE '2015%' AND `sitename` = '淡水' AND `pm25` > 0) AS t2
+            inner join (SELECT `id` FROM `airpollutions` WHERE `publish_time` LIKE '$year' AND `sitename` = '$sitename' AND `pm25` > 0) AS t2
             ON t1.id = t2.id 
             GROUP BY t1.sitename, SUBSTR(t1.publish_time, 1, 10)
             ORDER BY SUBSTR(t1.publish_time, 1, 10) ASC
@@ -161,14 +172,15 @@ class ResearchController extends Controller
         }
 
         $data = [
-            'level1' => $level1,
-            'level2' => $level2,
-            'level3' => $level3,
-            'level4' => $level4,
-            'level5' => $level5,
+            'year' => $request->input('year'),
+            'level1' => json_encode($level1),
+            'level2' => json_encode($level2),
+            'level3' => json_encode($level3),
+            'level4' => json_encode($level4),
+            'level5' => json_encode($level5),
         ];
 
-        return view('research.excessive', $data);
+        return $data;
     }
 
     /**
