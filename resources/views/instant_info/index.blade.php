@@ -4,7 +4,7 @@
 <meta name="csrf-token" content="{{ csrf_token() }}" />
 @endsection
 
-@section("head-css")
+{{-- @section("head-css")
 <style type="text/css">
 	.FPMI1 { background-color:rgb(156, 255, 156); }
 	.FPMI2 { background-color:rgb(49, 255, 0); }
@@ -17,7 +17,7 @@
 	.FPMI9 { background-color:rgb(153, 0, 0); color: rgb(255, 255, 255);}
 	.FPMI10 { background-color:rgb(206, 48, 255); color: rgb(255, 255, 255);}
 </style>
-@endsection
+@endsection --}}
 
 @section("head-javascript")
 <script src="{{ asset('highmaps/js/highmaps.js') }}"></script>
@@ -28,7 +28,7 @@
 
 @section("content")
 
-<section class="col-md-12" id="epa_pm25_index">
+{{-- <section class="col-md-12" id="epa_pm25_index">
 <table border="1" style="font-size:12pt;">
 	<tr>
 		<th align="center" width="8%">指標等級</th>
@@ -96,100 +96,88 @@
     </tr>
 	</table>
 	<h3>資料來源:<a href="http://taqm.epa.gov.tw/taqm/tw/fpmi.htm">環保署</a></h3>
-</section>
-
-<section class="col-md-12">
-	<div class="col-md-6" style="height: 500px; min-width: 310px; max-width: 480px; margin: 0 auto" id="map">
-	</div>
-	<div class="col-md-6" id="stations">
-		<p>123</p>
-		@if(isset($data))
-			@foreach($data as $value)
-				<span>{{ $value->station }}</span>
-				<span>{{ $value->country }}</span>
-				<span>{{ $value->pm25 }}</span>
-			@endforeach
-		@endif
-	</div>
-</section>
-
+</section> --}}
+	<table border="1" id="conty_table">
+		
+	</table>
 @endsection
 
 @section("page-javascript")
+<script type="text/javascript">
+	var county_array = ['屏東線', '臺南市', '宜蘭縣', '嘉義縣', '臺東縣', '澎湖縣', '臺北市', '嘉義市', '臺中市', '雲林縣', '高雄市', '新北市', '新竹市', '新竹縣', '基隆市', '苗栗縣', '桃園市', '彰化縣', '花蓮縣', '南投縣'];
+	$('county_table').append()
+</script>
 <script>
-  
     // Initiate the chart
     // more APIs http://api.highcharts.com/highmaps
-    $('#map').highcharts('Map', {
+    // $('#map').highcharts('Map', {
 
-        title : {
-            text : 'Taiwan'
-        },
+    //     title : {
+    //         text : 'Taiwan'
+    //     },
 
-        mapNavigation: {
-            enabled: true,
-            buttonOptions: {
-                verticalAlign: 'bottom'
-            }
-        },
+    //     mapNavigation: {
+    //         enabled: true,
+    //         buttonOptions: {
+    //             verticalAlign: 'bottom'
+    //         }
+    //     },
 
-        // colorAxis: {
-        //     min: 0
-	    // },
+    //     // colorAxis: {
+    //     //     min: 0
+	   //  // },
 
-	    plotOptions: {
-	    	map: {
-	    		allAreas: false,
-	    		joinBy: ['woe-name', 'code'],
-       			mapData: Highcharts.maps['countries/tw/tw-all'],
-       			tooltip: {
-            		headerFormat: '',
-	            	pointFormatter: function () {
-	                        var c_en = ['Pingtung County', 'Tainan City', 'Yilan County', 'Chiayi County', 'Taitung County', 'Penghu County', 'Taipei City', 'Chiayi City', 'Taichung City', 'Yunlin County', 'Kaohsiung City', 'Taipei County', 'Hsinchu City', 'Hsinchu County', 'Keelung City', 'Miaoli County', 'Taoyuan County', 'Changhua County', 'Hualien County', 'Nantou County'];
-	                        var c_tw = ['屏東縣', '臺南縣', '宜蘭縣', '嘉義縣', '臺東縣', '澎湖縣', '臺北市', '嘉義市', '臺中縣', '雲林縣', '高雄市', '新北市', '新竹市', '新竹縣', '基隆市', '苗栗縣', '桃園縣', '彰化縣', '花蓮縣', '南投縣'];         
-	                        return c_tw[c_en.indexOf(this.code)];
-	                    }
-            	},
-            	allowPointSelect: true,
-            	states: {
-            		hover: {
-            			color: '#BADA55'
-            		} ,
-            		select: {
-            			color: '#EFFFEF'
-            			// derColor: 'black',
-             	 		// dashStyle: 'dot'
-            		}
-            	},
-            	events: {
-	            	click: function(e) {
-	            		var county = event.point.name;
-	            		console.log("event: "+county);
-	            		// display(county);
-	            		$.ajax({
-	            			type:'post',
-	            			url:'{{ route('instant_info/show/{id}')}}',
-	            			data: county,
-	            			success: function(data) {
-	            				alert("success");
-	            			},
-	            			error: function(e) {
-	            				alert("error");
-	            			}
-	            		})
-	            	}
-            	}
-	    	}    
-	    },
+	   //  plotOptions: {
+	   //  	map: {
+	   //  		allAreas: false,
+	   //  		joinBy: ['woe-name', 'code'],
+    //    			mapData: Highcharts.maps['countries/tw/tw-all'],
+    //    			tooltip: {
+    //         		headerFormat: '',
+	   //          	pointFormatter: function () {
+	   //                      var c_en = ['Pingtung County', 'Tainan City', 'Yilan County', 'Chiayi County', 'Taitung County', 'Penghu County', 'Taipei City', 'Chiayi City', 'Taichung City', 'Yunlin County', 'Kaohsiung City', 'Taipei County', 'Hsinchu City', 'Hsinchu County', 'Keelung City', 'Miaoli County', 'Taoyuan County', 'Changhua County', 'Hualien County', 'Nantou County'];
+	   //                      var c_tw = ['屏東縣', '臺南縣', '宜蘭縣', '嘉義縣', '臺東縣', '澎湖縣', '臺北市', '嘉義市', '臺中縣', '雲林縣', '高雄市', '新北市', '新竹市', '新竹縣', '基隆市', '苗栗縣', '桃園縣', '彰化縣', '花蓮縣', '南投縣'];         
+	   //                      return c_tw[c_en.indexOf(this.code)];
+	   //                  }
+    //         	},
+    //         	allowPointSelect: true,
+    //         	states: {
+    //         		hover: {
+    //         			color: '#BADA55'
+    //         		} ,
+    //         		select: {
+    //         			color: '#EFFFEF'
+    //         			// derColor: 'black',
+    //          	 		// dashStyle: 'dot'
+    //         		}
+    //         	},
+    //         	events: {
+	   //          	click: function(e) {
+	   //          		var county = event.point.name;
+	   //          		console.log("event: "+county);
+	   //          		// display(county);
+	   //          		$.ajax({
+	   //          			type:'post',
+	            			// url:'{{-- route('instant_info/show/{id}')--}}',
+	   //          			data: county,
+	   //          			success: function(data) {
+	   //          				alert("success");
+	   //          			},
+	   //          			error: function(e) {
+	   //          				alert("error");
+	   //          			}
+	   //          		})
+	   //          	}
+    //         	}
+	   //  	}    
+	   //  },
 
-        series : [{
-            data: $.map(['Pingtung County', 'Tainan City', 'Yilan County', 'Chiayi County', 'Taitung County', 'Penghu County', 'Taipei City', 'Chiayi City', 'Taichung City', 'Yunlin County', 'Kaohsiung City', 'Taipei County', 'Hsinchu City', 'Hsinchu County', 'Keelung City', 'Miaoli County', 'Taoyuan County', 'Changhua County', 'Hualien County', 'Nantou County'], function (code) {
-                return { code: code };
-            })
-        }]
-    });
-
- 
+    //     series : [{
+    //         data: $.map(['Pingtung County', 'Tainan City', 'Yilan County', 'Chiayi County', 'Taitung County', 'Penghu County', 'Taipei City', 'Chiayi City', 'Taichung City', 'Yunlin County', 'Kaohsiung City', 'Taipei County', 'Hsinchu City', 'Hsinchu County', 'Keelung City', 'Miaoli County', 'Taoyuan County', 'Changhua County', 'Hualien County', 'Nantou County'], function (code) {
+    //             return { code: code };
+    //         })
+    //     }]
+    // });
 
 	// function display(county) {
 	// 	console.log("log1 " + county);
