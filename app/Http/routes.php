@@ -52,9 +52,8 @@ Route::get('file-batch', ['uses' => 'UploadFilesController@batch']);
  *  PM2.5 instant info
 **/
 
-Route::get('instant_info', ['as' => 'instant_info.index', 'uses' => 'InstantInfomationController@index']);
-// Route::post('instant_info/show/', ['as' => 'instant_info.show', 'uses' => 'InstantInfomationController@show']);
-// Route::post('instant_info/show/', 'InstantInfomationController@show');
+Route::post('instant_info', ['as' => 'instant_info.index', 'uses' => 'InstantInfomationController@index']);
+Route::get('instant_info', ['as' => 'instant_info.show', 'uses' => 'InstantInfomationController@show']);
 
 /**
  * Research

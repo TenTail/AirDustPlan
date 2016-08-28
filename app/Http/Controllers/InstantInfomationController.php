@@ -52,8 +52,6 @@ class InstantInfomationController extends Controller
      */
     public function show(Request $request)
     {
-        // $data = $request->id;
-        // dd($data);
         // $now = Carbon::now();
         // $time = $now->year.'-'.sprintf("%02d", $now->month).'-'.sprintf("%02d", $now->day).' '.sprintf("%02d", $now->hour).':'.'00';
         // // echo($time);
@@ -61,18 +59,25 @@ class InstantInfomationController extends Controller
         //             ->where('publish_time', $time)
         //             ->where('country', $data)
         //             ->get();
+        $county = $request['county'];
+        if($county == null) {
+            $county = '雲林縣';
+        }
+        // dd($county);
 
         $url = "http://opendata.epa.gov.tw/ws/Data/AQX/?format=json";
-        $data = file_get_contents($url);
-        $data = json_decode($data);
-        $req = [];
+        $json_data = file_get_contents($url);
+        $json_data = json_decode($json_data);
+        $req = array();
 
-        foreach ($data as $key => $value) {
-            if(preg_match($request->id, $key->county)){
-
+        foreach ($json_data as $key => $value) {
+            if($value->County == $county) {
+                array_push($req, array("sitename" => $value->SiteName, "county" => $value->County, "psi" => $value->PSI, "publish_time" => $value->PublishTime));
             }
         }
-        return json($req);
+
+        return response()->json($req);
+
     }
 
     /**

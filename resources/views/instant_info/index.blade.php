@@ -14,7 +14,7 @@
 @section("content")
 	<table border="1" id="conty_table" style="font-size: 14px; text-align: center">
 		@for($i = 0 ; $i < count($data) ; $i++)
-			<td><button value="{!! $data[$i] !!}" onclick="getInstantValue()">{!! $data[$i] !!}</button></td>
+			<td><button value="{!! $data[$i] !!}" onclick="getInstantValue(this.value)">{!! $data[$i] !!}</button></td>
 
 			@if($i % 5 == 0 && $i != 0)
 				</tr>
@@ -22,32 +22,34 @@
 			
 		@endfor
 	</table>
+	<div id="show_data">
+		
+	</div>
 @endsection
 
 @section("page-javascript")
 <script type="text/javascript">
-	$.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-	});
-
-	function getInstantValue(county) {
-			$.ajax({
-				type: 'get',
-				url:'http://opendata.epa.gov.tw/ws/Data/AQX/?format=json',
-				// contentType: "application/json; charset=utf-8",
-				dataType:'json',
-				success: function(data) {
-					console.log("data = "+ data);
-					alert("success");
-				},
-				error: function(e) {
-					console.log(e);
-					alert("Something error!");
-				}
-			});
-	}
+	function getInstantValue(county)
+	{
+		$.ajaxSetup({
+	        headers: {
+	            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+	        }
+		});
+		$.ajax({
+		    url: 'instant_info',
+		    type: 'get',
+		    data: {county: county},
+		    // dataType: 'JSON',
+		    success: function (data) {
+		        alert("success");
+		       	content.log(data);
+		    },
+		    error: function (e) {
+		    	alert("Something error!");
+		    }
+		});
+	}	
 </script>
 
 <script>
