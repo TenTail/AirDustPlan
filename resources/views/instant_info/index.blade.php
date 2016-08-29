@@ -44,9 +44,65 @@
 		    success: function (data) {
 		        alert("success");
 		       	console.log(data);
-		       	for(var i = 0; i < data.length ; i++) {
-	       			$('#show_data').append('<p>測站名稱 : ' + data[i].sitename + ' 所屬縣市 : ' + data[i].county + ' PSI : ' + data[i].psi + ' 發佈時間 : ' + data[i].publish_time + '</p>');
-		       	}
+		       	// for(var i = 0; i < data.length ; i++) {
+	       		// 	$('#show_data').append('<p>測站名稱 : ' + data[i].sitename + ' 所屬縣市 : ' + data[i].county + ' PSI : ' + data[i].psi + ' 發佈時間 : ' + data[i].publish_time + '</p>');  	
+	       		// };
+	       		var seriesOptions = [], seriesCounter = 0;
+			  	$(function () {
+
+				    function createChart() {
+				    	$('#show_data').highcharts({
+					        chart: {
+					            type: 'column'
+					        },
+					        title: {
+					            text: data[0].county
+					        },
+					        xAxis: {
+					            categories: [
+					                data[0].publish_time
+					            ],
+					            crosshair: true
+					        },
+					        yAxis: {
+					            min: 0,
+					            title: {
+					                text: 'PSI'
+					            }
+					        },
+					        tooltip: {
+					            // headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+					            pointFormat: '<table><tr><td style="color:{series.color}; padding:0; font-size:16px">{series.name}: </td>' +
+					                '<td style="padding:0; font-size:16px"><b>{point.y:.1f}</b></td></tr>',
+					            footerFormat: '</table>',
+					            shared: true,
+					            useHTML: true
+					        },
+					        plotOptions: {
+					            column: {
+					                pointPadding: 1,
+					                borderWidth: 0
+					            }
+					        },
+					        series: seriesOptions
+					    });
+				    };
+
+				    $.each(data, function (i, name) {
+				            seriesOptions[i] = {
+				                name: data[i].sitename,
+				                data: [parseInt(data[i].psi)]
+				            };
+
+				            // As we're loading the data asynchronously, we don't know what order it will arrive. So
+				            // we keep a counter and create the chart when all the data is loaded.
+				            seriesCounter += 1;
+
+				            if (seriesCounter === data.length) {
+				                createChart();
+				            }  
+				    });
+				});
 		    },
 		    error: function (e) {
 		    	alert("Something error!");
@@ -54,106 +110,7 @@
 		});
 	}	
 
-    // Initiate the chart
-    // more APIs http://api.highcharts.com/highmaps
-    // $('#map').highcharts('Map', {
 
-    //     title : {
-    //         text : 'Taiwan'
-    //     },
-
-    //     mapNavigation: {
-    //         enabled: true,
-    //         buttonOptions: {
-    //             verticalAlign: 'bottom'
-    //         }
-    //     },
-
-    //     // colorAxis: {
-    //     //     min: 0
-	   //  // },
-
-	   //  plotOptions: {
-	   //  	map: {
-	   //  		allAreas: false,
-	   //  		joinBy: ['woe-name', 'code'],
-    //    			mapData: Highcharts.maps['countries/tw/tw-all'],
-    //    			tooltip: {
-    //         		headerFormat: '',
-	   //          	pointFormatter: function () {
-	   //                      var c_en = ['Pingtung County', 'Tainan City', 'Yilan County', 'Chiayi County', 'Taitung County', 'Penghu County', 'Taipei City', 'Chiayi City', 'Taichung City', 'Yunlin County', 'Kaohsiung City', 'Taipei County', 'Hsinchu City', 'Hsinchu County', 'Keelung City', 'Miaoli County', 'Taoyuan County', 'Changhua County', 'Hualien County', 'Nantou County'];
-	   //                      var c_tw = ['屏東縣', '臺南縣', '宜蘭縣', '嘉義縣', '臺東縣', '澎湖縣', '臺北市', '嘉義市', '臺中縣', '雲林縣', '高雄市', '新北市', '新竹市', '新竹縣', '基隆市', '苗栗縣', '桃園縣', '彰化縣', '花蓮縣', '南投縣'];         
-	   //                      return c_tw[c_en.indexOf(this.code)];
-	   //                  }
-    //         	},
-    //         	allowPointSelect: true,
-    //         	states: {
-    //         		hover: {
-    //         			color: '#BADA55'
-    //         		} ,
-    //         		select: {
-    //         			color: '#EFFFEF'
-    //         			// derColor: 'black',
-    //          	 		// dashStyle: 'dot'
-    //         		}
-    //         	},
-    //         	events: {
-	   //          	click: function(e) {
-	   //          		var county = event.point.name;
-	   //          		console.log("event: "+county);
-	   //          		// display(county);
-	   //          		$.ajax({
-	   //          			type:'post',
-	            			// url:'{{-- route('instant_info/show/{id}')--}}',
-	   //          			data: county,
-	   //          			success: function(data) {
-	   //          				alert("success");
-	   //          			},
-	   //          			error: function(e) {
-	   //          				alert("error");
-	   //          			}
-	   //          		})
-	   //          	}
-    //         	}
-	   //  	}    
-	   //  },
-
-    //     series : [{
-    //         data: $.map(['Pingtung County', 'Tainan City', 'Yilan County', 'Chiayi County', 'Taitung County', 'Penghu County', 'Taipei City', 'Chiayi City', 'Taichung City', 'Yunlin County', 'Kaohsiung City', 'Taipei County', 'Hsinchu City', 'Hsinchu County', 'Keelung City', 'Miaoli County', 'Taoyuan County', 'Changhua County', 'Hualien County', 'Nantou County'], function (code) {
-    //             return { code: code };
-    //         })
-    //     }]
-    // });
-
-	// function display(county) {
-	// 	console.log("log1 " + county);
-		
-	// 	$.ajaxSetup({
-	//         headers: {
-	//             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-	//         }
-	// 	});
-
-	// 	$.ajax({
-	// 		type: 'get',
-	// 		url:'http://opendata.epa.gov.tw/ws/Data/AQX/?format=json',
-	// 		contentType: "application/json; charset=utf-8",
-	// 		// url: '{{-- route('instant_info.show') --}}',
-	// 		// data: {
-	// 		// 	_token: $('meta[name="csrf-token"]').attr('content'),
-	// 		// 	id: county
-	// 		// },
-	// 		dataType:'json',
-	// 		success: function(data) {
-	// 			console.log("data = "+ data);
-	// 			alert("success");
-	// 		},
-	// 		error: function(e) {
-	// 			console.log(e);
-	// 			alert("Something error!");
-	// 		}
-	// 	});
-	// };
 </script>
 
 @endsection
