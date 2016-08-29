@@ -12,16 +12,57 @@
 @section("title", "空塵計")
 
 @section("content")
-	<table border="1" id="conty_table" style="font-size: 14px; text-align: center">
+	<table border="1" id="county_table" align="center">
 		@for($i = 0 ; $i < count($data) ; $i++)
-			<td><button value="{!! $data[$i] !!}" onclick="getInstantValue(this.value)">{!! $data[$i] !!}</button></td>
-
-			@if($i % 5 == 0 && $i != 0)
+			@if($i < 5)
+				<td><button type="button" class="btn btn-primary" style="width: 100%;font-size: 20pt;" value="{!! $data[$i] !!}" onclick="getInstantValue(this.value)">{!! $data[$i] !!}</button></td>
+			@endif
+			@if($i > 4 && $i <10)
+				<td><button type="button" class="btn btn-success" style="width: 100%;font-size: 20pt;" value="{!! $data[$i] !!}" onclick="getInstantValue(this.value)">{!! $data[$i] !!}</button></td>
+			@endif
+			@if($i > 9 && $i <15)
+				<td><button type="button" class="btn btn-warning" style="width: 100%;font-size: 20pt;" value="{!! $data[$i] !!}" onclick="getInstantValue(this.value)">{!! $data[$i] !!}</button></td>
+			@endif
+			@if($i > 14 && $i <20)
+				<td><button type="button" class="btn btn-info" style="width: 100%;font-size: 20pt;" value="{!! $data[$i] !!}" onclick="getInstantValue(this.value)">{!! $data[$i] !!}</button></td>
+			@endif
+			@if($i == 4 || $i == 9 || $i == 14)
 				</tr>
 			@endif
 			
 		@endfor
 	</table>
+	{{-- <table id="county_table" align="center">
+		<tr>
+			<td><button type="button" class="btn btn-success" style="width: 100%;font-size: 20pt; padding:0" value="臺北市
+			" onclick="getInstantValue()">臺北市</button></td>
+			<td><button type="button" class="btn btn-success" style="width: 100%;font-size: 20pt; padding:0" value="新北市" onclick="getInstantValue()">新北市</button></td>
+			<td><button type="button" class="btn btn-success" style="width: 100%;font-size: 20pt; padding:0" value="基隆市" onclick="getInstantValue()">基隆市</button></td>
+			<td><button type="button" class="btn btn-success" style="width: 100%;font-size: 20pt; padding:0" value="桃園市" onclick="getInstantValue()">桃園市</button></td>
+			<td><button type="button" class="btn btn-success" style="width: 100%;font-size: 20pt; padding:0" value="新竹市" onclick="getInstantValue()">新竹市</button></td>
+		</tr>
+		<tr>
+			<td><button style="font-size:16px" value="新竹縣" onclick="getInstantValue()">新竹縣</button></td>
+			<td><button style="font-size:16px" value="苗栗縣" onclick="getInstantValue()">苗栗縣</button></td>
+			<td><button style="font-size:16px" value="臺中市" onclick="getInstantValue()">臺中市</button></td>
+			<td><button style="font-size:16px" value="彰化縣" onclick="getInstantValue()">彰化縣</button></td>
+			<td><button style="font-size:16px" value="南投縣" onclick="getInstantValue()">南投縣</button></td>
+		</tr>
+			<tr>
+			<td><button style="font-size:16px" value="雲林縣" onclick="getInstantValue()">雲林縣</button></td>
+			<td><button style="font-size:16px" value="嘉義市" onclick="getInstantValue()">嘉義市</button></td>
+			<td><button style="font-size:16px" value="嘉義縣" onclick="getInstantValue()">嘉義縣</button></td>
+			<td><button style="font-size:16px" value="臺南市" onclick="getInstantValue()">臺南市</button></td>
+			<td><button style="font-size:16px" value="高雄市" onclick="getInstantValue()">高雄市</button></td>
+		</tr>
+			<tr>
+			<td><button style="font-size:16px" value="屏東縣" onclick="getInstantValue()">屏東縣</button></td>
+			<td><button style="font-size:16px" value="宜蘭縣" onclick="getInstantValue()">宜蘭縣</button></td>
+			<td><button style="font-size:16px" value="花蓮縣" onclick="getInstantValue()">花蓮縣</button></td>
+			<td><button style="font-size:16px" value="臺東縣" onclick="getInstantValue()">臺東縣</button></td>
+			<td><button style="font-size:16px" value="澎湖縣" onclick="getInstantValue()">澎湖縣</button></td>
+		</tr>
+	</table> --}}
 	<div id="show_data">
 		
 	</div>
@@ -81,7 +122,7 @@
 					        plotOptions: {
 					            column: {
 					                pointPadding: 1,
-					                borderWidth: 0
+					                borderWidth: 2
 					            }
 					        },
 					        series: seriesOptions
