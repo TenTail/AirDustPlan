@@ -38,21 +38,22 @@
 		});
 		$.ajax({
 		    url: 'instant_info',
-		    type: 'get',
+		    type: 'post',
 		    data: {county: county},
 		    // dataType: 'JSON',
 		    success: function (data) {
 		        alert("success");
-		       	content.log(data);
+		       	console.log(data);
+		       	for(var i = 0; i < data.length ; i++) {
+	       			$('#show_data').append('<p>測站名稱 : ' + data[i].sitename + ' 所屬縣市 : ' + data[i].county + ' PSI : ' + data[i].psi + ' 發佈時間 : ' + data[i].publish_time + '</p>');
+		       	}
 		    },
 		    error: function (e) {
 		    	alert("Something error!");
 		    }
 		});
 	}	
-</script>
 
-<script>
     // Initiate the chart
     // more APIs http://api.highcharts.com/highmaps
     // $('#map').highcharts('Map', {
