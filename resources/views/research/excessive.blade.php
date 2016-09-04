@@ -156,14 +156,13 @@ $('#county').change(function () {
 function addExcessive() {
     var year = $('#year').val();
     var s = $('#sitename').val();
-    var ss = "'"+year+s+"'";
     if (document.getElementById(year+s)) {
         alert(year+"年"+s+"已新增");
     } else {
         var html = '<div class="col-md-12 excessive-child" id="'+year+s+'">';
         html = html+'<div style="position: relative;">';
         html = html+'<h2 class="title">'+year+'年-'+s+'測站</h2>';
-        html = html+'<button class="remove-btn btn btn-danger" onClick="removeExcessive('+ss+')"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>';
+        html = html+'<button class="remove-btn btn btn-danger" onClick="removeExcessive(\''+year+s+'\')"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>';
         html = html+'</div>';
         html = html+'<div class="excessive-svg" id="excessive-'+year+s+'"></div>';
         html = html+'</div>';
