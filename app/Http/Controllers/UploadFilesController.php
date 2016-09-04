@@ -91,10 +91,32 @@ class UploadFilesController extends Controller
     }
 
     /**
+     * 單檔上傳
+     */
+    public function single()
+    {
+        return view('file_upload.single');
+    }
+
+    /**
+     * 批次作業起始頁面
+     */
+    public function batch()
+    {
+        $files = File::files(public_path().'/history-files');
+
+        foreach ($files as $key => $file) {
+            $files[$key] = basename($file, ".json");
+        }
+        
+        return view('file_upload.batch')->with('files', $files);
+    }
+
+    /**
      * 資料夾批次作業
      * 請放在/public/history-files/
      */
-    public function batch()
+    public function batchStart()
     {
         $files = File::files(public_path().'/history-files');
         foreach ($files as $key => $file) {
