@@ -49,6 +49,7 @@ Route::get('file-single', ['as' => 'file-upload.single', 'uses' => 'UploadFilesC
 Route::post('file-single', ['as' => 'file-single.upload', 'uses' => 'UploadFilesController@singleUpload']);
 Route::get('file-batch', ['as' => 'file-upload.batch', 'uses' => 'UploadFilesController@batch']);
 Route::post('file-batch', ['as' => 'file-batch.start', 'uses' => 'UploadFilesController@batchStart']);
+Route::post('file-delete', ['as' => 'file-upload.delete', 'uses' => 'UploadFilesController@fileDelete']);
 
 /**
  *  PM2.5 instant info

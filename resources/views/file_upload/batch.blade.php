@@ -109,7 +109,7 @@
         html = html + '<td>'+file_name+'.json</td>';
         html = html + '<td>';
         html = html + '<button class="btn btn-success" onClick="removeFileList(\''+file_name+'\')"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span>確定</button>';
-        html = html + '<button class="btn btn-danger" onClick=""><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>刪除檔案</button>';
+        html = html + '<button class="btn btn-danger" onClick="deleteFile(\''+file_name+'\')"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>刪除檔案</button>';
         html = html + '</td>';
         html = html + '</tr>';
 
@@ -135,6 +135,27 @@
     function removeFileReady(file_name) {
         $('#'+file_name).remove();
         addFileList(file_name);
+    }
+
+    function deleteFile(file_name) {
+        if (confirm('確定要刪除\t'+file_name+'.json\t?')) {
+            var post_data = {
+                _token: $('meta[name=csrf-token]').attr('content'),
+                file: file_name,
+            };
+            $.ajax({
+                type: 'POST',
+                url: '{{ route('file-upload.delete') }}',
+                data: post_data,
+                success: function (msg) {
+                    alert(msg);
+                    $('#'+file_name).remove();
+                },
+                error: function (e) {
+                    alert('發生錯誤。請聯絡管理員。');
+                }
+            });
+        }
     }
 
     $(document).ready(function () {

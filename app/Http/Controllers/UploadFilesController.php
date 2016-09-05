@@ -118,19 +118,35 @@ class UploadFilesController extends Controller
      */
     public function batchStart()
     {
-        $files = File::files(public_path().'/history-files');
-        foreach ($files as $key => $file) {
-            $this->file_content = file_get_contents($file);
-            $data = json_decode($this->file_content, true);
-            $this->check($data);
-            try {
-                $this->store($data);
-                echo "<p><span style='color: green'>成功上傳</span>".$file."</p>";
-                File::delete($file);
-                echo "<p style='color: blue'>已刪除".$file."</p>";
-            } catch (Exception $e) {
-                echo "<p><span style='color: red'>上傳失敗</span>".$file."</p>";
-            }
+        // $files = File::files(public_path().'/history-files');
+        // foreach ($files as $key => $file) {
+        //     $this->file_content = file_get_contents($file);
+        //     $data = json_decode($this->file_content, true);
+        //     $this->check($data);
+        //     try {
+        //         $this->store($data);
+        //         echo "<p><span style='color: green'>成功上傳</span>".$file."</p>";
+        //         File::delete($file);
+        //         echo "<p style='color: blue'>已刪除".$file."</p>";
+        //     } catch (Exception $e) {
+        //         echo "<p><span style='color: red'>上傳失敗</span>".$file."</p>";
+        //     }
+        // }
+    }
+
+    /**
+     * 刪除檔案
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return string
+     */
+    public function fileDelete(Request $request)
+    {
+        if (File::exists(public_path().'/history-files/'.$request->input('file').'.json')) {
+            File::delete(public_path().'/history-files/'.$request->input('file').'.json');
+            return "刪除".$request->input('file')."成功";
+        } else {
+            return "找不到該檔案";
         }
     }
 
