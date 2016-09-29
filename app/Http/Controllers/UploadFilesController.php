@@ -116,22 +116,24 @@ class UploadFilesController extends Controller
      * 資料夾批次作業
      * 請放在/public/history-files/
      */
-    public function batchStart()
+    public function batchStart(Request $request)
     {
-        // $files = File::files(public_path().'/history-files');
-        // foreach ($files as $key => $file) {
-        //     $this->file_content = file_get_contents($file);
-        //     $data = json_decode($this->file_content, true);
-        //     $this->check($data);
-        //     try {
-        //         $this->store($data);
-        //         echo "<p><span style='color: green'>成功上傳</span>".$file."</p>";
-        //         File::delete($file);
-        //         echo "<p style='color: blue'>已刪除".$file."</p>";
-        //     } catch (Exception $e) {
-        //         echo "<p><span style='color: red'>上傳失敗</span>".$file."</p>";
-        //     }
-        // }
+        $file = public_path().'/history-files/'.$request->input('file').'.json';
+
+        if (File::exists($file)) {
+            $this->file_content = file_get_contents($file);
+            $data = json_decode($this->file_content, true);
+            $this->check($data);
+            try {
+                $this->store($data);
+                File::delete($file);
+                return "成功寫入".$request->input('file');
+            } catch (Exception $e) {
+                return "該檔案有問題";
+            }
+        } else {
+            return "找不到檔案";
+        }
     }
 
     /**

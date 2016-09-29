@@ -77,7 +77,7 @@
     <div class="box">
         {{-- 確定要執行列表 --}}
         <h3>確定上傳</h3>
-        <button class="btn btn-warning" style="position: absolute;right: 10px;top: 30px;">開始作業</button>
+        <button class="btn btn-warning" onclick="batchStart();" style="position: absolute;right: 10px;top: 30px;">開始作業</button>
         <table class="table-out">
             <thead>
                 <tr>
@@ -99,6 +99,7 @@
         </table>
     </div>
 </div>
+{{-- <h1 style="position: absolute;">完成度．．．XX%</h1> --}}
 @endsection
 
 @section('page-javascript')
@@ -156,6 +157,41 @@
                 }
             });
         }
+    }
+
+    function batchStart() {
+        if (!confirm("開始後請勿關閉此視窗，等待作業完成。")) {
+            return ;
+        }
+
+        f();
+        var timer = setInterval(function () {
+            f();
+            if ($('#ready > tr').length == 0) clearInterval(timer) ;
+        }, 25000);
+    }
+
+    function f() {
+        file = $('#ready > tr')[0].id;
+        console.log('call f()'+file);
+        var post_data = {
+            _token: $('meta[name=csrf-token]').attr('content'),
+            file: file,
+        };
+
+        $.ajax({
+            type: 'POST',
+            url: '{{ route('file-batch.start') }}',
+            data: post_data,
+            async: false,
+            success: function (msg) {
+                console.log(msg);
+                removeFileReady(file);
+            },
+            error: function (e) {
+                alert('發生錯誤。請聯絡管理員。');
+            }
+        });
     }
 
     $(document).ready(function () {
