@@ -113,6 +113,28 @@ class UploadFilesController extends Controller
     }
 
     /**
+     * 單檔上傳作業
+     *
+     * @param  \Illuminate\Http\Request  $request
+     */
+    public function singleUpload(Request $request)
+    {
+        if ($request->hasFile('file_json')) {
+            $file = $request->file('file_json');
+            $this->file_name = $file->getClientOriginalName(); // file name
+            $this->file_content = file_get_contents($file->getRealPath());
+            $data = json_decode($this->file_content, true);
+            $this->check($data);
+            $this->store($data);
+            $request->session()->flash('alert-success', '成功上傳 '.$this->file_name.' 資料');
+            return redirect()->route('file-upload.single');  
+        } else {
+            $request->session()->flash('alert-danger', '檔案上傳失敗');
+            return redirect()->route('file-upload.single');
+        }
+    }
+
+    /**
      * 資料夾批次作業
      * 請放在/public/history-files/
      */
@@ -149,28 +171,6 @@ class UploadFilesController extends Controller
             return "刪除".$request->input('file')."成功";
         } else {
             return "找不到該檔案";
-        }
-    }
-
-    /**
-     * 上傳檔案
-     *
-     * @param  \Illuminate\Http\Request  $request
-     */
-    public function upload(Request $request)
-    {
-        if ($request->hasFile('file_json')) {
-            $file = $request->file('file_json');
-            $this->file_name = $file->getClientOriginalName(); // file name
-            $this->file_content = file_get_contents($file->getRealPath());
-            $data = json_decode($this->file_content, true);
-            $this->check($data);
-            $this->store($data);
-            $request->session()->flash('alert-success', '成功上傳 '.$this->file_name.' 資料');
-            return redirect()->route('file-upload.index');  
-        } else {
-            $request->session()->flash('alert-danger', '檔案上傳失敗');
-            return redirect()->route('file-upload.index');
         }
     }
 
