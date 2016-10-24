@@ -103,7 +103,7 @@ class UploadFilesController extends Controller
      */
     public function batch()
     {
-        $files = File::files(public_path().'/history-files');
+        $files = File::files(public_path().'/batch/');
 
         foreach ($files as $key => $file) {
             $files[$key] = basename($file, ".json");
@@ -136,11 +136,11 @@ class UploadFilesController extends Controller
 
     /**
      * 資料夾批次作業
-     * 請放在/public/history-files/
+     * 請放在/public/batch/
      */
     public function batchStart(Request $request)
     {
-        $file = public_path().'/history-files/'.$request->input('file').'.json';
+        $file = public_path().'/batch/'.$request->input('file').'.json';
 
         if (File::exists($file)) {
             $this->file_content = file_get_contents($file);
@@ -166,8 +166,8 @@ class UploadFilesController extends Controller
      */
     public function fileDelete(Request $request)
     {
-        if (File::exists(public_path().'/history-files/'.$request->input('file').'.json')) {
-            File::delete(public_path().'/history-files/'.$request->input('file').'.json');
+        if (File::exists(public_path().'/batch/'.$request->input('file').'.json')) {
+            File::delete(public_path().'/batch/'.$request->input('file').'.json');
             return "刪除".$request->input('file')."成功";
         } else {
             return "找不到該檔案";
