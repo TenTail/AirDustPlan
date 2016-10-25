@@ -91,7 +91,14 @@ class DataExportController extends Controller
     public function export(Request $request)
     {
         $this->year = $request->input("year")-1911;
-        $this->county = $request->input("county");
+        $sitename = $request->input("sitename");
+        $file_name = $this->year.'年'.$sitename.'站.json';
+        $file = public_path().'/history-files/'.$file_name;
+        if (File::exists($file)) {
+            $file_content = file_get_contents($file);
+            $data = json_decode($file_content, true);
+            dd(explode('-', $data[0]["PublishTime"])[1]);
+        }
 
         $fun = function ($value) {
             return "\"$value\"";
@@ -103,7 +110,7 @@ class DataExportController extends Controller
             if (File::exists($file)) {
                 $file_content = file_get_contents($file);
                 $data = json_decode($file_content, true);
-                
+                dd($data);
                  
                 $fp = fopen('file.csv', 'w');
                 $col = [];
@@ -169,18 +176,22 @@ class DataExportController extends Controller
             $file_content = file_get_contents($file);
             $data = json_decode($file_content, true);
             $keys_str = "";
-            $data_str = "";
+            $data_str = ["", "", "", "", "", "", "", "", "", "", "", ""];
+            
             $keys_str .= "<tr>";
             foreach ($data[0] as $key => $value) {
                 $keys_str .= "<th>$key</th>";
             }
             $keys_str .= "</tr>";
+
             foreach ($data as $key => $value) {
-                $data_str .= "<tr>";
+                $i = intval(explode('-', $value["PublishTime"])[1])-1;
+                
+                $data_str[$i] .= "<tr>";
                 foreach ($value as $k => $v) {
-                    $data_str .= "<td>$v</td>";
+                    $data_str[$i] .= "<td>$v</td>";
                 }
-                $data_str .= "</tr>";
+                $data_str[$i] .= "</tr>";
             }
             return compact('keys_str', 'data_str');
         } else {

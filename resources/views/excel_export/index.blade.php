@@ -84,7 +84,7 @@
         </select>
     </div>
     <div class="col-md-12" style="margin-top: 1em;">
-        <input type="submit" class="btn btn-success" value="下載" disabled="true">
+        <input type="submit" class="btn btn-success" value="下載" >
     </div>
 </div>
 {!! Form::close() !!}
@@ -94,7 +94,25 @@
         <h2 class="alert alert-warning">未找到資料，請聯絡管理員。<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a></h2>
     </div> <!-- end .flash-message -->
 </div>
+
 <div id="demo-table" class="col-md-12 fixedTable" style="display: none;">
+    <h2 style="text-align: center;">資料預覽</h2>
+    <div style="text-align: center;">
+        <ul id="pagination" class="pagination pagination-lg">
+            <li class="active"><span href="#" onclick="page(1)">1月</span></li>
+            <li><span href="#" onclick="page(2)">2月</span></li>
+            <li><span href="#" onclick="page(3)">3月</span></li>
+            <li><span href="#" onclick="page(4)">4月</span></li>
+            <li><span href="#" onclick="page(5)">5月</span></li>
+            <li><span href="#" onclick="page(6)">6月</span></li>
+            <li><span href="#" onclick="page(7)">7月</span></li>
+            <li><span href="#" onclick="page(8)">8月</span></li>
+            <li><span href="#" onclick="page(9)">9月</span></li>
+            <li><span href="#" onclick="page(10)">10月</span></li>
+            <li><span href="#" onclick="page(11)">11月</span></li>
+            <li><span href="#" onclick="page(12)">12月</span></li>
+        </ul>
+    </div>
     <header class="fixedTable-header">
         <table class="table table-bordered">
             <thead>
@@ -120,6 +138,7 @@
 @section("page-javascript")
 
 <script>
+var data_str;
 var all_site = [
     {county: '基隆市', sitename: ['基隆']},
     {county: '嘉義市', sitename: ['嘉義']},
@@ -166,13 +185,13 @@ function loadSite() {
 }
 
 // update table
-function updateTable(data) {
+function updateTable(data, p = 1) {
     $table_head = $('#demo-table > header > table > thead')
     $table_body = $('#demo-table > .fixedTable-body > table > tbody')
     $table_head.empty()
     $table_body.empty()
     $table_head.append(data.keys_str)
-    $table_body.append(data.data_str)
+    $table_body.append(data.data_str[p-1])
 
 }
 
@@ -196,7 +215,8 @@ function loadTable() {
                 $('#demo-msg').css('display', 'none')
                 $('#demo-table').css('display', 'block')
                 updateTable(data)
-                console.log(data)
+                data_str = data.data_str
+                console.log(data_str)
             }
         },
         error: function () {
@@ -206,6 +226,14 @@ function loadTable() {
             console.log('fail')
         }
     })
+}
+
+function page(p = 1) {
+    $table_body = $('#demo-table > .fixedTable-body > table > tbody')
+    $table_body.empty()
+    $table_body.append(data_str[p-1])
+    $('#pagination > li').removeClass('active')
+    $($('#pagination > li')[p-1]).addClass('active')
 }
 
 $('#year').change(function () {
@@ -248,73 +276,6 @@ $(document).ready(function () {
     demo = new fixedTable($('#demo-table'));
 }.call(this));
 
-$(function () {
-    // Instanciate the map
-    $('#map_tw').highcharts('Map', {
-        title : {
-            text : 'Taiwan'
-        },
-
-        legend: {
-            enabled: false
-        },
-
-        plotOptions: {
-            map: {
-                allAreas: false,
-                joinBy: ['woe-name', 'code'],
-                dataLabels: {
-                    enabled: true,
-                    color: '#FFFFFF',
-                    format: null,
-                    style: {
-                        fontWeight: 'bold'
-                    }
-                },
-                mapData: Highcharts.maps['countries/tw/tw-all'],
-                tooltip: {
-                    headerFormat: '',
-                    pointFormatter: function () {
-                        var c_en = ['Pingtung County', 'Tainan City', 'Yilan County', 'Chiayi County', 'Taitung County', 'Penghu County', 'Taipei City', 'Chiayi City', 'Taichung City', 'Yunlin County', 'Kaohsiung City', 'Taipei County', 'Hsinchu City', 'Hsinchu County', 'Keelung City', 'Miaoli County', 'Taoyuan County', 'Changhua County', 'Hualien County', 'Nantou County'];
-                        var c_tw = ['屏東線', '臺南市', '宜蘭縣', '嘉義縣', '臺東縣', '澎湖縣', '臺北市', '嘉義市', '臺中市', '雲林縣', '高雄市', '臺北市', '新竹市', '新竹縣', '基隆市', '苗栗縣', '桃園市', '彰化縣', '花蓮縣', '南投縣'];
-
-                        return c_tw[c_en.indexOf(this.code)];
-                    }
-                },
-                allowPointSelect: true,
-                states: {
-                    select: {
-                        color: '#FF0000'
-                    },
-                    hover: {
-                        color: '#FF0000'
-                    }
-                },
-                events: {
-                    click: function (e) {
-                        $('#county').val(countyTranslate(event.point.name));
-                    }
-                }
-            }
-            
-        },
-
-        series : [{
-            //'Pingtung County', 'Tainan City', 'Yilan County', 'Chiayi County', 'Taitung County', 'Penghu County', 'Kinmen', 'Lienchiang', 'Taipei City', 'Chiayi City', 'Taichung City', 'Yunlin County', 'Kaohsiung City', 'Taipei County', 'Hsinchu City', 'Hsinchu County', 'Keelung City', 'Miaoli County', 'Taoyuan County', 'Changhua County', 'Hualien County', 'Nantou County'
-            data: $.map(['Pingtung County', 'Tainan City', 'Yilan County', 'Chiayi County', 'Taitung County', 'Penghu County', 'Taipei City', 'Chiayi City', 'Taichung City', 'Yunlin County', 'Kaohsiung City', 'Taipei County', 'Hsinchu City', 'Hsinchu County', 'Keelung City', 'Miaoli County', 'Taoyuan County', 'Changhua County', 'Hualien County', 'Nantou County'], function (code) {
-                return { code: code };
-            })
-        }]
-    });
-    $('svg > text[text-anchor=end]').css('display', 'none');
-});
-
-function countyTranslate (county) {
-    var c_en = ['Pingtung', 'Tainan City', 'Yilan', 'Chiayi', 'Taitung', 'Penghu', 'Taipei City', 'Chiayi City', 'Taichung City', 'Yunlin', 'Kaohsiung City', 'Taipei', 'Hsinchu City', 'Hsinchu', 'Keelung City', 'Miaoli', 'Taoyuan', 'Changhua', 'Hualien', 'Nantou'];
-    var c_tw = ['屏東線', '臺南市', '宜蘭縣', '嘉義縣', '臺東縣', '澎湖縣', '臺北市', '嘉義市', '臺中市', '雲林縣', '高雄市', '臺北市', '新竹市', '新竹縣', '基隆市', '苗栗縣', '桃園市', '彰化縣', '花蓮縣', '南投縣'];
-
-    return c_tw[c_en.indexOf(county)];
-}
 </script>
 
 @endsection
