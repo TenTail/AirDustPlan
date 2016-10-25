@@ -6,6 +6,7 @@
 
 @section('head-css')
 <style>
+/* table */
 .fixedTable {
     margin-top: 1em;
 }
@@ -43,6 +44,16 @@
   height: 310px;
   float: left;
 }
+
+/* input submit */
+#exportButton > input {
+    margin-top: 1em;
+    width: 33%;
+}
+
+#pagination > li {
+    cursor: pointer;
+}
 </style>
 @stop
 
@@ -56,14 +67,14 @@
 @section("content")
 
 <h1>空氣品質汙染指標 Open Data 下載</h1>
-<h3>因為政府所提供的歷年空氣品質資料十分難以分析且格式錯亂，所以提供可自訂所需欄位的方式輸出已處理過後的資料。</h3>
+<h3>因為政府所提供的歷年空氣品質資料十分難以分析且格式錯亂，所以提供三種檔案類型(csv,json,xls)，下載已處理過後的資料。</h3>
 
 {!! Form::open(array('route' => 'excel-export.export', 'method' => 'post')) !!}
 <div class="col-md-12">
     <div class="col-md-4">
         <h2 style="text-align: center;">選擇年份</h2>
         <select name="year" id="year" class="form-control" style="width: 100%">
-            @for ($i = getdate()['year']; $i != 1984; $i--)
+            @for ($i = getdate()['year']; $i != 2000; $i--)
                 <option value="{{ $i }}">{{ $i."年" }}</option>
             @endfor
         </select>
@@ -83,8 +94,10 @@
             {{-- option --}}
         </select>
     </div>
-    <div class="col-md-12" style="margin-top: 1em;">
-        <input type="submit" class="btn btn-success" value="下載" >
+    <div id="exportButton" class="col-md-12" style="margin-top: 1em;">
+        <input type="submit" name="export" class="btn btn-success" value="CSV檔下載">
+        <input type="submit" name="export" class="btn btn-warning" value="JSON檔下載">
+        <input type="submit" name="export" class="btn btn-primary" value="xls檔下載">
     </div>
 </div>
 {!! Form::close() !!}
@@ -192,7 +205,8 @@ function updateTable(data, p = 1) {
     $table_body.empty()
     $table_head.append(data.keys_str)
     $table_body.append(data.data_str[p-1])
-
+    $('#pagination > li').removeClass('active')
+    $($('#pagination > li')[p-1]).addClass('active')
 }
 
 // ajax for table
@@ -211,18 +225,20 @@ function loadTable() {
             if (data == '檔案不存在') {
                 $('#demo-msg').css('display', 'block')
                 $('#demo-table').css('display', 'none')
+                $('#exportButton > input').attr('disabled', '')
             } else {
                 $('#demo-msg').css('display', 'none')
                 $('#demo-table').css('display', 'block')
+                $('#exportButton > input').removeAttr('disabled', '')
                 updateTable(data)
                 data_str = data.data_str
-                console.log(data_str)
             }
         },
         error: function () {
             $('#loading').css('display', 'none')
             $('#demo-msg').css('display', 'block')
             $('#demo-table').css('display', 'none')
+            $('#exportButton > input').attr('disabled', '')
             console.log('fail')
         }
     })
@@ -234,6 +250,7 @@ function page(p = 1) {
     $table_body.append(data_str[p-1])
     $('#pagination > li').removeClass('active')
     $($('#pagination > li')[p-1]).addClass('active')
+    $('#exportButton > input').removeAttr('disabled', '')
 }
 
 $('#year').change(function () {

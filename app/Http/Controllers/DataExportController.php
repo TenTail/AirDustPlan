@@ -30,7 +30,7 @@ class DataExportController extends Controller
     /**
      * Choose sitename.
      *
-     * @var string
+     * @var array
      */
     private $sitename = array(
         '基隆市'=>['基隆'],
@@ -57,34 +57,13 @@ class DataExportController extends Controller
         '金門縣'=>['金門'],
     );
 
-    /**
-     * The column want to output.
-     *
-     * @var array
-     */
-    private $output = "";
-
-    /**
-     * Column title of Excel.
-     *
-     * @var array
-     */
-    private $xls_row = [];
-
-    /**
-     * Data of Excel
-     *
-     * @var array
-     */
-    private $xls_data = [];
-
     public function index()
     {
         return view("excel_export.index");
     }
 
     /**
-     * Data process.
+     * Export json|csv|xls .
      *
      * @param Request $request
      */
@@ -92,14 +71,19 @@ class DataExportController extends Controller
     {
         $this->year = $request->input("year")-1911;
         $sitename = $request->input("sitename");
-        $file_name = $this->year.'年'.$sitename.'站.json';
-        $file = public_path().'/history-files/'.$file_name;
+        $file_name = $this->year.'年'.$sitename.'站';
+        $file = public_path().'/history-files/'.$file_name.'.json';
         if (File::exists($file)) {
             $file_content = file_get_contents($file);
             $data = json_decode($file_content, true);
             
+            // download json
+            if ($request->input("export") == "JSON檔下載") 
+                return response()->download($file);
+
             // create csv file
-            $fp = fopen('file.csv', 'w');
+            $tp_filename = time();
+            $fp = fopen($tp_filename.'.csv', 'w');
             $col = [];
             foreach ($data[0] as $key => $value) {
 
@@ -111,13 +95,26 @@ class DataExportController extends Controller
             }
             fclose($fp);
 
-            // download
-            Excel::load('file.csv', function ($reader) {
+            // check file_type
+            if ($request->input("export") == "CSV檔下載") {
+                $file_type = 'CSV';
+            } else {
+                $file_type = 'xls';
+            }
 
-            }, 'UTF-8')->convert('xls');
+            // download and delete $tp_filename
+            Excel::load($tp_filename.'.csv', function ($reader) use($tp_filename) {
+                File::delete(public_path().'/'.$tp_filename.'.csv');    
+            }, 'UTF-8')->setFileName($file_name)->convert($file_type);
         }
     }
 
+    /**
+     * previews table.
+     *
+     * @param Request $request
+     * @return array|string
+     */
     public function table(Request $request)
     {
         $this->year = $request->input("year")-1911;
@@ -127,8 +124,9 @@ class DataExportController extends Controller
         if (File::exists($file)) {
             $file_content = file_get_contents($file);
             $data = json_decode($file_content, true);
-            $keys_str = "";
-            $data_str = ["", "", "", "", "", "", "", "", "", "", "", ""];
+
+            $keys_str = ""; // table head
+            $data_str = ["", "", "", "", "", "", "", "", "", "", "", ""]; // table body
             
             $keys_str .= "<tr>";
             foreach ($data[0] as $key => $value) {
@@ -149,71 +147,5 @@ class DataExportController extends Controller
         } else {
             return "檔案不存在";
         }
-    }
-    
-    /**
-     * Data process.
-     *
-     * @param Request $request
-     */
-    // public function export(Request $request)
-    // {
-    //     $this->year = $request->input("year");
-    //     $this->county = $request->input("county");
-    //     $this->sitename = $request->input("sitename");
-    //     $this->output = $request->input("output_data");
-
-    //     $result = ($this->county !== NULL) ? $this->getExcelData('county') : $this->getExcelData('sitename');
-        
-    //     array_push($this->xls_row, 'sitename');
-    //     if (empty($this->output)) {
-    //         array_push($this->xls_row, 'pm25');
-    //     } else {
-    //         foreach ($this->output as $key => $value) {
-    //             array_push($this->xls_row, $value);
-    //         }
-    //     }
-    //     array_push($this->xls_row, 'publish_time');
-
-    //     $i = 0;
-    //     foreach ($result as $key => $value) {
-    //         $this->xls_data[$i] = [];
-    //         foreach ($this->xls_row as $k => $v) {
-    //             array_push($this->xls_data[$i], $value[$v]);
-    //         }
-    //         $i++;
-    //     }
-    //     dd($this->xls_data);
-    //     $result = ($this->county !== NULL) ? $this->createExcel($this->county, 'xls') : $this->createExcel($this->sitename, 'xls');
-    // }
-
-    /**
-     * Create and Output Excel.
-     *
-     * @param string $fname
-     * @param string $file_type
-     */
-    public function createExcel($fname, $file_type)
-    {
-        $file_name = $fname."-".$this->year;
-        $row = $this->xls_row;
-        $data = $this->xls_data;
-
-        Excel::create($file_name, function($excel) use($row, $data) {
-            $excel->sheet('Sheet 1', function($sheet) use($row, $data) {
-                $sheet->fromArray($data, null, 'A1', true);
-                $sheet->row(1, $row);
-            });
-        })->download($file_type);
-    }
-
-    /**
-     * SQL to get DB data.
-     *
-     * @param string $col_name
-     */
-    public function getExcelData($col_name)
-    {
-        return AirPollution::where($col_name, $this->$col_name)->where('publish_time', 'LIKE', $this->year."%")->get()->toArray();
     }
 }
