@@ -97,72 +97,24 @@ class DataExportController extends Controller
         if (File::exists($file)) {
             $file_content = file_get_contents($file);
             $data = json_decode($file_content, true);
-            dd(explode('-', $data[0]["PublishTime"])[1]);
-        }
+            
+            // create csv file
+            $fp = fopen('file.csv', 'w');
+            $col = [];
+            foreach ($data[0] as $key => $value) {
 
-        $fun = function ($value) {
-            return "\"$value\"";
-        };
-
-        foreach ($this->sitename[$this->county] as $key => $sitename) {
-            $file_name = $this->year.'年'.$sitename.'站.json';
-            $file = public_path().'/history-files/'.$file_name;
-            if (File::exists($file)) {
-                $file_content = file_get_contents($file);
-                $data = json_decode($file_content, true);
-                dd($data);
-                 
-                $fp = fopen('file.csv', 'w');
-                $col = [];
-                foreach ($data[0] as $key => $value) {
-
-                    array_push($col, $key);
-                }
-                fputcsv($fp, $col);
-                foreach ($data as $fields) {
-                    fputcsv($fp, $fields);
-                }
-                fclose($fp);
-
-                $headers = [
-                        'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0'
-                    ,   'Content-type'        => 'text/csv'
-                    ,   'Content-Disposition' => 'attachment; filename=galleries.csv'
-                    ,   'Expires'             => '0'
-                    ,   'Pragma'              => 'public'
-                ];
-
-                return response()->download('file.csv');
-                dd("");
-                Excel::create($this->county, function($excel) use($data) {
-
-                    $excel->sheet($sitename, function($sheet) use($data) {
-
-                        $sheet->fromArray($data);
-
-                    });
-
-                })->export('xls');
+                array_push($col, $key);
             }
-        }
-        dd("");
+            fputcsv($fp, $col);
+            foreach ($data as $fields) {
+                fputcsv($fp, $fields);
+            }
+            fclose($fp);
 
-        $file = public_path().'/history-files/'.$file_name.'.json';
-        $file = public_path().'/history-files/'.'103年斗六站_20150324.json';
+            // download
+            Excel::load('file.csv', function ($reader) {
 
-        if (File::exists($file)) {
-            $file_content = file_get_contents($file);
-            $data = json_decode($file_content, true);
-            dd($data);
-            // try {
-            //     $this->store($data);
-            //     File::delete($file);
-            //     return "成功寫入".$request->input('file');
-            // } catch (Exception $e) {
-            //     return "該檔案有問題";
-            // }
-        } else {
-            return "找不到檔案";
+            }, 'UTF-8')->convert('xls');
         }
     }
 
@@ -186,7 +138,7 @@ class DataExportController extends Controller
 
             foreach ($data as $key => $value) {
                 $i = intval(explode('-', $value["PublishTime"])[1])-1;
-                
+
                 $data_str[$i] .= "<tr>";
                 foreach ($value as $k => $v) {
                     $data_str[$i] .= "<td>$v</td>";
