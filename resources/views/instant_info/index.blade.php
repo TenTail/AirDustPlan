@@ -29,14 +29,14 @@
 			@if($i == 4 || $i == 9 || $i == 14)
 				</tr>
 			@endif
-			
+
 		@endfor
 	</table> --}}
 {{-- 	<div id="psi_data">
-		
+
 	</div>
 	<div id="pm25_data">
-		
+
 	</div> --}}
 	<div id="map" style="width: 100%; height:400px"></div>
 @endsection
@@ -115,7 +115,7 @@
 
 	// 			            if (seriesCounter === data.length) {
 	// 			                createPsiChart();
-	// 			            }  
+	// 			            }
 	// 			    });
 	// 			});
 
@@ -173,7 +173,7 @@
 
 	// 			            if (seriesCounter === data.length) {
 	// 			                createPsiChart();
-	// 			            }  
+	// 			            }
 	// 			    });
 	// 			});
 	// 	    },
@@ -181,9 +181,11 @@
 	// 	    	alert("Something error!");
 	// 	    }
 	// 	});
-	// }	
+	// }
 
 var map;
+var stationGeographicInfo = [], stationGeographicInfoCounter = 0;
+var infowindow = [], markers = [];
 
 function initMap() {
 	console.log("initMap");
@@ -192,46 +194,50 @@ function initMap() {
     	zoom: 7
   	});
 
-  	 var contentString = '<div id="content">'+
-      '<div id="siteNotice">'+
-      '</div>'+
-      '<h1 id="firstHeading" class="firstHeading">Uluru</h1>'+
-      '<div id="bodyContent">'+
-      '<p><b>Uluru</b>, also referred to as <b>Ayers Rock</b>, is a large ' +
-      'sandstone rock formation in the southern part of the '+
-      'Northern Territory, central Australia. It lies 335&#160;km (208&#160;mi) '+
-      'south west of the nearest large town, Alice Springs; 450&#160;km '+
-      '(280&#160;mi) by road. Kata Tjuta and Uluru are the two major '+
-      'features of the Uluru - Kata Tjuta National Park. Uluru is '+
-      'sacred to the Pitjantjatjara and Yankunytjatjara, the '+
-      'Aboriginal people of the area. It has many springs, waterholes, '+
-      'rock caves and ancient paintings. Uluru is listed as a World '+
-      'Heritage Site.</p>'+
-      '<p>Attribution: Uluru, <a href="https://en.wikipedia.org/w/index.php?title=Uluru&oldid=297882194">'+
-      'https://en.wikipedia.org/w/index.php?title=Uluru</a> '+
-      '(last visited June 22, 2009).</p>'+
-      '</div>'+
-      '</div>';
+	infowindow = new google.maps.InfoWindow();
 
-  var infowindow = new google.maps.InfoWindow({
-    content: contentString
-  });
-  	var marker, i;
+	setMarkers(map);
+}
 
+function setMarkers(map, stationGeographicInfo) {
 	$.get( "{!! './js/air_quality_station_of_geographic_information.json' !!}", function(data) {
 		console.log("json success");
+		// for(i = 0 ; i < data.length ; i++) {
+		// 	// console.log("data[i].TWD97Lat" + data[i].TWD97Lat);
+		// 	stationGeographicInfo[i] = {
+		// 		lat:data[i].TWD97Lat,
+		// 		lng:data[i].TWD97Lon,
+		// 		sitename:data[i].SiteName
+		// 	};
+		// }
+
 		$.each(data, function(i, name){
-			marker = new google.maps.Marker({
+			// console.log("i = "+i);
+			markers[i] = new google.maps.Marker({
 				position:new google.maps.LatLng(data[i].TWD97Lat, data[i].TWD97Lon),
 				map:map,
-				title:data[i].sitename
+				title:data[i].SiteName
 			});
+
+			google.maps.event.addListener(markers[i], 'click', function(i) {
+				return function() {
+					console.log("marker clicked "+ i);
+  					infowindow.setContent("HIHI"+ i);
+    				infowindow.open(map, markers[i]);
+				}
+  			}(i));
+
+  			// google.maps.event.addListener(marker, 'click', (function(marker, i) {
+		   //      return function() {
+		   //        infowindow.setContent(locations[i][0]);
+		   //        infowindow.open(map, marker);
+		   //      }
+		   //  })(marker, i));
+
 		});
+
 	});
 
-	marker.addListener('click', function() {
-    	infowindow.open(map, marker);
-  	});
 }
 
 </script>
