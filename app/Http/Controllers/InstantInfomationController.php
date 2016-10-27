@@ -77,21 +77,51 @@ class InstantInfomationController extends Controller
         //     }
         // }
 
-        $sitename = $request['sitename'];
-        if($sitename == null) {
-            $sitename = '斗六';
-        }
-        // dd($county);
-
         $url = "http://opendata.epa.gov.tw/ws/Data/AQX/?format=json";
         $json_data = file_get_contents($url);
         $json_data = json_decode($json_data);
         $req = array();
+        $icon_base = './img/icons/';
+        $icon = ' ';
 
         foreach ($json_data as $key => $value) {
-            // if($value->SiteName == $sitename) {
-                array_push($req, array("sitename" => $value->SiteName, "county" => $value->County, "psi" => $value->PSI, "publish_time" => $value->PublishTime));
-            // }
+            /*
+            * green
+            */
+            if($value->PSI < 51) {
+                $icon = $icon_base.'green.jpg';
+            }
+
+            /*
+            * yellow
+            */
+            if($value->PSI > 50 && $value->PSI < 101) {
+                $icon = $icon_base.'yellow.jpg';
+            }
+
+            /*
+            * red
+            */
+            if($value->PSI > 100 && $value->PSI < 200) {
+                $icon = $icon_base.'red.jpg';
+            }
+
+            /*
+            * purple
+            */
+            if($value->PSI > 199 && $value->PSI < 300) {
+                $icon = $icon_base.'purple.jpg';
+            }
+
+            /*
+            * brown
+            */
+            if($value->PSI > 299) {
+                $icon = $icon_base.'brown.jpg';
+            }
+            // dd(icon);
+            array_push($req, array("sitename" => $value->SiteName, "county" => $value->County, "psi" => $value->PSI, "publish_time" => $value->PublishTime, "icon" => $icon));
+
         }
 
         return response()->json($req);
