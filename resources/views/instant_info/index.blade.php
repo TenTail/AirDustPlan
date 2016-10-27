@@ -177,7 +177,7 @@ function setMarkers(map, stationGeographicInfo) {
 			console.log("json success");
 			// console.log(info);
 			$.each(data, function(i, name){
-				console.log(info[0][0].icon);
+				// console.log(info[0][0].icon);
 				// if(data[i].SiteName == info[i].sitename) {
 				markers[i] = new google.maps.Marker({
 					position:new google.maps.LatLng(data[i].TWD97Lat, data[i].TWD97Lon),
@@ -190,17 +190,16 @@ function setMarkers(map, stationGeographicInfo) {
 			/*
 			* Set multi markers with array
 			*/
-			// google.maps.event.addListener(markers[i], 'click', function(i) {
-			// 	return function() {
-			// 		console.log("marker clicked "+ data[i].SiteName);
-			//     	setTimeout(function(){
-			// 			console.log(psi_value);
-  	// 					infowindow.setContent("HIHI"+ data[i].SiteName + "<div>123 "+psi_value+"</div>");
-   //  					infowindow.open(map, markers[i]);
-			// 		}, 300);
+			google.maps.event.addListener(markers[i], 'click', function(i) {
+				return function() {
+					console.log("marker clicked "+ data[i].SiteName);
+			    	setTimeout(function(){
+  						infowindow.setContent("HIHI"+ data[i].SiteName);
+    					infowindow.open(map, markers[i]);
+					}, 300);
 
-			// 	}
-  	// 		}(i));
+				}
+  			}(i));
 			});
 		});
 	}, 300);
