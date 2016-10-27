@@ -59,9 +59,27 @@ class InstantInfomationController extends Controller
         //             ->where('publish_time', $time)
         //             ->where('country', $data)
         //             ->get();
-        $county = $request['county'];
-        if($county == null) {
-            $county = '雲林縣';
+
+        // $county = $request['county'];
+        // if($county == null) {
+        //     $county = '雲林縣';
+        // }
+        // // dd($county);
+
+        // $url = "http://opendata.epa.gov.tw/ws/Data/AQX/?format=json";
+        // $json_data = file_get_contents($url);
+        // $json_data = json_decode($json_data);
+        // $req = array();
+
+        // foreach ($json_data as $key => $value) {
+        //     if($value->County == $county) {
+        //         array_push($req, array("sitename" => $value->SiteName, "county" => $value->County, "psi" => $value->PSI, "publish_time" => $value->PublishTime));
+        //     }
+        // }
+
+        $sitename = $request['sitename'];
+        if($sitename == null) {
+            $sitename = '斗六';
         }
         // dd($county);
 
@@ -71,9 +89,9 @@ class InstantInfomationController extends Controller
         $req = array();
 
         foreach ($json_data as $key => $value) {
-            if($value->County == $county) {
+            // if($value->SiteName == $sitename) {
                 array_push($req, array("sitename" => $value->SiteName, "county" => $value->County, "psi" => $value->PSI, "publish_time" => $value->PublishTime));
-            }
+            // }
         }
 
         return response()->json($req);

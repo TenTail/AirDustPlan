@@ -43,146 +43,6 @@
 
 @section("page-javascript")
 <script type="text/javascript">
-	// $('#psi_data').ready(getInstantValue("雲林縣"));
-
-	// function getInstantValue(county)
-	// {
-	// 	$.ajaxSetup({
-	//         headers: {
-	//             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-	//         }
-	// 	});
-	// 	$.ajax({
-	// 		url: 'instant_info',
-	// 	    type: 'post',
-	// 	    data: {county: county},
-	// 	    // dataType: 'JSON',
-	// 	    success: function (data) {
-	// 	        // alert("success");
-	// 	       	console.log(data);
-
-	// 	       	// Create a chart for PSI
-	//        		var seriesOptions = [], seriesCounter = 0;
-	// 		  	$(function () {
-
-	// 			    function createPsiChart() {
-	// 			    	$('#psi_data').highcharts({
-	// 				        chart: {
-	// 				            type: 'column'
-	// 				        },
-	// 				        title: {
-	// 				            text: data[0].county
-	// 				        },
-	// 				        xAxis: {
-	// 				            categories: [
-	// 				                data[0].publish_time
-	// 				            ],
-	// 				            crosshair: true
-	// 				        },
-	// 				        yAxis: {
-	// 				            min: 0,
-	// 				            title: {
-	// 				                text: 'PSI'
-	// 				            }
-	// 				        },
-	// 				        tooltip: {
-	// 				            // headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-	// 				            pointFormat: '<table><tr><td style="color:{series.color}; padding:0; font-size:16px">{series.name}: </td>' +
-	// 				                '<td style="padding:0; font-size:16px"><b>{point.y:.1f}</b></td></tr>',
-	// 				            footerFormat: '</table>',
-	// 				            shared: true,
-	// 				            useHTML: true
-	// 				        },
-	// 				        plotOptions: {
-	// 				            column: {
-	// 				                pointPadding: 1,
-	// 				                borderWidth: 2
-	// 				            }
-	// 				        },
-	// 				        series: seriesOptions
-	// 				    });
-	// 			    };
-
-	// 			    $.each(data, function (i, name) {
-	// 			            seriesOptions[i] = {
-	// 			                name: data[i].sitename,
-	// 			                data: [parseInt(data[i].psi)]
-	// 			            };
-
-	// 			            // As we're loading the data asynchronously, we don't know what order it will arrive. So
-	// 			            // we keep a counter and create the chart when all the data is loaded.
-	// 			            seriesCounter += 1;
-
-	// 			            if (seriesCounter === data.length) {
-	// 			                createPsiChart();
-	// 			            }
-	// 			    });
-	// 			});
-
-	// 			// Create a chart for PM2.5
-	// 			var seriesOptions = [], seriesCounter = 0;
-	// 		  	$(function () {
-
-	// 			    function createPsiChart() {
-	// 			    	$('#pm25_data').highcharts({
-	// 				        chart: {
-	// 				            type: 'column'
-	// 				        },
-	// 				        title: {
-	// 				            text: data[0].county
-	// 				        },
-	// 				        xAxis: {
-	// 				            categories: [
-	// 				                data[0].publish_time
-	// 				            ],
-	// 				            crosshair: true
-	// 				        },
-	// 				        yAxis: {
-	// 				            min: 0,
-	// 				            title: {
-	// 				                text: 'PM2.5(ug/m^3)'
-	// 				            }
-	// 				        },
-	// 				        tooltip: {
-	// 				            // headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-	// 				            pointFormat: '<table><tr><td style="color:{series.color}; padding:0; font-size:16px">{series.name}: </td>' +
-	// 				                '<td style="padding:0; font-size:16px"><b>{point.y:.1f}</b></td></tr>',
-	// 				            footerFormat: '</table>',
-	// 				            shared: true,
-	// 				            useHTML: true
-	// 				        },
-	// 				        plotOptions: {
-	// 				            column: {
-	// 				                pointPadding: 1,
-	// 				                borderWidth: 2
-	// 				            }
-	// 				        },
-	// 				        series: seriesOptions
-	// 				    });
-	// 			    };
-
-	// 			    $.each(data, function (i, name) {
-	// 			            seriesOptions[i] = {
-	// 			                name: data[i].sitename,
-	// 			                data: [parseInt(data[i].psi)]
-	// 			            };
-
-	// 			            // As we're loading the data asynchronously, we don't know what order it will arrive. So
-	// 			            // we keep a counter and create the chart when all the data is loaded.
-	// 			            seriesCounter += 1;
-
-	// 			            if (seriesCounter === data.length) {
-	// 			                createPsiChart();
-	// 			            }
-	// 			    });
-	// 			});
-	// 	    },
-	// 	    error: function (e) {
-	// 	    	alert("Something error!");
-	// 	    }
-	// 	});
-	// }
-
 var map;
 var stationGeographicInfo = [], stationGeographicInfoCounter = 0;
 var infowindow = [], markers = [];
@@ -200,44 +60,176 @@ function initMap() {
 }
 
 function setMarkers(map, stationGeographicInfo) {
-	$.get( "{!! './js/air_quality_station_of_geographic_information.json' !!}", function(data) {
-		console.log("json success");
-		// for(i = 0 ; i < data.length ; i++) {
-		// 	// console.log("data[i].TWD97Lat" + data[i].TWD97Lat);
-		// 	stationGeographicInfo[i] = {
-		// 		lat:data[i].TWD97Lat,
-		// 		lng:data[i].TWD97Lon,
-		// 		sitename:data[i].SiteName
-		// 	};
-		// }
 
-		$.each(data, function(i, name){
-			// console.log("i = "+i);
-			markers[i] = new google.maps.Marker({
-				position:new google.maps.LatLng(data[i].TWD97Lat, data[i].TWD97Lon),
-				map:map,
-				title:data[i].SiteName
-			});
+	var info = [];
 
-			google.maps.event.addListener(markers[i], 'click', function(i) {
-				return function() {
-					console.log("marker clicked "+ i);
-  					infowindow.setContent("HIHI"+ i);
-    				infowindow.open(map, markers[i]);
+	$.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+
+    $.ajax({
+        url: 'instant_info',
+        type: 'post',
+        // data: {sitename: data[i].SiteName},
+        // dataType: 'JSON',
+        success: function (value) {
+            // alert("success");
+            console.log(value);
+            for(var index = 0 ; index < value.length ; index++) {
+
+            	var icon_base = './img/icons/';
+            	info[index] = [];
+            	// var icon = null;
+
+            	/*
+				* green
+				*/
+				if(value[index].psi < 51) {
+					info[index].push({
+						'sitename' : value[index].sitename,
+						'county' : value[index].county,
+						'psi' : value[index].psi,
+						'publish_time' : value[index].publish_time,
+						'icon' : icon_base + 'green.jpg'
+					});
+					// console.log("info["+index+"][0] = "+info[index][0].sitename+" "+info[index][0].publish_time);
 				}
-  			}(i));
 
-  			// google.maps.event.addListener(marker, 'click', (function(marker, i) {
-		   //      return function() {
-		   //        infowindow.setContent(locations[i][0]);
-		   //        infowindow.open(map, marker);
-		   //      }
-		   //  })(marker, i));
+				/*
+				* yellow
+				*/
+				if(value[index].psi > 50 && value[index].psu < 101) {;
+					info[index].push({
+						'sitename' : value[index].sitename,
+						'county' : value[index].county,
+						'psi' : value[index].psi,
+						'publish_time' : value[index].publish_time,
+						'icon' : icon_base + 'yellow.jpg'
+					});
+					// console.log("info["+index+"][0] = "+info[index][0].sitename+" "+info[index][0].publish_time);
+				}
 
-		});
+				/*
+				* red
+				*/
+				if(value[index].psi > 100 && value[index].psu < 200) {
+					info[index].push({
+						'sitename' : value[index].sitename,
+						'county' : value[index].county,
+						'psi' : value[index].psi,
+						'publish_time' : value[index].publish_time,
+						'icon' : icon_base + 'red.jpg'
+					});
+					// console.log("info["+index+"][0] = "+info[index][0].sitename+" "+info[index][0].publish_time);
+				}
 
+				/*
+				* purple
+				*/
+				if(value[index].psi > 199 && value[index].psu < 300) {;
+					info[index].push({
+						'sitename' : value[index].sitename,
+						'county' : value[index].county,
+						'psi' : value[index].psi,
+						'publish_time' : value[index].publish_time,
+						'icon' : icon_base + 'purple.jpg'
+					});
+					// console.log("info["+index+"][0] = "+info[index][0].sitename+" "+info[index][0].publish_time);
+				}
+
+				/*
+				* brown
+				*/
+				if(value[index].psi > 299) {
+					info[index].push({
+						'sitename' : value[index].sitename,
+						'county' : value[index].county,
+						'psi' : value[index].psi,
+						'publish_time' : value[index].publish_time,
+						'icon' : icon_base + 'brown.jpg'
+					});
+					// console.log("info["+index+"][0] = "+info[index][0].sitename+" "+info[index][0].publish_time);
+				}
+				if(value[index].psi) {
+					info[index].push({
+						'sitename' : value[index].sitename,
+						'county' : value[index].county,
+						'psi' : value[index].psi,
+						'publish_time' : value[index].publish_time,
+						'icon' : icon_base + 'yellow.jpg'
+					});
+					// console.log("info["+index+"][0] = "+info[index][0].sitename+" "+info[index][0].publish_time);
+				}
+
+            }
+            // console.log("After 0.3 sec "+psi_value);
+        },
+        error: function (e) {
+            alert("Something error!");
+        }
 	});
 
+	// Only content air quality station geographic
+	setTimeout(function(){
+		$.get( "{!! './js/air_quality_station_of_geographic_information.json' !!}", function(data) {
+			console.log("json success");
+			// console.log(info);
+			$.each(data, function(i, name){
+				console.log(info[0][0].icon);
+				// if(data[i].SiteName == info[i].sitename) {
+				markers[i] = new google.maps.Marker({
+					position:new google.maps.LatLng(data[i].TWD97Lat, data[i].TWD97Lon),
+					map:map,
+					title:data[i].SiteName,
+					icon:info[i][0].icon
+				});
+			// }
+
+			/*
+			* Set multi markers with array
+			*/
+			// google.maps.event.addListener(markers[i], 'click', function(i) {
+			// 	return function() {
+			// 		console.log("marker clicked "+ data[i].SiteName);
+			//     	setTimeout(function(){
+			// 			console.log(psi_value);
+  	// 					infowindow.setContent("HIHI"+ data[i].SiteName + "<div>123 "+psi_value+"</div>");
+   //  					infowindow.open(map, markers[i]);
+			// 		}, 300);
+
+			// 	}
+  	// 		}(i));
+			});
+		});
+	}, 300);
+
+
+}
+
+function getInstantValue(sitename) {
+	console.log(sitename);
+	$.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+
+    $.ajax({
+        url: 'instant_info',
+        type: 'post',
+        data: {sitename: sitename},
+        // dataType: 'JSON',
+        success: function (data) {
+            alert("success");
+            console.log(data[0].psi);
+            return data[0].psi;
+        },
+        error: function (e) {
+            alert("Something error!");
+        }
+    });
 }
 
 </script>
