@@ -204,4 +204,69 @@ class ResearchController extends Controller
             return 6;
         }
     }
+
+    public function check()
+    {
+        $check_year = [
+            '2000-01-01 00:00',
+            '2001-01-01 00:00',
+            '2002-01-01 00:00',
+            '2003-01-01 00:00',
+            '2004-01-01 00:00',
+            '2005-01-01 00:00',
+            '2006-01-01 00:00',
+            '2007-01-01 00:00',
+            '2008-01-01 00:00',
+            '2009-01-01 00:00',
+            '2010-01-01 00:00',
+            '2011-01-01 00:00',
+            '2012-01-01 00:00',
+            '2013-01-01 00:00',
+            '2014-01-01 00:00',
+            '2015-01-01 00:00',
+        ];
+        $all_site = [
+            '基隆','嘉義','美濃','大寮','橋頭','仁武','鳳山',
+            '林園','楠梓','左營','前金','前鎮','小港','復興',
+            '汐止','萬里','新店','土城','板橋','新莊','菜寮',
+            '林口','淡水','三重','永和','士林','中山','萬華',
+            '古亭','松山','大同','陽明','桃園','大園','觀音',
+            '平鎮','龍潭','中壢','湖口','竹東','新竹','頭份',
+            '苗栗','三義','豐原','沙鹿','大里','忠明','西屯',
+            '彰化','線西','二林','南投','竹山','埔里','斗六',
+            '崙背','臺西','麥寮','新港','朴子','新營','善化',
+            '安南','臺南','屏東','潮州','恆春','臺東','關山',
+            '宜蘭','冬山','花蓮','馬公','馬祖','金門'
+        ];
+        $results = AirPollution::select('sitename', 'publish_time')
+                               ->whereIn('publish_time', $check_year)
+                               ->orderBy('publish_time', 'desc')
+                               ->get()
+                               ->toArray();
+        $output = array();
+        $not_in = true;
+        foreach ($check_year as $key => $value) {
+            $output[$value] = array();
+            foreach ($all_site as $k => $v) {
+                array_push($output[$value], $v);
+            }
+        }
+        
+        foreach ($results as $key => $value) {
+            $in = array_search($value['sitename'], $output[$value['publish_time']]);
+            if ($in !== false) {
+                unset($output[$value['publish_time']][$in]);
+                // array_push($output[$value['publish_time']], $value['sitename']);
+            }
+        }
+        
+        foreach ($output as $key => $datas) {
+            // dd(sizeof($datas));
+            echo explode('-', $key)[0]." 缺少了".sizeof($datas)."比資料。<br>";
+            foreach ($datas as $key => $value) {
+                echo $value." ";
+            }
+            echo "<br>";
+        }
+    }
 }

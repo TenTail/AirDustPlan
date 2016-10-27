@@ -91,33 +91,33 @@ class UploadFilesController extends Controller
     }
 
     /**
-     * 資料夾批次作業
-     * 請放在/public/history-files/
+     * 單檔上傳
      */
-    public function batch()
+    public function single()
     {
-        $files = File::files(public_path().'/history-files');
-        foreach ($files as $key => $file) {
-            $this->file_content = file_get_contents($file);
-            $data = json_decode($this->file_content, true);
-            $this->check($data);
-            try {
-                $this->store($data);
-                echo "<p><span style='color: green'>成功上傳</span>".$file."</p>";
-                File::delete($file);
-                echo "<p style='color: blue'>已刪除".$file."</p>";
-            } catch (Exception $e) {
-                echo "<p><span style='color: red'>上傳失敗</span>".$file."</p>";
-            }
-        }
+        return view('file_upload.single');
     }
 
     /**
-     * 上傳檔案
+     * 批次作業起始頁面
+     */
+    public function batch()
+    {
+        $files = File::files(public_path().'/batch/');
+
+        foreach ($files as $key => $file) {
+            $files[$key] = basename($file, ".json");
+        }
+        
+        return view('file_upload.batch')->with('files', $files);
+    }
+
+    /**
+     * 單檔上傳作業
      *
      * @param  \Illuminate\Http\Request  $request
      */
-    public function upload(Request $request)
+    public function singleUpload(Request $request)
     {
         if ($request->hasFile('file_json')) {
             $file = $request->file('file_json');
@@ -127,10 +127,50 @@ class UploadFilesController extends Controller
             $this->check($data);
             $this->store($data);
             $request->session()->flash('alert-success', '成功上傳 '.$this->file_name.' 資料');
-            return redirect()->route('file-upload.index');  
+            return redirect()->route('file-upload.single');  
         } else {
             $request->session()->flash('alert-danger', '檔案上傳失敗');
-            return redirect()->route('file-upload.index');
+            return redirect()->route('file-upload.single');
+        }
+    }
+
+    /**
+     * 資料夾批次作業
+     * 請放在/public/batch/
+     */
+    public function batchStart(Request $request)
+    {
+        $file = public_path().'/batch/'.$request->input('file').'.json';
+
+        if (File::exists($file)) {
+            $this->file_content = file_get_contents($file);
+            $data = json_decode($this->file_content, true);
+            $this->check($data);
+            try {
+                $this->store($data);
+                File::delete($file);
+                return "成功寫入".$request->input('file');
+            } catch (Exception $e) {
+                return "該檔案有問題";
+            }
+        } else {
+            return "找不到檔案";
+        }
+    }
+
+    /**
+     * 刪除檔案
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return string
+     */
+    public function fileDelete(Request $request)
+    {
+        if (File::exists(public_path().'/batch/'.$request->input('file').'.json')) {
+            File::delete(public_path().'/batch/'.$request->input('file').'.json');
+            return "刪除".$request->input('file')."成功";
+        } else {
+            return "找不到該檔案";
         }
     }
 

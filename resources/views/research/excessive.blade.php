@@ -9,6 +9,8 @@
 @section('head-javascript')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.1.0/d3.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.14.1/moment.min.js"></script>
+<script src="{{ asset('highcharts/js/highcharts.js') }}"></script>
+<script src="{{ asset('highcharts/js/themes/grid-light.js') }}"></script>
 @endsection
 
 @section('content')
@@ -26,11 +28,16 @@
 .remove-btn {
     position: absolute;
     right: 0;
-    bottom: 0;
+    top: 0;
+}
+.pie {
+    position: absolute;
+    right: 50px;
+    top: 0;
 }
 .excessive-svg {
     width: 100%;
-    height: 120px;
+    height: 150px;
 }
 #excessive {
     top: 0;
@@ -48,8 +55,8 @@
     <table>
         <tr>
             <td><h3 style="color: rgb(00, 255, 0);">綠色：一級（優）</h3></td>
-            <td><h3 style="color: rgb(255, 255, 0);">黃色：二級（中等）</h3></td>
-            <td><h3 style="color: rgb(255, 150, 00);">橘色：三級（不適於敏感人群）</h3></td>
+            <td><h3 style="color: rgb(255, 204, 50);">黃色：二級（中等）</h3></td>
+            <td><h3 style="color: rgb(255, 163, 26);">橘色：三級（不適於敏感人群）</h3></td>
         </tr>
         <tr>
             <td><h3 style="color: rgb(255, 00, 00);">紅色：四級（不健康）</h3></td>
@@ -156,14 +163,19 @@ $('#county').change(function () {
 function addExcessive() {
     var year = $('#year').val();
     var s = $('#sitename').val();
-    var ss = "'"+year+s+"'";
     if (document.getElementById(year+s)) {
         alert(year+"年"+s+"已新增");
     } else {
         var html = '<div class="col-md-12 excessive-child" id="'+year+s+'">';
         html = html+'<div style="position: relative;">';
         html = html+'<h2 class="title">'+year+'年-'+s+'測站</h2>';
-        html = html+'<button class="remove-btn btn btn-danger" onClick="removeExcessive('+ss+')"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>';
+        html = html+'<button class="remove-btn btn btn-danger" onClick="removeExcessive(\''+year+s+'\')"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>';
+        html = html+'<div style="width: 70%;float: left;">';
+        for (var i = 1; i < 7; i++) {
+            html = html+'<div id="'+year+s+'level'+i+'" style="width: 33.3%;float:left;text-align: center;"></div>';
+        }
+        html = html+'</div>';
+        html = html+'<div id="'+year+s+'pie" class="pie" ></div>';
         html = html+'</div>';
         html = html+'<div class="excessive-svg" id="excessive-'+year+s+'"></div>';
         html = html+'</div>';
@@ -271,7 +283,9 @@ function drawSvg(year, sitename) {
     var svg = d3.select('#excessive-'+year+sitename).append('svg')
         .attr('width', width)
         .attr('height', height)
+        .style('float', 'left')
         .style('display', 'block')
+        .style('padding-top', '30px')
         .style('margin-right', 'auto')
         .style('margin-left', 'auto')
         .style('background-color', '#FFFFFF');
@@ -299,22 +313,22 @@ function drawSvg(year, sitename) {
                 .attr('fill', function(d) {
                     switch (true) {
                         case (d.level1 !== false):
-                            return 'rgb(00, 255, 0)';
+                            return aqiColor(1);
                             break;
                         case (d.level2 !== false):
-                            return 'rgb(255, 255, 0)';
+                            return aqiColor(2);
                             break;
                         case (d.level3 !== false):
-                            return 'rgb(255, 150, 00)';
+                            return aqiColor(3);
                             break;
                         case (d.level4 !== false):
-                            return 'rgb(255, 00, 00)';
+                            return aqiColor(4);
                             break;
                         case (d.level5 !== false):
-                            return 'rgb(255, 00, 255)';
+                            return aqiColor(5);
                             break;
                         default:
-                            return 'rgb(0, 0, 0)';
+                            return aqiColor(-1);
                             break;
                     }
                 });
@@ -332,29 +346,99 @@ function drawSvg(year, sitename) {
     yearView.attr('transform', function(d) { return 'translate(' + ((width - yearView.node().getBBox().width) /2)+ ',20)' })
 }
 
-function getSvgData(year, sitename) {
-        var post_data = {
-            _token: $('meta[name=csrf-token]').attr('content'),
-            year: $('#year').val(),
-            sitename: sitename,
-        }
-        
-        $.ajax({
-            type: 'POST',
-            url: '{{ route('research.excessive-post') }}',
-            data: post_data,
-            success: function (data) {
-                level1 = JSON.parse(data['level1']);
-                level2 = JSON.parse(data['level2']);
-                level3 = JSON.parse(data['level3']);
-                level4 = JSON.parse(data['level4']);
-                level5 = JSON.parse(data['level5']);
-                drawSvg(data['year'], sitename);
-            },
-            error: function () {
-                alert("查無資料");
+function pie(year, s, data) {
+    $('#'+year+s+'pie').highcharts({
+        chart: {
+            plotBackgroundColor: null,
+            plotBorderWidth: null,
+            plotShadow: false,
+            width: 300,
+            height: 150,
+            type: 'pie'
+        },
+        title: {
+            text: s
+        },
+        tooltip: {
+            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+        },
+        plotOptions: {
+            pie: {
+                allowPointSelect: true,
+                cursor: 'pointer',
+                dataLabels: {
+                    enabled: true,
+                    format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                    style: {
+                        color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                    }
+                }
             }
-        });
+        },
+        series: [{
+            name: s,
+            colorByPoint: true,
+            data: data
+        }]
+    });
+}
+
+function getSvgData(year, sitename) {
+    var post_data = {
+        _token: $('meta[name=csrf-token]').attr('content'),
+        year: $('#year').val(),
+        sitename: sitename,
+    }
+    
+    $.ajax({
+        type: 'POST',
+        url: '{{ route('research.excessive-post') }}',
+        data: post_data,
+        success: function (data) {
+            level1 = JSON.parse(data['level1']);
+            level2 = JSON.parse(data['level2']);
+            level3 = JSON.parse(data['level3']);
+            level4 = JSON.parse(data['level4']);
+            level5 = JSON.parse(data['level5']);
+            level_pie = [];
+            [level1, level2, level3, level4, level5].forEach(function (item, index) {
+                $('#'+year+sitename+'level'+(index+1)).append('<h4 style="color:'+aqiColor(index+1)+'">第'+(index+1)+'級：'+Object.keys(item).length+'天</h4>');
+                level_pie.push({
+                    name: '第'+(index+1)+'級',
+                    color: aqiColor(index+1),
+                    y: Math.round(Object.keys(item).length/365*1000)/10,
+                });
+            });
+            pie(year, sitename, level_pie);
+            drawSvg(data['year'], sitename);
+        },
+        error: function () {
+            alert("查無資料");
+        }
+    });
+}
+
+function aqiColor(c) {
+    switch (c) {
+        case 1:
+            return 'rgb(00, 255, 00)';
+            break;
+        case 2:
+            return 'rgb(255, 204, 102)';
+            break;
+        case 3:
+            return 'rgb(255, 163, 26)';
+            break;
+        case 4:
+            return 'rgb(255, 00, 00)';
+            break;
+        case 5:
+            return 'rgb(255, 00, 255)';
+            break;
+        default:
+            return 'rgba(128, 128, 128, 0.4)';
+            break;
+    }
 }
     
 
