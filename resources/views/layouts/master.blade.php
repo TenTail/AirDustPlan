@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="KeyWords" content="空氣汙染, 雲林, 虎尾科技大學, PM2.5, 即時空污, 空污資訊"/>
+    <meta name="KeyWords" content="空氣汙染, 雲林, 虎尾科技大學, PM2.5, 即時空污, 空污資訊, 空污資料比較"/>
     @yield("csrf-token")
 
     <title>@yield("title")</title>
