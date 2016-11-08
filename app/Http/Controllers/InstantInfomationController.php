@@ -89,28 +89,35 @@ class InstantInfomationController extends Controller
             * green
             */
             if($value->PSI < 51) {
-                $icon = $icon_base.'green.jpg';
+                $icon = $icon_base.'green.png';
             }
 
             /*
             * yellow
             */
             if($value->PSI > 50 && $value->PSI < 101) {
-                $icon = $icon_base.'yellow.jpg';
+                $icon = $icon_base.'yellow.png';
+            }
+
+            /*
+            * orange
+            */
+            if($value->PSI > 100 && $value->PSI < 151) {
+                $icon = $icon_base.'orange.png';
             }
 
             /*
             * red
             */
-            if($value->PSI > 100 && $value->PSI < 200) {
-                $icon = $icon_base.'red.jpg';
+            if($value->PSI > 150 && $value->PSI < 201) {
+                $icon = $icon_base.'red.png';
             }
 
             /*
             * purple
             */
             if($value->PSI > 199 && $value->PSI < 300) {
-                $icon = $icon_base.'purple.jpg';
+                $icon = $icon_base.'purple.png';
             }
 
             /*
@@ -119,12 +126,47 @@ class InstantInfomationController extends Controller
             if($value->PSI > 299) {
                 $icon = $icon_base.'brown.jpg';
             }
-            // dd(icon);
+
+            if($value->PSI == null) {
+                $icon = $icon_base.'black.jpg';
+            }
             array_push($req, array("sitename" => $value->SiteName, "county" => $value->County, "psi" => $value->PSI, "publish_time" => $value->PublishTime, "icon" => $icon));
 
         }
 
         return response()->json($req);
+
+    }
+
+    public function show_past_12_hours_data(Request $request) {
+        $sitename = $request['sitename'];
+        $now = Carbon::now;
+        $data = [];
+        // $past_12_hours = Carbon::now()->addhours(12);
+
+        /*
+        * Format the $now & $past_12_hours
+        */
+        $fnow = $now->year.'-'.sprintf("%02d", $now->month).'-'.sprintf("%02d", $now->day).' '.sprintf("%02d", $now->hour).':'.'00';
+        // $fpast = $past_12_hours->year.'-'.sprintf("%02d", $past_12_hours->month).'-'.sprintf("%02d", $past_12_hours->day).' '.sprintf("%02d", $past_12_hours->hour).':'.'00';
+
+        for($i = 1 ; $i < 13 ; $i++) {
+
+            $req = DB::table('airpollutions')->select('pm25', 'psi', 'co', 'pm10', 'publish_time')
+                ->where('sitename', '=', $sitename)
+                ->where('publish_time', '>=', $fpast)
+                ->where('publish_time', '<=', $fnow)
+                ->orderBy('publish_time', 'desc')
+                ->get();
+
+            $data.push($req);
+
+            $past = $now->subhour($i);
+
+        }
+
+
+        return $data->json();
 
     }
 
@@ -161,4 +203,6 @@ class InstantInfomationController extends Controller
     {
         //
     }
+
+
 }
