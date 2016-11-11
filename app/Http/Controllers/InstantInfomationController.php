@@ -140,7 +140,7 @@ class InstantInfomationController extends Controller
 
     public function show_past_12_hours_data(Request $request) {
         $sitename = $request['sitename'];
-        $now = Carbon::now;
+        $now = Carbon::now();
         $data = [];
         // $past_12_hours = Carbon::now()->addhours(12);
 
@@ -148,20 +148,22 @@ class InstantInfomationController extends Controller
         * Format the $now & $past_12_hours
         */
         $fnow = $now->year.'-'.sprintf("%02d", $now->month).'-'.sprintf("%02d", $now->day).' '.sprintf("%02d", $now->hour).':'.'00';
+        // print_r($fnow);
+        // die();
         // $fpast = $past_12_hours->year.'-'.sprintf("%02d", $past_12_hours->month).'-'.sprintf("%02d", $past_12_hours->day).' '.sprintf("%02d", $past_12_hours->hour).':'.'00';
 
         for($i = 1 ; $i < 13 ; $i++) {
-
             $req = DB::table('airpollutions')->select('pm25', 'psi', 'co', 'pm10', 'publish_time')
                 ->where('sitename', '=', $sitename)
-                ->where('publish_time', '>=', $fpast)
-                ->where('publish_time', '<=', $fnow)
-                ->orderBy('publish_time', 'desc')
+                ->where('publish_time', '=', $fnow)
+                // ->orderBy('publish_time', 'desc')
                 ->get();
 
             $data.push($req);
 
-            $past = $now->subhour($i);
+            $past = $now->subhour();
+            $now = $past;
+            $fnow = $past->year.'-'.sprintf("%02d", $past->month).'-'.sprintf("%02d", $past->day).' '.sprintf("%02d", $past->hour).':'.'00';
 
         }
 

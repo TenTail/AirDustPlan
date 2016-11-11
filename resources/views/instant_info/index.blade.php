@@ -87,9 +87,8 @@ function setMarkers(map) {
 			google.maps.event.addListener(markers[i], 'click', function(i) {
 				    return function() {
 					   console.log("marker clicked "+ data[i].SiteName);
-			    	    google.maps.event.addListener(infowindow, 'domready', function() {
-                                createChart(data[i].SiteName)
-                        });
+                       var chart = new createChart(data[i].SiteName);
+			    	   infowindow.setContent(chart);
 				    }
   			    }(i));
 			});
@@ -100,8 +99,16 @@ function setMarkers(map) {
 function createChart(sitename) {
 
     var info = [];
-    $.post("{!! 'instant_info.past' !!}", {sitename: sitename}, function(obj) {
+    console.log("Chart = " + sitename);
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+
+    $.post("{!! 'past_12_hours_data' !!}", {sitename: sitename}, function(obj) {
         info = obj;
+        console.log(info);
     });
 
     $('#chart_div').highcharts({
