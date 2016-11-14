@@ -12,15 +12,18 @@
 @section("title", "空塵計")
 
 @section("content")
-	<div id = "map"  style = "width: 100%; height:400px"></div>
-    <div id = "data" style = "width: 100%; height:400px"></div>
+	<div id = "map"  style = "width: 100%; height:400px; margin:20px"></div>
 @endsection
 
 @section("page-javascript")
 <script type="text/javascript">
 var map;
 var infowindow = [], markers = [];
-var contentString = "<div id='chart_div'>123</div>";
+// var contentString = "<div id='chart_div'></div>";
+var contentString = document.createElement('div');
+contentString.setAttribute('id', 'chart_div');
+contentString.setAttribute('height', 350);
+contentString.setAttribute('width', 350);
 
 function initMap() {
   	map = new google.maps.Map(document.getElementById('map'), {
@@ -73,12 +76,17 @@ function setMarkers(map) {
     			*/
     			google.maps.event.addListener(markers[i], 'click', function(i) {
     				    return function() {
-    					   console.log("marker clicked "+ data[i].SiteName);
-                           var chart = new Chart(data[i].SiteName);
-    			    	    
+                            console.log(contentString);
+                            var chart = new Chart(data[i].SiteName);
+    			    	    infowindow.setContent(contentString);
+                            infowindow.open(map, markers[i]);
     				    }
       			    }(i));
     			});
+
+                google.maps.event.addListener(infowindow, 'closeclick', function() {  
+        
+                }); 
 		  }
           catch(err) {
                 console.log(err.message);
@@ -106,91 +114,86 @@ function Chart(sitename) {
     });
 
     setTimeout(function createChart() {
-        $('#data').highcharts({
-            chart: {
-                type: 'line'
-            },
-            title: {
-                text: sitename
-            },
-            xAxis: {
-                categories: [
-                    '2016-05-04 20:00', '2016-05-04 21:00', '2016-05-04 22:00', '2016-05-04 23:00', '2016-05-05 00:00', '2016-05-05 01:00'
-                ],
-                crosshair: true
-            },
-            yAxis: {
-                // min: 0,
-                // title: {
-                //     text: 'PSI'
-                // }
-            },
-            tooltip: {
-                // headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-                pointFormat: '<table><tr><td style="color:{series.color}; padding:0; font-size:16px">{series.name}: </td>' +
-                    '<td style="padding:0; font-size:16px"><b>{point.y:.1f}</b></td></tr>',
-                footerFormat: '</table>',
-                shared: true,
-                useHTML: true
-            },
-            plotOptions: {
-                column: {
-                    pointPadding: 1,
-                    borderWidth: 2
-                }
-            },
-            // series: seriesOptions
-            series: [
-                {
-                    name: 'PSI',
-                    data: [
-                        parseInt(info[0].psi), parseInt(info[1].psi), parseInt(info[2].psi), parseInt(info[3].psi),
-                        parseInt(info[4].psi), parseInt(info[5].psi)
-                    ]
-                }, 
-                {
-                    name: 'CO',
-                    data: [
-                        info[0].co, info[1].co, info[2].co, 
-                        info[3].co, info[4].co, info[5].co
-                    ]
-                }, 
-                {
-                    name: 'PM2.5',
-                    data: [
-                        parseInt(info[0].pm25), parseInt(info[1].pm25), parseInt(info[2].pm25), parseInt(info[3].pm25),
-                        parseInt(info[4].pm25), parseInt(info[5].pm25)
-                    ]
-                }
-            ]
-        });
-
-        $.each(info, function (i, name) {
-                seriesOptions[i] = 
-                [
-                    // {
-                    //     name: "PSI",
-                    //     data: [parseInt(info[i].psi)]
-                    // },
-                    {
-                        name:"PM2.5",
-                        data:[parseInt(info[i].pm25)]
-                    }
-                    // {
-                    //     name:"CO",
-                    //     data:info[i].co
+        console.log("createChart");
+        // google.maps.event.addListener(infowindow, 'domready', function() {
+            console.log("info[0].publish_time");
+            $('#chart_div').highcharts({
+                chart: {
+                    type: 'line'
+                },
+                title: {
+                    text: sitename
+                },
+                xAxis: {
+                    categories: [
+                        info[0].publish_time, info[1].publish_time, info[2].publish_time,
+                        info[3].publish_time, info[4].publish_time, info[5].publish_time,
+                    ],
+                    crosshair: true
+                },
+                yAxis: {
+                    // min: 0,
+                    // title: {
+                    //     text: 'PSI'
                     // }
+                },
+                tooltip: {
+                    // headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                    pointFormat: '<table><tr><td style="color:{series.color}; padding:0; font-size:16px">{series.name}: </td>' +
+                        '<td style="padding:0; font-size:16px"><b>{point.y:.1f}</b></td></tr>',
+                    footerFormat: '</table>',
+                    shared: true,
+                    useHTML: true
+                },
+                plotOptions: {
+                    column: {
+                        pointPadding: 1,
+                        borderWidth: 2
+                    }
+                },
+                // series: seriesOptions
+                series: [
+                    {
+                        name: 'PSI',
+                        data: [
+                            parseInt(info[0].psi), parseInt(info[1].psi), parseInt(info[2].psi), parseInt(info[3].psi),
+                            parseInt(info[4].psi), parseInt(info[5].psi)
+                        ]
+                    }, 
+                    {
+                        name: 'CO',
+                        data: [
+                            info[0].co, info[1].co, info[2].co, 
+                            info[3].co, info[4].co, info[5].co
+                        ]
+                    }, 
+                    {
+                        name: 'PM2.5',
+                        data: [
+                            parseInt(info[0].pm25), parseInt(info[1].pm25), parseInt(info[2].pm25), parseInt(info[3].pm25),
+                            parseInt(info[4].pm25), parseInt(info[5].pm25)
+                        ]
+                    }
+                ]
+            });
+        
+        /*
+        $.each(info, function (i, name) {
+                seriesOptions[i] =     
+                [
+                    name: "PSI",
+                    data: [parseInt(info[i].psi)]
                 ];
-                console.log("seriesOptions " + i + "name:" + seriesOptions[i][0].name + "data: "+ seriesOptions[i][0].data)
+                
                 // As we're loading the data asynchronously, we don't know what order it will arrive. So
                 // we keep a counter and create the chart when all the data is loaded.
                 seriesCounter += 1;
                 if (seriesCounter === info.length) {
-                    createChart();
+                    // createChart();
                 }
         });
-
-    }, 1000)
+        */
+    }, 1500)
 }
 </script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCD5dI4ddETACuDY-rUlZH-2Ept65w150Q&callback=initMap" async defer></script>

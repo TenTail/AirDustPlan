@@ -96,10 +96,14 @@ class InstantInfomationController extends Controller
 
     public function show_past_12_hours_data(Request $request) {
         $sitename = $request['sitename'];
-        // $now = Carbon::now();
-        $now = Carbon::create(2016, 05, 05, 01)->subHour(5);
+        $now = Carbon::now();
+
+        /*
+        * Carbon::create is bulit fo testing.
+        */
+        // $now = Carbon::create(2016, 05, 05, 01)->subHour(5);
+        
         $data = [];
-        // $past_12_hours = Carbon::now()->addhours(12);
 
         /*
         * Format the $now & $past_12_hours
