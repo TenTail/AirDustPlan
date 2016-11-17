@@ -57,6 +57,90 @@ class DataExportController extends Controller
         '金門縣'=>['金門'],
     );
 
+    private $TW_to_ENG = array('基隆'=>'Keelung',
+        '嘉義'=>'Chiayi',
+        '美濃'=>'Mino',
+        '大寮'=>'Great_Liao',
+        '橋頭'=>'Bridgehead',
+        '仁武'=>'Ren_Wu',
+        '鳳山'=>'Fengshan',
+        '林園'=>'Forest_Park',
+        '楠梓'=>'Nan_Zi',
+        '左營'=>'Left_camp',
+        '前金'=>'Before_the_gold',
+        '前鎮'=>'Before_the_town',
+        '小港'=>'Small_port',
+        '復興'=>'revival',
+        '汐止'=>'Mizuki',
+        '萬里'=>'Miles',
+        '新店'=>'New_store',
+        '土城'=>'Tucheng',
+        '板橋'=>'Itabashi',
+        '新莊'=>'New_Village',
+        '菜寮'=>'Cai_Liu',
+        '林口'=>'Linkou',
+        '淡水'=>'freshwater',
+        '三重'=>'triple',
+        '永和'=>'Yonghe',
+        '士林'=>'Shihlin',
+        '中山'=>'Zhongshan',
+        '萬華'=>'Wanhua',
+        '古亭'=>'Guting',
+        '松山'=>'Matsuyama',
+        '大同'=>'Datong',
+        '陽明'=>'Yangming',
+        '桃園'=>'Taoyuan',
+        '大園'=>'Large_garden',
+        '觀音'=>'Guanyin',
+        '平鎮'=>'Flat_town',
+        '龍潭'=>'Longtan',
+        '中壢'=>'Chungli',
+        '湖口'=>'Hukou',
+        '竹東'=>'Bamboo_East',
+        '新竹'=>'Hsinchu',
+        '頭份'=>'Head',
+        '苗栗'=>'Miaoli',
+        '三義'=>'Three_meanings',
+        '豐原'=>'Fengyuan',
+        '沙鹿'=>'Sand_deer',
+        '大里'=>'Big_ri',
+        '忠明'=>'Zhong_Ming',
+        '西屯'=>'Xitun',
+        '彰化'=>'Changhua',
+        '線西'=>'Line_West',
+        '二林'=>'Second_forest',
+        '南投'=>'Nantou',
+        '竹山'=>'Zhushan',
+        '埔里'=>'Puli',
+        '斗六'=>'Bucket_six',
+        '崙背'=>'Lun_back',
+        '臺西'=>'Taiwan',
+        '麥寮'=>'Wheat_laos',
+        '台西'=>'Taiwan',
+        '新港'=>'Newport',
+        '朴子'=>'Pu_child',
+        '新營'=>'The_new_camp',
+        '善化'=>'Good',
+        '安南'=>'Annan',
+        '臺南'=>'Tainan',
+        '台南'=>'Tainan',
+        '屏東'=>'Pingtung',
+        '潮州'=>'Chaozhou',
+        '恆春'=>'Hengchun',
+        '臺東'=>'Taitung',
+        '關山'=>'Guanshan',
+        '台東'=>'Taitung',
+        '宜蘭'=>'Ilan',
+        '冬山'=>'Winter_Hill',
+        '花蓮'=>'Hualien',
+        '馬公'=>'Ma_Gong',
+        '馬祖'=>'Matsu',
+        '金門'=>'Kinmen',
+    );
+
+    // 所需的欄位
+    private $keys = ['AMB_TEMP','CO','NO','NO2','NOx','O3','PM10','PM25','RAINFALL','RH','SO2','UVB','WD_HR','WIND_DIREC','WIND_SPEED','WS_HR','SiteName','PublishTime'];
+
     public function index()
     {
         return view("excel_export.index");
@@ -71,27 +155,30 @@ class DataExportController extends Controller
     {
         $this->year = $request->input("year")-1911;
         $sitename = $request->input("sitename");
-        $file_name = $this->year.'年'.$sitename.'站';
-        $file = public_path().'/history-files/'.$file_name.'.json';
+        $file_name = $this->year.$this->TW_to_ENG[$sitename];
+        $file = public_path().'/history-files/'.$this->year.'j/'.$file_name.'.json';
         if (File::exists($file)) {
             $file_content = file_get_contents($file);
             $data = json_decode($file_content, true);
             
             // download json
             if ($request->input("export") == "JSON檔下載") 
-                return response()->download($file);
+                return response()->download($this->year.$sitename.'.json');
 
             // create csv file
             $tp_filename = time();
             $fp = fopen($tp_filename.'.csv', 'w');
             $col = [];
-            foreach ($data[0] as $key => $value) {
-
-                array_push($col, $key);
-            }
-            fputcsv($fp, $col);
+            fputcsv($fp, $this->keys);
             foreach ($data as $fields) {
-                fputcsv($fp, $fields);
+                foreach ($this->keys as $k => $key) {
+                    if (array_key_exists($key, $fields)) {
+                        $col[$key] = $fields[$key];
+                    } else {
+                        $col[$key] = '';
+                    }
+                }
+                fputcsv($fp, $col);
             }
             fclose($fp);
 
@@ -105,7 +192,7 @@ class DataExportController extends Controller
             // download and delete $tp_filename
             Excel::load($tp_filename.'.csv', function ($reader) use($tp_filename) {
                 File::delete(public_path().'/'.$tp_filename.'.csv');    
-            }, 'UTF-8')->setFileName($file_name)->convert($file_type);
+            }, 'UTF-8')->setFileName($this->year.$sitename)->convert($file_type);
         }
     }
 
@@ -119,8 +206,8 @@ class DataExportController extends Controller
     {
         $this->year = $request->input("year")-1911;
         $sitename = $request->input("sitename");
-        $file_name = $this->year.'年'.$sitename.'站.json';
-        $file = public_path().'/history-files/'.$file_name;
+        $file_name = $this->year.$this->TW_to_ENG[$sitename].'.json';
+        $file = public_path().'/history-files/'.$this->year.'j/'.$file_name;
         if (File::exists($file)) {
             $file_content = file_get_contents($file);
             $data = json_decode($file_content, true);
@@ -129,17 +216,21 @@ class DataExportController extends Controller
             $data_str = ["", "", "", "", "", "", "", "", "", "", "", ""]; // table body
             
             $keys_str .= "<tr>";
-            foreach ($data[0] as $key => $value) {
+            foreach ($this->keys as $k => $key) {
                 $keys_str .= "<th>$key</th>";
             }
             $keys_str .= "</tr>";
 
-            foreach ($data as $key => $value) {
+            foreach ($data as $value) {
                 $i = intval(explode('-', $value["PublishTime"])[1])-1;
 
                 $data_str[$i] .= "<tr>";
-                foreach ($value as $k => $v) {
-                    $data_str[$i] .= "<td>$v</td>";
+                foreach ($this->keys as $k => $key) {
+                    if (array_key_exists($key, $value)) {
+                        $data_str[$i] .= "<td>$value[$key]</td>";
+                    } else {
+                        $data_str[$i] .= "<td></td>";
+                    }
                 }
                 $data_str[$i] .= "</tr>";
             }

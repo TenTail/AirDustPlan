@@ -68,6 +68,13 @@
 
 <h1>空氣品質汙染指標 Open Data 下載</h1>
 <h3>因為政府所提供的歷年空氣品質資料十分難以分析且格式錯亂，所以提供三種檔案類型(csv,json,xls)，下載已處理過後的資料。</h3>
+<ul>
+    <li style="display: block;"><h4>#   表示儀器檢核為無效值</h4></li>
+    <li style="display: block;"><h4>*   表示程式檢核為無效值</h4></li>
+    <li style="display: block;"><h4>x   表示人工檢核為無效值</h4></li>
+    <li style="display: block;"><h4>NR  表示無降雨</h4></li>
+    <li style="display: block;"><h4>空白  表示缺值</h4></li>
+</ul>
 
 {!! Form::open(array('route' => 'excel-export.export', 'method' => 'post')) !!}
 <div class="col-md-12">
