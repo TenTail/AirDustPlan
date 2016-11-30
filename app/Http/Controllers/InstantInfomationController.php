@@ -96,6 +96,9 @@ class InstantInfomationController extends Controller
 
     public function show_past_6_hours_data(Request $request) {
         $sitename = $request['sitename'];
+        $psi  = array(array());
+        $pm25 = array(array());
+        $co   = array(array());
         
         // $now = Carbon::now();
 
@@ -104,7 +107,7 @@ class InstantInfomationController extends Controller
         */
         $now = Carbon::create(2016, 05, 04, 18);
     
-        $data = [];
+        // $data = [];
 
         /*
         * Format the $now 
@@ -117,25 +120,31 @@ class InstantInfomationController extends Controller
                     ->where('sitename', '=', $sitename)
                     ->where('publish_time', '=', $fnow)
                     ->get();
-
-                // foreach ($query as $key => $val) {
-                //     if($key[0].psi == '0') {
-                //         $val = null;
-                //     }
-                    
-                // }
             }
             catch(Exception $e) {
 
             }
 
-            array_push($data, $query[0]);
+            if(!empty($query)) {
+                
+                $psi[0][$i-1] = $query[0]->publish_time;
+                $psi[1][$i-1] = ($query[0]->psi == -1 || $query[0]->psi == null) ? null : $query[0]->psi;
+
+                $pm25[0][$i-1] = $query[0]->publish_time;
+                $pm25[1][$i-1] = ($query[0]->pm25 == -1 || $query[0]->pm25 == null) ? null : $query[0]->pm25;
+
+                $co[0][$i-1] = $query[0]->publish_time;
+                $co[1][$i-1] = ($query[0]->co == -1 || $query[0]->co == null) ? null : $query[0]->co;
+
+            }
+
+            // array_push($data, $query[0]);
             $past = $now->subHour();         
             $now = $past;
             $fnow = $past->year.'-'.sprintf("%02d", $past->month).'-'.sprintf("%02d", $past->day).' '.sprintf("%02d", $past->hour).':'.'00';
         }
 
-        return response()->json($data);
+        return array($psi, $pm25, $co);
 
     }
 

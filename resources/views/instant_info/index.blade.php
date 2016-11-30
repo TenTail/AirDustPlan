@@ -7,7 +7,7 @@
 @section("head-javascript")
 <script src="{{ asset('highmaps/js/highmaps.js') }}"></script>
 <script src="https://code.highcharts.com/mapdata/countries/tw/tw-all.js"></script>
-{{-- <script src='https://raw.github.com/creationix/step/master/lib/step.js'></script> --}}
+{{-- <script src="{!! ('js/async.js') !!}"></script> --}}
 @endsection
 
 @section("title", "空塵計")
@@ -32,7 +32,7 @@ div_row2.setAttribute('class', 'row');
 
 var chart1 = document.createElement('div');
 chart1.setAttribute('id', 'chart1');
-chart1.setAttribute('class', 'col-xs-12 col-md-6');
+chart1.setAttribute('class', 'col-xs-12 col-md-12');
 
 var chart2 = document.createElement('div');
 chart2.setAttribute('id', 'chart2');
@@ -76,12 +76,6 @@ function setMarkers(map) {
         }
     });
 
-    var table = {
-        '0' : ['chart1', 'psi'],
-        '1' : ['chart2', 'pm25'],
-        '2' : ['chart3', 'co']
-    };
-
 	/*
     * Only content air quality station geographic
     */  
@@ -101,16 +95,11 @@ function setMarkers(map) {
     			*/
     			google.maps.event.addListener(markers[i], 'click', function(i) {
     				    return function() {
-                            console.log(data[i].SiteName);
-                            var chart = new setChart(data[i].SiteName);
-                            setTimeout(function() {
-                                for(var i = 0; i < 3 ; i++) {
-                                    var lut = i.toString();
-                                    chart.createChart(chart.concatDataAttr(table[lut][1]), table[lut][0], table[lut][1]); 
-                                }
-                            }, 300)  
-    			    	    infowindow.setContent(contentString);
+                            console.log(data[i].SiteName);                            
+                            var chart = new setChart(data[i].SiteName);                            
+                            infowindow.setContent(contentString);
                             infowindow.open(map, markers[i]);
+                            map.setCenter(markers[i].getPosition());
     				    }
       			    }(i));
     			});
@@ -123,147 +112,107 @@ function setMarkers(map) {
                 console.log(err.message);
           }
         });
-	}, 500);
+	}, 700);
 }
 
 function setChart(sitename) {
+    var data;
 
-    // var info = [];
-    
-    var arr = new Array(); 
-    arr[0] = [];
-    arr[1] = [];
-    arr[2] = [];
-    
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-    });
-
-    $.post("{!! 'past_6_hours_data' !!}", {sitename: sitename}, function(obj) {
-        // info = obj;
-        $.each(obj, function(item, val) {
-            arr[0].push({
-                'sitename': obj[item].sitename, 
-                'psi': obj[item].psi, 
-                'publish_time': obj[item].publish_time
-            });
-            arr[1].push({
-                'sitename': obj[item].sitename, 
-                'pm25': obj[item].pm25, 
-                'publish_time': obj[item].publish_time
-            });
-            arr[2].push({
-                'sitename': obj[item].sitename, 
-                'co': obj[item].co, 
-                'publish_time': obj[item].publish_time
-            });           
-        }); 
-    });   
-
-    this.concatDataAttr = function(colname) {
-        
-        switch(colname) {
-            case "psi":
-                console.log("log");
-                return arr[0];
-                break;
-
-            case "pm25":
-                return arr[1];
-                break;
-
-            case "co":
-                return arr[2];
-                break;
-
-            default :
-                return null;
-        }
+    var table = {
+        '0' : ['chart1', 'psi'],
+        '1' : ['chart2', 'pm25', '微克/立方公尺'],
+        '2' : ['chart3', 'co', 'ppm']
     };
+
+    wait([
+        function (r, next) {
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
+            $.post("{!! 'past_6_hours_data' !!}", {sitename: r}, function(obj) {
+                next(obj);
+            });
+        }],
+        sitename,
+        function (result) {
+            console.log("result[0] is ");
+            console.log(result[0]);
+            for(var i = 0 ; i < 3 ; i++) {
+                var lut = i.toString();
+                datachart = {
+                    chart: {
+                        type: 'line',
+                        renderTo: document.getElementById(table[lut][0]),
+                        height:350,
+                        // width:400
+                    },
+                    title: {
+                        text: sitename
+                    },
+                    xAxis: {
+                        categories: result[i][0],
+                        crosshair: true
+                    },
+                    yAxis: {
+                        min: 0,
+                        title: {
+                            text: table[lut][2]
+                        }
+                    },
+                    tooltip: {
+                        // headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                        pointFormat: '<table><tr><td style="color:{series.color}; padding:0; font-size:16px">{series.name}: </td>' +
+                            '<td style="padding:0; font-size:16px"><b>{point.y:.1f}</b></td></tr>',
+                        footerFormat: '</table>',
+                        shared: true,
+                        useHTML: true
+                    },
+                    plotOptions: {
+                        column: {
+                            pointPadding: 1,
+                            borderWidth: 2
+                        }
+                    },
+                    series: [{
+                        name:table[lut][1],
+                        data:result[i][1]  
+                    }]                   
+                };
+
+                new Highcharts.chart(datachart);
+            }
+        }
+    );     
 }
 
-setChart.prototype.createChart = function(data, el, colname) {
-    setTimeout(function() {
-        var seriesOptions = [];
-        var seriesCounter = 0;
-       
-        switch(colname) {
-            case 'psi':
-                $.each(data, function (i, val) {
-                    seriesOptions[i] = {
-                        'name': 'PSI',
-                        'data': [parseInt(val.psi)]                     
-                    }    
-                });
-                break;
-            case 'pm25':
-                $.each(data, function (i, val) {
-                    seriesOptions[i] = {
-                        'name': 'PM2.5',
-                        'data': [ parseInt(val.pm25) ]
-                    };
-                });
-                break;
-            case 'co':
-                $.each(data, function (i, val) {
-                    // console.log(val);
-                    seriesOptions[i] = {
-                        'name': 'CO',
-                        'data': [ parseFloat(val.co) ]
-                    }
-                });
-                break;
+
+/*
+*   fn 是一個需要依序執行的函數陣列
+*   r  傳遞給第一個執行函數的參數
+*   cb 處理結果的函數
+*/
+function wait(fn, r, cb) {
+    var count = 0;
+    next(r);
+    function next(r) {
+        console.log("count is " + count);
+        console.log("fn.length is");
+        console.log(fn.length);
+        if(count < fn.length) {
+            console.log("next r is");
+            console.log(r);
+            console.log("count is " + count);
+            fn[count](r, next);
+            count++;           
+        } else {
+            console.log("cb r is");
+            console.log(r);
+            cb(r);
         }
-
-        datachart = {
-            chart: {
-                type: 'line',
-                renderTo: document.getElementById(el),
-                height:350,
-                // width:400
-            },
-            title: {
-                text: colname
-            },
-            xAxis: {
-                categories: [
-                    data[5].publish_time, data[4].publish_time, data[3].publish_time,
-                    data[2].publish_time, data[1].publish_time, data[0].publish_time
-                    // '2016-05-04 18:00', '2016-05-04 19:00', '2016-05-04 20:00',
-                    // '2016-05-04 21:00', '2016-05-04 22:00', '2016-05-04 23:00'
-                ],
-                crosshair: true
-            },
-            yAxis: {
-                // min: 0,
-                // title: {
-                //     text: 'PSI'
-                // }
-            },
-            tooltip: {
-                // headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-                pointFormat: '<table><tr><td style="color:{series.color}; padding:0; font-size:16px">{series.name}: </td>' +
-                    '<td style="padding:0; font-size:16px"><b>{point.y:.1f}</b></td></tr>',
-                footerFormat: '</table>',
-                shared: true,
-                useHTML: true
-            },
-            plotOptions: {
-                column: {
-                    pointPadding: 1,
-                    borderWidth: 2
-                }
-            },
-            series: seriesOptions
-            
-        };
-       
-        new Highcharts.chart(datachart);
-    }, 1000);
-
-    
+    }
 }
 </script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCD5dI4ddETACuDY-rUlZH-2Ept65w150Q&callback=initMap" async defer></script>
