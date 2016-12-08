@@ -100,12 +100,12 @@ class InstantInfomationController extends Controller
         $pm25 = array(array());
         $co   = array(array());
         
-        // $now = Carbon::now();
+        $now = Carbon::now();
 
         /*
         * Carbon::create is bulit fo testing.
         */
-        $now = Carbon::create(2016, 05, 04, 18);
+        // $now = Carbon::create(2016, 05, 04, 18);
     
         // $data = [];
 
