@@ -105,6 +105,10 @@
     </div> --}}
 </div>
 
+<div id="loading" style="position: fixed;top:0;left:0;background: rgba(0,0,0,0.3);width: 100%;height: 100%">
+    <h1 style="position: fixed;top:50%;left: 40%;font-size: 8em;font-weight: bolder;">載入中...</h1>
+</div>
+
 @endsection
 
 @section('page-javascript')
@@ -191,6 +195,7 @@ function removeExcessive(ss) {
 }
 
 $(document).ready(function () {
+    $('#loading').css('display', 'none');
     loadSite();
 });
 
@@ -392,12 +397,14 @@ function getSvgData(year, sitename) {
         year: $('#year').val(),
         sitename: sitename,
     }
+    $('#loading').css('display', 'block')
     
     $.ajax({
         type: 'POST',
         url: '{{ route('research.excessive-post') }}',
         data: post_data,
         success: function (data) {
+            $('#loading').css('display', 'none');
             level1 = JSON.parse(data['level1']);
             level2 = JSON.parse(data['level2']);
             level3 = JSON.parse(data['level3']);
@@ -416,6 +423,7 @@ function getSvgData(year, sitename) {
             drawSvg(data['year'], sitename);
         },
         error: function () {
+            $('#loading').css('display', 'none');
             alert("查無資料");
         }
     });
