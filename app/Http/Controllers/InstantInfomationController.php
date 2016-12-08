@@ -94,41 +94,57 @@ class InstantInfomationController extends Controller
 
     }
 
-    public function show_past_12_hours_data(Request $request) {
+    public function show_past_6_hours_data(Request $request) {
         $sitename = $request['sitename'];
-        $now = Carbon::now();
+        $psi  = array(array());
+        $pm25 = array(array());
+        $co   = array(array());
+        
+        // $now = Carbon::now();
 
         /*
         * Carbon::create is bulit fo testing.
         */
-        // $now = Carbon::create(2016, 05, 05, 01)->subHour(5);
-        
-        $data = [];
+        $now = Carbon::create(2016, 05, 04, 18);
+    
+        // $data = [];
 
         /*
-        * Format the $now & $past_12_hours
+        * Format the $now 
         */
         $fnow = $now->year.'-'.sprintf("%02d", $now->month).'-'.sprintf("%02d", $now->day).' '.sprintf("%02d", $now->hour).':'.'00';
-        // $fpast = $past_12_hours->year.'-'.sprintf("%02d", $past_12_hours->month).'-'.sprintf("%02d", $past_12_hours->day).' '.sprintf("%02d", $past_12_hours->hour).':'.'00';
 
         for($i = 1 ; $i < 7 ; $i++) {
             try {
-                $query = DB::table('airpolluctions')->select('sitename', 'pm25', 'psi', 'co', 'pm10', 'publish_time')
+                $query = DB::table('airpollutions')->select('sitename', 'pm25', 'psi', 'co', 'pm10', 'publish_time')
                     ->where('sitename', '=', $sitename)
                     ->where('publish_time', '=', $fnow)
                     ->get();
-                array_push($data, $query[0]);
             }
             catch(Exception $e) {
 
             }
-            
-            $past = $now->addHour();          
+
+            if(!empty($query)) {
+                
+                $psi[0][$i-1] = $query[0]->publish_time;
+                $psi[1][$i-1] = ($query[0]->psi == -1 || $query[0]->psi == null) ? null : $query[0]->psi;
+
+                $pm25[0][$i-1] = $query[0]->publish_time;
+                $pm25[1][$i-1] = ($query[0]->pm25 == -1 || $query[0]->pm25 == null) ? null : $query[0]->pm25;
+
+                $co[0][$i-1] = $query[0]->publish_time;
+                $co[1][$i-1] = ($query[0]->co == -1 || $query[0]->co == null) ? null : $query[0]->co;
+
+            }
+
+            // array_push($data, $query[0]);
+            $past = $now->subHour();         
             $now = $past;
             $fnow = $past->year.'-'.sprintf("%02d", $past->month).'-'.sprintf("%02d", $past->day).' '.sprintf("%02d", $past->hour).':'.'00';
         }
 
-        return response()->json($data);
+        return array($psi, $pm25, $co);
 
     }
 

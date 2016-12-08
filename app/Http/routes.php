@@ -58,7 +58,7 @@ Route::post('file-delete', ['as' => 'file-upload.delete', 'uses' => 'UploadFiles
 
 Route::get('instant_info', ['as' => 'instant_info.index', 'uses' => 'InstantInfomationController@index']);
 Route::post('instant_info', ['as' => 'instant_info.show', 'uses' => 'InstantInfomationController@show']);
-Route::post('past_12_hours_data', ['as' => 'instant_info.past', 'uses' => 'InstantInfomationController@show_past_12_hours_data']);
+Route::post('past_6_hours_data', ['as' => 'instant_info.past', 'uses' => 'InstantInfomationController@show_past_6_hours_data']);
 
 /**
  * Research
