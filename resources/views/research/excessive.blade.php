@@ -379,7 +379,10 @@ function pie(year, s, data) {
             name: s,
             colorByPoint: true,
             data: data
-        }]
+        }],
+        credits: {
+            enabled: false
+        },
     });
 }
 
