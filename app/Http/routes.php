@@ -34,6 +34,8 @@ Route::get('immediate', ['as' => 'immediate', function () {
  */
 Route::get('history-compare', ['as' => 'history-compare.index', 'uses' => 'HistoryCompareController@index']);
 Route::post('history-compare', ['as' => 'history-compare.compare', 'uses' => 'HistoryCompareController@compare']);
+Route::get('history-compare2', ['as' => 'history-compare2.index', 'uses' => 'HistoryCompareController@index2']);
+Route::post('history-compare2', ['as' => 'history-compare2.compare', 'uses' => 'HistoryCompareController@compare2']);
 
 /**
  * excel export

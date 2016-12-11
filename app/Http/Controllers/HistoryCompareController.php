@@ -154,6 +154,16 @@ class HistoryCompareController extends Controller
         return array($data1, $data2, $aqi_data1, $aqi_data2, $avg);
     }
 
+    public function index2()
+    {
+        return view('history-compare2');
+    }
+
+    public function compare2(Request $request)
+    {
+        
+    }
+
     /**
      * Return value that PM2.5 convert to AQI.
      *
