@@ -134,25 +134,28 @@
     </div>
     <div class="col-md-8">
         <h1 style="text-align: center;">目前狀態</h1>
-        <div class="col-md-12">
-            <table class="table table-bordered" style="font-size: 25px;margin-top: 20px;">
+        <div class="col-md-10">
+            <table class="table table-bordered" style="font-size: 20px;margin-top: 20px;">
                 <tr>
-                    <th style="width: 25%">年份</th>
+                    <th style="width: 80px">年份</th>
                     <td id="show-year"></td>
                 </tr>
                 <tr>
-                    <th style="width: 25%">月份</th>
+                    <th style="width: 80px">月份</th>
                     <td id="show-month"></td>
                 </tr>
                 <tr>
-                    <th style="width: 25%">測站</th>
+                    <th style="width: 80px">測站</th>
                     <td id="show-site"></td>
                 </tr>
                 <tr>
-                    <th style="width: 25%">汙染物</th>
+                    <th style="width: 80px">汙染物</th>
                     <td id="show-pollution"></td>
                 </tr>
             </table>
+        </div>
+        <div class="col-md-2">
+            <button type="button" class="btn btn-success btn-lg" style="margin-top: 20px;" onclick="startDraw()">繪製圖表</button>
         </div>
     </div>
 </div>
@@ -255,19 +258,28 @@
 
     // show user set data on table
     function showData() {
-        $('#show-year').html(year.length == 0 ? "尚未設定" : "")
+        $('#show-year').html(year.length == 0 ? '<span style="color: red;">尚未設定</span>' : "")
         year.forEach(function (element, index, array) {
             $('#show-year').append(element+"年,")
         })
-        $('#show-month').html(two_month.length == 0 ? "尚未設定" : "")
+        $('#show-month').html(two_month.length == 0 ? '<span style="color: red;">尚未設定</span>' : "")
         two_month.forEach(function (element, index, array) {
             $('#show-month').append(element+"月~"+(parseInt(element)+1)+"月")
         })
         $('#show-site').html(sitename+"站")
-        $('#show-pollution').html(pollution.length == 0 ? "尚未設定" : "")
+        $('#show-pollution').html(pollution.length == 0 ? '<span style="color: red;">尚未設定</span>' : "")
         pollution.forEach(function (element, index, array) {
             $('#show-pollution').append(element+",")
         })
+    }
+
+    // button start draw 
+    function startDraw() {
+        if (year.length == 0 || two_month.length == 0 || sitename == '' || pollution.length == 0 ) {
+            alert('請設定時間、測站、污染物。');
+        } else {
+            console.log(year, two_month, sitename, pollution);
+        }
     }
 
 </script>
