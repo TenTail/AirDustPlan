@@ -138,8 +138,6 @@ function setChart(sitename) {
         }],
         sitename,
         function (result) {
-            console.log("result[0] is ");
-            console.log(result[0]);
             for(var i = 0 ; i < 3 ; i++) {
                 var lut = i.toString();
                 datachart = {
@@ -178,7 +176,7 @@ function setChart(sitename) {
                     },
                     series: [{
                         name:table[lut][1],
-                        data:result[i][1]  
+                        data:result[i][1] 
                     }]                   
                 };
 
@@ -198,22 +196,14 @@ function wait(fn, r, cb) {
     var count = 0;
     next(r);
     function next(r) {
-        console.log("count is " + count);
-        console.log("fn.length is");
-        console.log(fn.length);
         if(count < fn.length) {
-            console.log("next r is");
-            console.log(r);
-            console.log("count is " + count);
             fn[count](r, next);
             count++;           
         } else {
-            console.log("cb r is");
-            console.log(r);
             cb(r);
         }
     }
 }
 </script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCD5dI4ddETACuDY-rUlZH-2Ept65w150Q&callback=initMap" async defer></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=&callback=initMap" async defer></script>
 @endsection
