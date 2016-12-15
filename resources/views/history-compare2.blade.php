@@ -319,12 +319,12 @@
                 backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
             },
             series: [{
-                name: 'Rainfall',
+                name: 'PM10',
                 type: 'column',
-                // yAxis: 1,
+                // yAxis: 2,
                 data: data,
                 tooltip: {
-                    valueSuffix: ' mm'
+                    valueSuffix: ' μg/m3'
                 }
 
             }],

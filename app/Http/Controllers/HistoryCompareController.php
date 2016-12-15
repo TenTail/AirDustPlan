@@ -157,6 +157,40 @@ class HistoryCompareController extends Controller
 
     public function index2()
     {
+        // $file = public_path().'/history-files/92j/92Bucket_six.json';
+        // if (File::exists($file)) {
+        //     $file_content = file_get_contents($file);
+        //     $data = json_decode($file_content, true);
+        // } else {
+        //     dd("not find file.");
+        // }
+        
+        // $collection = collect($data);
+        // $key = $collection->flatMap(function ($item) {
+        //     if ($item['PublishTime'] >= '2003-01' AND $item['PublishTime'] < '2003-03') 
+        //     return [$item['PublishTime'] => ['pm10' => $item['PM10'],'PublishTime' => explode(" ", $item['PublishTime'])[0]]];
+        // })
+        // ->sortBy(function ($si, $sk) {
+        //     return $sk;
+        // })
+        // ->groupBy('PublishTime')
+        // ->flatMap(function ($fi, $fk) {
+        //     return array([$fk, $fi->avg('pm10')]);
+        // })->toArray();
+
+        // dd($key);
+        return view('history-compare2');
+    }
+
+    public function compare2(Request $request)
+    {
+
+        // $t = $year."-".$month."-01 00:00";
+        $t = "2014-01-01 00:00";
+        $sitename = $request->input("sitename");
+        $pollution = strtolower($request->input("pollution")[0]);
+        $pollution = ($pollution == 'pm2.5') ? 'pm25' : $pollution;
+
         $file = public_path().'/history-files/92j/92Bucket_six.json';
         if (File::exists($file)) {
             $file_content = file_get_contents($file);
@@ -175,69 +209,12 @@ class HistoryCompareController extends Controller
         })
         ->groupBy('PublishTime')
         ->flatMap(function ($fi, $fk) {
-            return [$fk => $fi->avg('pm10')];
-        });
+            $date = explode('-', $fk);
+            return array([mktime(0,0,0,$date[1],$date[2],$date[0])*1000, $fi->avg('pm10')]);
+        })
+        ->toArray();
 
-        dd($key);
-        return view('history-compare2');
-    }
-
-    public function compare2(Request $request)
-    {
-
-        // $t = $year."-".$month."-01 00:00";
-        $t = "2014-01-01 00:00";
-        $sitename = $request->input("sitename");
-        $pollution = strtolower($request->input("pollution")[0]);
-        $pollution = ($pollution == 'pm2.5') ? 'pm25' : $pollution;
-
-        // data1
-        $s_timer1 = Carbon::createFromFormat("Y-m-d H:i", $t);
-        $e_timer1 = Carbon::createFromFormat("Y-m-d H:i", $t)->addMonths(2);
-        // $r_timer1 = $s_timer1->year."-".$month."-%";
-        $data1 = array();
-
-        // SELECT `pm25`, `publish_time` FROM `airpollutions` WHERE `sitename` = '斗六' AND `publish_time` BETWEEN '2015-01' AND '2015-03' OR `publish_time` BETWEEN '2014-01' AND '2014-03' ORDER BY `publish_time`
-        $result1 = DB::select("
-            SELECT `$pollution`, `publish_time`
-            FROM `airpollutions`
-            WHERE `sitename` = '$sitename' AND `publish_time` BETWEEN '2014-01' AND '2014-03'
-            ORDER BY `publish_time`
-        ");
-        $result1 = DB::select("
-            SELECT t1.sitename, AVG(t1.$pollution) AS $pollution, SUBSTR(t1.publish_time, 1, 4) AS year, SUBSTR(t1.publish_time, 6, 2) AS month, SUBSTR(t1.publish_time, 9, 2) AS day
-            FROM `airpollutions` AS t1
-            inner join (SELECT `id` FROM `airpollutions` WHERE `publish_time` BETWEEN '2014-01' AND '2014-03' AND `sitename` = '$sitename' AND `$pollution` > 0) AS t2
-            ON t1.id = t2.id 
-            GROUP BY t1.sitename, SUBSTR(t1.publish_time, 1, 10)
-            ORDER BY SUBSTR(t1.publish_time, 1, 10) ASC
-        ");
-
-        $i = 0;
-        for ($ptr1=0; $s_timer1 != $e_timer1; ) { 
-            $time = mktime($s_timer1->hour,$s_timer1->minute,0,$s_timer1->month,$s_timer1->day,$s_timer1->year)*1000;
-
-            // data1
-            $check_time = $s_timer1->year."-".sprintf("%02d", $s_timer1->month)."-".sprintf("%02d", $s_timer1->day)." ".sprintf("%02d", $s_timer1->hour).":00";
-            
-            // if ($ptr1 < count($result1) && $result1[$ptr1]->publish_time == $check_time) {
-            if ($ptr1 < count($result1) AND $result1[$ptr1]->year."-".$result1[$ptr1]->month."-".$result1[$ptr1]->day." 00:00" == $check_time) {
-                $data1[$i][0] = $time;
-                $data1[$i][1] = ($result1[$ptr1]->$pollution == -1 || $result1[$ptr1]->$pollution == 0) ? null : $result1[$ptr1]->$pollution;
-                
-            } else {
-                $data1[$i][0] = $time;
-                $data1[$i][1] = null;
-                $ptr1--;
-            }
-
-            // next turn
-            $i++;
-            $ptr1++;
-            $s_timer1->addDay();
-        }
-
-        return $data1;
+        return $key;
     }
 
     /**
