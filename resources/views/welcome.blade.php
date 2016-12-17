@@ -9,7 +9,7 @@
     text-align: center;
 }
 .text {
-    font-size: 20px;
+    font-size: 22px;
     text-indent: 40px;
 }
 .box img {
