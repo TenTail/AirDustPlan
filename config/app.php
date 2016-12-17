@@ -160,7 +160,6 @@ return [
 
         Collective\Html\HtmlServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
-        Recca0120\LaravelTracy\ServiceProvider::class,
 
     ],
 
