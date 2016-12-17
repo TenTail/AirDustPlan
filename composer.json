@@ -10,7 +10,8 @@
         "nesbot/carbon": "^1.21",
         "laravelcollective/html": "^5.2",
         "maatwebsite/excel": "^2.1",
-        "recca0120/laravel-tracy": "^1.7"
+        "recca0120/laravel-tracy": "^1.7",
+        "guzzlehttp/guzzle": "~5.3|~6.0"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",

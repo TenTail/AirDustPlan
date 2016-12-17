@@ -57,7 +57,6 @@ Route::post('file-delete', ['as' => 'file-upload.delete', 'uses' => 'UploadFiles
 /**
  *  PM2.5 instant info
 **/
-
 Route::get('instant_info', ['as' => 'instant_info.index', 'uses' => 'InstantInfomationController@index']);
 Route::post('instant_info', ['as' => 'instant_info.show', 'uses' => 'InstantInfomationController@show']);
 Route::post('past_6_hours_data', ['as' => 'instant_info.past', 'uses' => 'InstantInfomationController@show_past_6_hours_data']);
@@ -70,3 +69,17 @@ Route::get('average', ['as' => 'research.average', 'uses' => 'ResearchController
 Route::get('excessive', ['as' => 'research.excessive', 'uses' => 'ResearchController@excessive']);
 Route::post('excessive', ['as' => 'research.excessive-post', 'uses' => 'ResearchController@excessiveGetData']);
 Route::get('check-data', ['as' => 'research.check', 'uses' => 'ResearchController@check']);
+
+/**
+ * Mail Testing
+ */
+Route::get('/mail', function() {
+	 $data = ['name' => 'Test'];
+	 Mail::send('email_test', $data, function($message) {
+	  	
+	  	$message->to('40243137@gm.nfu.edu.tw')->subject('This is test email');
+	 
+	 });
+	 return view('email_test')->with('name', 'Your email has been sent successfully!');
+});
+

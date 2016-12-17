@@ -100,12 +100,13 @@ class InstantInfomationController extends Controller
         $pm25 = array(array());
         $co   = array(array());
         
-        $now = Carbon::now();
+        // $now = Carbon::now('Asia/Taipei');
+
 
         /*
         * Carbon::create is bulit fo testing.
         */
-        // $now = Carbon::create(2016, 05, 04, 18);
+        $now = Carbon::create(2016, 12, 13, 15);
     
         // $data = [];
 
@@ -124,6 +125,7 @@ class InstantInfomationController extends Controller
             catch(Exception $e) {
 
             }
+            
 
             if(!empty($query)) {
                 
@@ -143,9 +145,8 @@ class InstantInfomationController extends Controller
             $now = $past;
             $fnow = $past->year.'-'.sprintf("%02d", $past->month).'-'.sprintf("%02d", $past->day).' '.sprintf("%02d", $past->hour).':'.'00';
         }
-
         return array($psi, $pm25, $co);
-
+       
     }
 
 }
