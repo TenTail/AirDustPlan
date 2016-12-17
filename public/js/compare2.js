@@ -94,6 +94,6 @@ function showData() {
     $('#show-site').html(sitename+"站")
     $('#show-pollution').html(pollution.length == 0 ? '<span style="color: red;">尚未設定</span>' : "")
     pollution.forEach(function (element, index, array) {
-        $('#show-pollution').append(element+",")
+        $('#show-pollution').append(element.toUpperCase())
     })
 }

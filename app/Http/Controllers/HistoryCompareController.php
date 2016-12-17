@@ -26,6 +26,87 @@ class HistoryCompareController extends Controller
         ['pm25l' => 250, 'pm25h' => 500, 'aqil' => 300, 'aqih' => 500]
     );
 
+    private $TW_to_ENG = array('基隆'=>'Keelung',
+        '嘉義'=>'Chiayi',
+        '美濃'=>'Mino',
+        '大寮'=>'Great_Liao',
+        '橋頭'=>'Bridgehead',
+        '仁武'=>'Ren_Wu',
+        '鳳山'=>'Fengshan',
+        '林園'=>'Forest_Park',
+        '楠梓'=>'Nan_Zi',
+        '左營'=>'Left_camp',
+        '前金'=>'Before_the_gold',
+        '前鎮'=>'Before_the_town',
+        '小港'=>'Small_port',
+        '復興'=>'revival',
+        '汐止'=>'Mizuki',
+        '萬里'=>'Miles',
+        '新店'=>'New_store',
+        '土城'=>'Tucheng',
+        '板橋'=>'Itabashi',
+        '新莊'=>'New_Village',
+        '菜寮'=>'Cai_Liu',
+        '林口'=>'Linkou',
+        '淡水'=>'freshwater',
+        '三重'=>'triple',
+        '永和'=>'Yonghe',
+        '士林'=>'Shihlin',
+        '中山'=>'Zhongshan',
+        '萬華'=>'Wanhua',
+        '古亭'=>'Guting',
+        '松山'=>'Matsuyama',
+        '大同'=>'Datong',
+        '陽明'=>'Yangming',
+        '桃園'=>'Taoyuan',
+        '大園'=>'Large_garden',
+        '觀音'=>'Guanyin',
+        '平鎮'=>'Flat_town',
+        '龍潭'=>'Longtan',
+        '中壢'=>'Chungli',
+        '湖口'=>'Hukou',
+        '竹東'=>'Bamboo_East',
+        '新竹'=>'Hsinchu',
+        '頭份'=>'Head',
+        '苗栗'=>'Miaoli',
+        '三義'=>'Three_meanings',
+        '豐原'=>'Fengyuan',
+        '沙鹿'=>'Sand_deer',
+        '大里'=>'Big_ri',
+        '忠明'=>'Zhong_Ming',
+        '西屯'=>'Xitun',
+        '彰化'=>'Changhua',
+        '線西'=>'Line_West',
+        '二林'=>'Second_forest',
+        '南投'=>'Nantou',
+        '竹山'=>'Zhushan',
+        '埔里'=>'Puli',
+        '斗六'=>'Bucket_six',
+        '崙背'=>'Lun_back',
+        '臺西'=>'Taiwan',
+        '麥寮'=>'Wheat_laos',
+        '台西'=>'Taiwan',
+        '新港'=>'Newport',
+        '朴子'=>'Pu_child',
+        '新營'=>'The_new_camp',
+        '善化'=>'Good',
+        '安南'=>'Annan',
+        '臺南'=>'Tainan',
+        '台南'=>'Tainan',
+        '屏東'=>'Pingtung',
+        '潮州'=>'Chaozhou',
+        '恆春'=>'Hengchun',
+        '臺東'=>'Taitung',
+        '關山'=>'Guanshan',
+        '台東'=>'Taitung',
+        '宜蘭'=>'Ilan',
+        '冬山'=>'Winter_Hill',
+        '花蓮'=>'Hualien',
+        '馬公'=>'Ma_Gong',
+        '馬祖'=>'Matsu',
+        '金門'=>'Kinmen',
+    );
+
     public function index()
     {
         // dd($this->convertAQI(0));
@@ -157,64 +238,62 @@ class HistoryCompareController extends Controller
 
     public function index2()
     {
-        // $file = public_path().'/history-files/92j/92Bucket_six.json';
-        // if (File::exists($file)) {
-        //     $file_content = file_get_contents($file);
-        //     $data = json_decode($file_content, true);
-        // } else {
-        //     dd("not find file.");
-        // }
-        
-        // $collection = collect($data);
-        // $key = $collection->flatMap(function ($item) {
-        //     if ($item['PublishTime'] >= '2003-01' AND $item['PublishTime'] < '2003-03') 
-        //     return [$item['PublishTime'] => ['pm10' => $item['PM10'],'PublishTime' => explode(" ", $item['PublishTime'])[0]]];
-        // })
-        // ->sortBy(function ($si, $sk) {
-        //     return $sk;
-        // })
-        // ->groupBy('PublishTime')
-        // ->flatMap(function ($fi, $fk) {
-        //     return array([$fk, $fi->avg('pm10')]);
-        // })->toArray();
-
-        // dd($key);
         return view('history-compare2');
     }
 
     public function compare2(Request $request)
     {
-
-        // $t = $year."-".$month."-01 00:00";
-        $t = "2014-01-01 00:00";
+        $month = sprintf("%02d", $request->input("month"));
+        // 格式['2001', 90, '2001-01-01 00:00', '2001-03-01 00:00']
+        $year = array_map(function ($y) use ($month) {
+            return [$y, intval($y)-1911, $y."-".$month."-01 00:00", $y."-".sprintf("%02d", intval($month)+2)."-01 00:00"];
+        }, $request->input("year"));
         $sitename = $request->input("sitename");
-        $pollution = strtolower($request->input("pollution")[0]);
-        $pollution = ($pollution == 'pm2.5') ? 'pm25' : $pollution;
-
-        $file = public_path().'/history-files/92j/92Bucket_six.json';
-        if (File::exists($file)) {
-            $file_content = file_get_contents($file);
-            $data = json_decode($file_content, true);
-        } else {
-            dd("not find file.");
-        }
+        $pollution = ($request->input("pollution")[0] == 'pm2.5') ? 'pm25' : $request->input("pollution")[0];
         
-        $collection = collect($data);
-        $key = $collection->flatMap(function ($item) {
-            if ($item['PublishTime'] >= '2003-01' AND $item['PublishTime'] < '2003-03') 
-            return [$item['PublishTime'] => ['pm10' => $item['PM10'],'PublishTime' => explode(" ", $item['PublishTime'])[0]]];
-        })
-        ->sortBy(function ($si, $sk) {
-            return $sk;
-        })
-        ->groupBy('PublishTime')
-        ->flatMap(function ($fi, $fk) {
-            $date = explode('-', $fk);
-            return array([mktime(0,0,0,$date[1],$date[2],$date[0])*1000, $fi->avg('pm10')]);
-        })
-        ->toArray();
+        // 根據 $year 與 $sitename 抓取檔案，並解析檔案然後轉換成 collection
+        $collections = array_map(function ($y) use ($sitename) {
+            $path = public_path().'/history-files/'.$y[1].'j/'.$y[1].$this->TW_to_ENG[$sitename].'.json';
+            return File::exists($path) 
+                ? collect(json_decode(file_get_contents($path), true))
+                : NULL;
+        }, $year);
 
-        return $key;
+        $data = array();
+        foreach ($collections as $i => $value) {
+            if ($value == NULL) continue; // 如果是NULL代表找不到檔案
+            $temp = $value->flatMap(function ($item) use ($i, $year, $pollution) { // 選取出正確的月份與空汙測項
+                if ($item['PublishTime'] >= substr($year[$i][2], 0, 7) AND $item['PublishTime'] < substr($year[$i][3], 0, 7)) 
+                return [
+                    $item['PublishTime'] => [
+                        $pollution => array_key_exists(strtoupper($pollution), $item)
+                            ? $item[strtoupper($pollution)] : NULL,
+                        'PublishTime' => explode(" ", $item['PublishTime'])[0]
+                    ]
+                ];
+            })
+            ->sortBy(function ($si, $sk) { // 根據 key值 去做排序
+                return $sk;
+            })
+            ->groupBy('PublishTime') // 把同一天群組起來
+            ->flatMap(function ($fi, $fk) use ($pollution) { // 將空汙測項根據每天做平均
+                $date = explode('-', $fk);
+                return array([mktime(0,0,0,$date[1],$date[2],0)*1000, $fi->avg($pollution)]);
+            })
+            ->toArray(); // collection 轉換成 array
+            
+            // highcharts 的 series 資料格式
+            array_push($data, [
+                'name' => $year[$i][0]."年",
+                'data' => $temp,
+                'type' => 'spline',
+                'tooltip' => [
+                    'valueSuffix' => ' μg/m3'
+                ]
+            ]);
+        }
+
+        return $data;
     }
 
     /**

@@ -117,7 +117,7 @@
                             <?php $pollution = ['PM2.5', 'PM10', 'SO2', 'CO'] ?>
                             @for ($i = 0; $i < count($pollution); $i++)
                             <div style="width: 25%;float: left;text-align: center;">
-                                <input type="radio" name="pollution" class="input-pollution" id="{{ $pollution[$i] }}" value="{{ $pollution[$i] }}" onchange="setData()">
+                                <input type="radio" name="pollution" class="input-pollution" id="{{ $pollution[$i] }}" value="{{ strtolower($pollution[$i]) }}" onchange="setData()">
                                 <label for="{{ $pollution[$i] }}" style="padding-right: 10px;">{{ $pollution[$i] }}</label>
                             </div>
                             @endfor
@@ -206,7 +206,7 @@
         }
     }
     function setY() {
-        if (pollution == "PM2.5") {
+        if (pollution == "pm2.5") {
             return [{
                 labels: {
                     format: '{value}μg/m3',
@@ -222,7 +222,7 @@
                 },
                 opposite: true
             }]
-        } else if (pollution == "PM10") {
+        } else if (pollution == "pm10") {
             return [{
                 labels: {
                     format: '{value}μg/m3',
@@ -306,7 +306,18 @@
             yAxis: setting.yAxis,
             rangeSelector: setting.rangeSelector,
             tooltip: {
-                shared: false
+                shared: true,
+                useHTML: true,
+                formatter: function () {
+                    var s = '<b style="font-size: 14pt; color: #000000;">' + Highcharts.dateFormat('%m月%d日 %H:%M', this.x) + '</b>';
+
+                    $.each(this.points, function () {
+                        s += '<br/>' + '<span style="color:'+this.point.color+'">\u25CF</span>' + this.series.name + ' : ';
+                        s += (this.y == 0) ? '沒有資料' : this.y;
+                    });
+
+                    return s;
+                }
             },
             legend: {
                 enabled: true,
@@ -318,16 +329,7 @@
                 floating: true,
                 backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
             },
-            series: [{
-                name: 'PM10',
-                type: 'column',
-                // yAxis: 2,
-                data: data,
-                tooltip: {
-                    valueSuffix: ' μg/m3'
-                }
-
-            }],
+            series: data,
             credits: {
                 enabled: false
             },
