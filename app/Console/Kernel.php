@@ -18,7 +18,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         // Commands\Inspire::class,
-        // \App\Console\Commands\TestLog::class,
+        \App\Console\Commands\ParseOpenData::class,
     ];
 
     /**
@@ -29,7 +29,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('email:Log')
-        //          ->everyMinute();
+        $schedule->command('parser:get')
+                 ->everyTenMinutes();
     }
 }
