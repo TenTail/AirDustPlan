@@ -59,9 +59,9 @@ class ParseOpenData extends Command
             $data = ['name' => 'Not exist'];
 
             Mail::send('mail', $data, function($message) {
-        
-                $message->to('40243137@gm.nfu.edu.tw')->subject($lasthour . 'was not saved.');
-             
+                $lh = Carbon::now('Asia/Taipei')->subhour()->format('Y-m-d H').':00';
+                $message->to('40243137@gm.nfu.edu.tw')->subject($lh . ' Data was not saved.');
+
              });
             \Log::info('Open Data was not saved at' . $lasthour);
         }
@@ -73,7 +73,7 @@ class ParseOpenData extends Command
         if(empty($query)) {
             foreach($jdata as $value) {
                 DB::table('airpollutions')->insert([
-                    'sitename'       => $value['SiteName'],                    
+                    'sitename'       => $value['SiteName'],
                     'psi'            => $value['PSI'],
                     'pm25'           => $value['PM2.5'],
                     'county'         => $value['County'],
@@ -92,6 +92,6 @@ class ParseOpenData extends Command
         else {
             \Log::info('Open Data had existed in DB.');
         }
-    
+
     }
 }
