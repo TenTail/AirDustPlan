@@ -11,9 +11,21 @@
 |
 */
 
-Route::get('/', ['as' => 'index', function () {
-    return view('welcome');
-}]);
+Route::get('/', ['as' => 'index', 'uses' => 'HomePageController@index']);
+Route::post('contactus', ['as' => 'contact', 'uses' => 'HomePageController@contactus']);
+// Route::post('contactus', function() {
+// 	return "hello";
+// });
+
+/**
+ *  Send Mail 
+ */
+Route::get('mail', function() {
+	 $data = ['name' => 'Test'];
+	 Mail::send('mail', $data, function($message) {
+	  	$message->to('40243137@gm.nfu.edu.tw')->subject('This is test email');
+	 });
+});
 
 /**
  * PM2.5 introduction
@@ -70,17 +82,5 @@ Route::get('excessive', ['as' => 'research.excessive', 'uses' => 'ResearchContro
 Route::post('excessive', ['as' => 'research.excessive-post', 'uses' => 'ResearchController@excessiveGetData']);
 Route::get('check-data', ['as' => 'research.check', 'uses' => 'ResearchController@check']);
 
-/**
- * Mail Testing
- */
-Route::get('mail', function() {
-	 $data = ['name' => 'Test'];
-	 // dd(Config::get('mail'));
-	 Mail::send('mail', $data, function($message) {
-	  	
-	  	$message->to('40243137@gm.nfu.edu.tw')->subject('This is test email');
-	 
-	 });
-	 // return view('mail');
-});
+
 
