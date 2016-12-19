@@ -33,7 +33,7 @@
             <span class="glyphicon glyphicon-object-align-bottom" aria-hidden="true"></span>即時空汙資訊
         </h2>
         <div class="col-md-3">
-            <img class="left" src="/img/home1.png" width="200" height="auto" alt="" >
+            <img class="left" src="./img/home1.png" width="200" height="auto" alt="" >
         </div>
         <div class="col-md-9">
             <p class="text">
@@ -46,7 +46,7 @@
             <span class="glyphicon glyphicon-hourglass" aria-hidden="true"></span>歷年空汙比較
         </h2>
         <div class="col-md-3">
-            <img class="left" src="/img/home2.png" width="200" height="auto" alt="" >
+            <img class="left" src="./img/home2.png" width="200" height="auto" alt="" >
         </div>
         <div class="col-md-9">
             <p class="text">
@@ -59,7 +59,7 @@
             <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>好日子與壞日子
         </h2>
         <div class="col-md-3">
-            <img class="left" src="/img/home3.png" width="200" height="auto" alt="" >
+            <img class="left" src="./img/home3.png" width="200" height="auto" alt="" >
         </div>
         <div class="col-md-9">
             <p class="text">
@@ -72,15 +72,38 @@
             <span class="glyphicon glyphicon-save" aria-hidden="true"></span>歷史資料下載
         </h2>
         <div class="col-md-3">
-            <img class="left" src="/img/home4.png" width="200" height="auto" alt="" >
+            <img class="left" src="./img/home4.png" width="200" height="auto" alt="" >
         </div>
         <div class="col-md-9">
             <p class="text">
                 網站提供管理員上傳空汙的歷史資料，並讓使用者可下載已處理完畢的歷史資料，提供csv、xls、json檔案格式。
             </p>
         </div>
-    </div>
+    </div>   
 
+    <div class="col-md-12" style="font-size: 18px;">
+        
+        <h1 class="title" style="">聯絡我們</h1>
+        <hr>
+       
+        {!! Form::open(['action' => 'HomePageController@contactus', 'method' => 'post']) !!}
+            <div class="form-group">
+                {!! Form::label('name', '姓名') !!}
+                {!! Form::text('name', null, ['id' => 'name', 'class' =>'form-control', 'placeholder' => 'Name']) !!} 
+                {!! Form::label('email', 'Email')!!}
+                {!! Form::email('email', null, ['id' => 'email', 'class' =>'form-control', 'placeholder' => 'example@gmail.com']) !!}
+            </div>
+
+            <div class="form-group">
+                {!! Form::label('content', '問題描述')!!}
+                {!! Form::textarea('content', null, ['id' => 'content', 'class' => 'form-control']) !!}
+            </div> 
+
+            <div class="form-group">
+                {!! Form::submit('送出', ['class' => 'btn btn-success form-control'])!!}
+            </div>
+        {!! Form::close() !!}
+    </div>
 </div>
 
 @endsection
