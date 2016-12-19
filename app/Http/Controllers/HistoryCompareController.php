@@ -278,7 +278,7 @@ class HistoryCompareController extends Controller
             ->groupBy('PublishTime') // 把同一天群組起來
             ->flatMap(function ($fi, $fk) use ($pollution) { // 將空汙測項根據每天做平均
                 $date = explode('-', $fk);
-                return array([mktime(0,0,0,$date[1],$date[2],0)*1000, $fi->avg($pollution)]);
+                return array([mktime(0,0,0,$date[1],$date[2],0)*1000, round($fi->avg($pollution), 2)]);
             })
             ->toArray(); // collection 轉換成 array
             

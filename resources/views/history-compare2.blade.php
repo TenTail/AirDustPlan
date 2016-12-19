@@ -160,9 +160,19 @@
     </div>
 </div>
 
+<div id="demo-msg" class="col-md-12" style="text-align: center;display: none;height: 340px">
+    <div class="flash-message">
+        <h2 class="alert alert-warning">未找到資料，請聯絡管理員。<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a></h2>
+    </div> <!-- end .flash-message -->
+</div>
+
 <div class="col-md-12">
     <div id="container" style="height: 400px; min-width: 100%;margin-top: 20px;"></div>
     <div id="containerAQI" style="height: 500px; min-width: 100%;margin-top: 20px;padding-top: 50px;"></div>
+</div>
+
+<div id="loading" style="position: fixed;top:0;left:0;background: rgba(0,0,0,0.3);width: 100%;height: 100%">
+    <h1 style="position: fixed;top:50%;left: 40%;font-size: 8em;font-weight: bolder;">載入中...</h1>
 </div>
 
 @endsection
@@ -172,15 +182,17 @@
 <script>
     $(document).ready(function () {
         loadSite()
+        loading(false)
         setData()
-        // drawChart()
     })
 
-    // button start draw 
+    // button ajax to HistoryCompareController@compare2
     function startDraw() {
         if (year.length == 0 || two_month.length == 0 || sitename == '' || pollution.length == 0 ) {
-            alert('請設定時間、測站、污染物。');
+            alert('請設定時間、測站、污染物。')
         } else {
+            loading(true)
+            $('#demo-msg').css('display', 'none')
             $.ajaxSetup({
                 headers: { 'X-CSRF-TOKEN': $('meta[name=csrf-token]').attr('content') }
             })
@@ -196,63 +208,70 @@
                 url: '{{ route('history-compare2.compare') }}',
                 data: postData,
                 success: function (data) {
-                    console.log(data)
-                    drawChart(data)
+                    if (data.length){
+                        drawChart(data)
+                    }
+                    else {
+                        $('#demo-msg').css('display', 'block')  
+                        loading(false)  
+                    }
                 },
                 error: function () {
-                    console.log("error")
+                    $('#demo-msg').css('display', 'block')
+                    loading(false)
                 }
             })
         }
     }
+
     function setY() {
         if (pollution == "pm2.5") {
             return [{
                 labels: {
                     format: '{value}μg/m3',
                     style: {
-                        color: Highcharts.getOptions().colors[2]
-                    }
+                        color: 'rgb(00,00,00)'
+                    },
+                    align: 'left',
                 },
                 title: {
                     text: 'PM2.5',
                     style: {
-                        color: Highcharts.getOptions().colors[2]
+                        color: 'rgb(00,00,00)'
                     }
                 },
-                opposite: true
             }]
         } else if (pollution == "pm10") {
             return [{
                 labels: {
                     format: '{value}μg/m3',
                     style: {
-                        color: Highcharts.getOptions().colors[0]
-                    }
+                        color: 'rgb(00,00,00)'
+                    },
+                    align: 'left',
                 },
                 title: {
                     text: 'PM10',
                     style: {
-                        color: Highcharts.getOptions().colors[0]
+                        color: 'rgb(00,00,00)'
                     }
                 },
-                opposite: true
             }]
         } else {
             return [{
                 labels: {
                     format: '{value}μg/m3',
                     style: {
-                        color: Highcharts.getOptions().colors[1]
-                    }
+                        color: 'rgb(00,00,00)'
+                    },
+                    align: 'left',
                 },
                 title: {
                     text: 'SO2',
                     style: {
-                        color: Highcharts.getOptions().colors[1]
+                        color: 'rgb(00,00,00)'
                     }
                 },
-                opposite: true
             }]
         }
     }
@@ -288,32 +307,15 @@
                 inputDateFormat: '%m月%d日',
                 inputEditDateFormat: '%m月%d日'
             },
-        }
-            
-    }
-
-    function drawChart(data) {
-        setting = setCharts()
-        console.log(setting)
-        $('#container').highcharts('StockChart', {
-            title: {
-                text: sitename+'站歷史空汙比較圖'
-            },
-            subtitle: {
-                text: two_month[0]+'月~'+(parseInt(two_month[0])+1)+'月之比較'
-            },
-            xAxis: setting.xAxis,
-            yAxis: setting.yAxis,
-            rangeSelector: setting.rangeSelector,
             tooltip: {
                 shared: true,
                 useHTML: true,
                 formatter: function () {
-                    var s = '<b style="font-size: 14pt; color: #000000;">' + Highcharts.dateFormat('%m月%d日 %H:%M', this.x) + '</b>';
+                    var s = '<b style="font-size: 14pt; color: #000000;">' + Highcharts.dateFormat('%m月%d日', this.x) + '</b>';
 
                     $.each(this.points, function () {
                         s += '<br/>' + '<span style="color:'+this.point.color+'">\u25CF</span>' + this.series.name + ' : ';
-                        s += (this.y == 0) ? '沒有資料' : this.y;
+                        s += (this.y == 0) ? '沒有資料' : this.y + 'μg/m3';
                     });
 
                     return s;
@@ -328,12 +330,31 @@
                 y: 90,
                 floating: true,
                 backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
+            }
+        }
+            
+    }
+
+    function drawChart(data) {
+        setting = setCharts()
+        $('#container').highcharts('StockChart', {
+            title: {
+                text: sitename+'站歷史空汙比較圖'
             },
+            subtitle: {
+                text: two_month[0]+'月~'+(parseInt(two_month[0])+1)+'月之比較'
+            },
+            xAxis: setting.xAxis,
+            yAxis: setting.yAxis,
+            rangeSelector: setting.rangeSelector,
+            tooltip: setting.tooltip,
+            legend: setting.legend,
             series: data,
             credits: {
                 enabled: false
             },
-        });
+        })
+        loading(false)
     }
 
 </script>
