@@ -17,17 +17,11 @@
                 <li class="{{ Request::is('/') ? 'activate' : '' }}">
                     <a href="{{ route('index') }}"><span class="glyphicon glyphicon-home" aria-hidden="true"></span></a>
                 </li>
-                {{-- <li class="{{ Request::is('introduction') ? 'activate' : '' }}">
-                    <a href="{{ route('introduction') }}">細懸浮微粒?</a>
-                </li> --}}
-               {{--  <li class="{{ Request::is('immediate') ? 'activate' : '' }}">
-                    <a href="{{ route('immediate') }}"><span class="glyphicon glyphicon-object-align-bottom" aria-hidden="true"></span>即時空汙資訊</a>
-                </li> --}}
                 <li class="{{ Request::is('instant_info') ? 'activate' : '' }}">
                     <a href="{{ route('instant_info.index') }}"><span class="glyphicon glyphicon-object-align-bottom" aria-hidden="true"></span>即時空汙資訊</a>
                 </li>
-                <li class="{{ Request::is('history-compare') ? 'activate' : '' }}">
-                    <a href="{{ route('history-compare.index') }}"><span class="glyphicon glyphicon-hourglass" aria-hidden="true"></span>歷年空汙比較</a>
+                <li class="{{ Request::is('history-compare2') ? 'activate' : '' }}">
+                    <a href="{{ route('history-compare2.index') }}"><span class="glyphicon glyphicon-hourglass" aria-hidden="true"></span>歷年空汙比較</a>
                 </li>
                 <li class="{{ Request::is('excessive') ? 'activate' : '' }}">
                     <a href="{{ route('research.excessive') }}"><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span>好日子與壞日子</a>
