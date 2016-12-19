@@ -26,7 +26,7 @@ class ContactPostRequest extends Request
         return [
             'name' => 'required',
             'email' => 'required|email',
-            'content' => 'required|max:255'
+            'content' => 'required|max:255',
         ];
     }
 }

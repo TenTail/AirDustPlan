@@ -11,6 +11,7 @@
 
 @section("content") --}}
 	<p> HI {{ $name }} </p>
+	<p> {{ $content }}</p>
 {{-- @endsection
 
 @section("head-javascript")

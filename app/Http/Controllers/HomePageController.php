@@ -36,14 +36,13 @@ class HomePageController extends Controller
      *
      * @param  name, email, content
      */
-     public function contactus(Request $request)
+     public function contactus(ContactPostRequest $request)
      {
-        // dd($request);
-        Mail::send('mail', ['name' => $request['name']], function ($message) use ($request){
+        Mail::send('mail', ['name' => $request['name'], 'content' => $request['content']], function ($message) use ($request){
             
             $message->from($request['email'], $request['name']);
 
-            $message->to('40243137@gm.nfu.edu.tw')->subject($request['content']);
+            $message->to('40243137@gm.nfu.edu.tw')->subject('空塵計聯絡信');
         });
 
         return redirect('/');
