@@ -55,7 +55,7 @@ return [
     |
     */
 
-    'from' => ['address' => 'maselab318pm25@gmail.com', 'name' => 'SystemAdmin'],
+    'from' => ['address' => '40243137@gm.nfu.edu.tw', 'name' => 'SystemAdmin'],
 
     /*
     |--------------------------------------------------------------------------

@@ -73,13 +73,14 @@ Route::get('check-data', ['as' => 'research.check', 'uses' => 'ResearchControlle
 /**
  * Mail Testing
  */
-Route::get('/mail', function() {
+Route::get('mail', function() {
 	 $data = ['name' => 'Test'];
-	 Mail::send('email_test', $data, function($message) {
+	 // dd(Config::get('mail'));
+	 Mail::send('mail', $data, function($message) {
 	  	
 	  	$message->to('40243137@gm.nfu.edu.tw')->subject('This is test email');
 	 
 	 });
-	 return view('email_test')->with('name', 'Your email has been sent successfully!');
+	 // return view('mail');
 });
 
