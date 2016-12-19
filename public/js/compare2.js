@@ -23,6 +23,11 @@ var all_site = [
     {county: '金門縣', sitename: ['金門']}
 ]
 
+// loading 
+function loading(isloading = true) {
+    $('#loading').css('display', isloading ? 'block' : 'none')
+}
+
 // search county then return index
 function searchSiteIndex(county) {
     for(var i = 0, length1 = all_site.length; i < length1; i++){
@@ -97,3 +102,4 @@ function showData() {
         $('#show-pollution').append(element.toUpperCase())
     })
 }
+
