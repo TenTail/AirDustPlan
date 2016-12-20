@@ -4,6 +4,55 @@
 <meta name="csrf-token" content="{{ csrf_token() }}" />
 @endsection
 
+@section("head-css")
+<style type="text/css">
+.spinner {
+  width: 100%;
+  height: 100%;
+
+  position: fixed;
+  margin: 100px auto;
+  top:0;
+  left:0;
+  background: rgba(0,0,0,0.3);
+}
+
+.double-bounce1, .double-bounce2 {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #333;
+  opacity: 0.6;
+  position: absolute;
+  top: 0;
+  left: 0;
+  
+  -webkit-animation: sk-bounce 2.0s infinite ease-in-out;
+  animation: sk-bounce 2.0s infinite ease-in-out;
+}
+
+.double-bounce2 {
+  -webkit-animation-delay: -1.0s;
+  animation-delay: -1.0s;
+}
+
+@-webkit-keyframes sk-bounce {
+  0%, 100% { -webkit-transform: scale(0.0) }
+  50% { -webkit-transform: scale(1.0) }
+}
+
+@keyframes sk-bounce {
+  0%, 100% { 
+    transform: scale(0.0);
+    -webkit-transform: scale(0.0);
+  } 50% { 
+    transform: scale(1.0);
+    -webkit-transform: scale(1.0);
+  }
+}
+</style>
+@endsection
+
 @section("head-javascript")
 <script src="{{ asset('highmaps/js/highmaps.js') }}"></script>
 <script src="https://code.highcharts.com/mapdata/countries/tw/tw-all.js"></script>
@@ -15,9 +64,16 @@
 @section("content")
 	<div id = "map"  style = "width: 100%; height:400px; margin:20px"></div>
 
-    <div id="loading" style="position: fixed;top:0;left:0;background: rgba(0,0,0,0.3);width: 100%;height: 100%">
-        <h1 style="position: fixed;top:50%;left: 40%;font-size: 8em;font-weight: bolder;">載入中...</h1>
+    <div id="loading" class="spinner">
+        {{-- <h1  style="position: fixed;top:50%;left: 40%;font-size: 8em;font-weight: bolder;">載入中...</h1> --}}
+        <div class="double-bounce1"></div>
+        <div class="double-bounce2"></div>
     </div>
+
+    {{-- <div id="loading2" class="spinner">
+      <div class="double-bounce1"></div>
+      <div class="double-bounce2"></div>
+    </div> --}}
 @endsection
 
 @section("page-javascript")
@@ -153,6 +209,7 @@ function setChart(sitename) {
 // when data is loading block the full page.
 function loading(isdisplay = true) {
     $('#loading').css('display', isdisplay ? 'block' : 'none');
+    // $('#loading2').css('display', isdisplay ? 'block' : 'none');
 }
 </script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCD5dI4ddETACuDY-rUlZH-2Ept65w150Q&callback=initMap" async defer></script>
