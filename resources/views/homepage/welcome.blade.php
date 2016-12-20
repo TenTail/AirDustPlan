@@ -2,6 +2,10 @@
 
 @section("title", "空塵計")
 
+@section('head-css')
+<link rel="stylesheet" href="{{ asset('css/loading.css') }}">
+@endsection
+
 @section("content")
 
 <style>
@@ -105,5 +109,4 @@
         {!! Form::close() !!}
     </div>
 </div>
-
 @endsection

@@ -33,61 +33,69 @@ class InstantInfomationController extends Controller
      */
     public function show(Request $request)
     {
-        $url = "http://opendata.epa.gov.tw/ws/Data/AQX/?format=json";
-        $json_data = file_get_contents($url);
-        $json_data = json_decode($json_data);
+        $pollutant_url = "http://opendata.epa.gov.tw/ws/Data/AQX/?format=json";
+        $pollutantdata = file_get_contents($pollutant_url);
+        $pollutantdata = json_decode($pollutantdata);
+        
+        $geourl = "./js/air_quality_station_of_geographic_information.json";
+        $geodata = file_get_contents($geourl, true);
+        $geodata = json_decode($geodata);
+
         $req = array();
         $icon_base = './img/icons/';
         $icon = ' ';
+        
+        foreach ($pollutantdata as $key => $value) {
+            foreach ($geodata as $k => $v) {
+                if($v->SiteName == $value->SiteName){
+                    /*
+                    * green
+                    */
+                    if($value->PSI < 51) {
+                        $icon = $icon_base.'green.png';
+                    }
+                    
+                    /*
+                    * yellow
+                    */
+                    if($value->PSI > 50 && $value->PSI < 101) {
+                        $icon = $icon_base.'yellow.png';
+                    }
 
-        foreach ($json_data as $key => $value) {
-            /*
-            * green
-            */
-            if($value->PSI < 51) {
-                $icon = $icon_base.'green.png';
+                    /*
+                    * orange
+                    */
+                    if($value->PSI > 100 && $value->PSI < 151) {
+                        $icon = $icon_base.'orange.png';
+                    }
+                    
+                    /*
+                    * red
+                    */
+                    if($value->PSI > 150 && $value->PSI < 201) {
+                        $icon = $icon_base.'red.png';
+                    }
+                    
+                    /*
+                    * purple
+                    */
+                    if($value->PSI > 199 && $value->PSI < 300) {
+                        $icon = $icon_base.'purple.png';
+                    }
+                    
+                    /*
+                    * brown
+                    */
+                    if($value->PSI > 299) {
+                        $icon = $icon_base.'brown.jpg';
+                    }
+                    
+                    if($value->PSI == null) {
+                        $icon = $icon_base.'black.jpg';
+                    }
+                    array_push($req, array("sitename" => $value->SiteName, "county" => $value->County, "psi" => $value->PSI, "publish_time" => $value->PublishTime, "TWD97Lat" => $v->TWD97Lat, "TWD97Lon" => $v->TWD97Lon, "icon" => $icon));
+                }
             }
-
-            /*
-            * yellow
-            */
-            if($value->PSI > 50 && $value->PSI < 101) {
-                $icon = $icon_base.'yellow.png';
-            }
-
-            /*
-            * orange
-            */
-            if($value->PSI > 100 && $value->PSI < 151) {
-                $icon = $icon_base.'orange.png';
-            }
-
-            /*
-            * red
-            */
-            if($value->PSI > 150 && $value->PSI < 201) {
-                $icon = $icon_base.'red.png';
-            }
-
-            /*
-            * purple
-            */
-            if($value->PSI > 199 && $value->PSI < 300) {
-                $icon = $icon_base.'purple.png';
-            }
-
-            /*
-            * brown
-            */
-            if($value->PSI > 299) {
-                $icon = $icon_base.'brown.jpg';
-            }
-
-            if($value->PSI == null) {
-                $icon = $icon_base.'black.jpg';
-            }
-            array_push($req, array("sitename" => $value->SiteName, "county" => $value->County, "psi" => $value->PSI, "publish_time" => $value->PublishTime, "icon" => $icon));
-
         }
 
         return response()->json($req);
@@ -98,6 +106,7 @@ class InstantInfomationController extends Controller
         $sitename = $request['sitename'];
         $psi  = array(array());
         $pm25 = array(array());
+        $pm10 = array(array());
         $co   = array(array());
         
         // $now = Carbon::now('Asia/Taipei');
@@ -135,6 +144,9 @@ class InstantInfomationController extends Controller
                 $pm25[0][$i-1] = $query[0]->publish_time;
                 $pm25[1][$i-1] = ($query[0]->pm25 == -1 || $query[0]->pm25 == null) ? null : $query[0]->pm25;
 
+                $pm10[0][$i-1] = $query[0]->publish_time;
+                $pm10[1][$i-1] = ($query[0]->pm10 == -1 || $query[0]->pm10 == null) ? null : $query[0]->pm10;
+
                 $co[0][$i-1] = $query[0]->publish_time;
                 $co[1][$i-1] = ($query[0]->co == -1 || $query[0]->co == null) ? null : $query[0]->co;
 
@@ -145,7 +157,7 @@ class InstantInfomationController extends Controller
             $now = $past;
             $fnow = $past->year.'-'.sprintf("%02d", $past->month).'-'.sprintf("%02d", $past->day).' '.sprintf("%02d", $past->hour).':'.'00';
         }
-        return array($psi, $pm25, $co);
+        return array($psi, $pm25, $pm10, $co);
        
     }
 

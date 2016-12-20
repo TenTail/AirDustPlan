@@ -45,6 +45,8 @@ class HomePageController extends Controller
             $message->to('40243137@gm.nfu.edu.tw')->subject('空塵計聯絡信');
         });
 
+        $isdisplay = false;
+
         return redirect('/');
      }
 
