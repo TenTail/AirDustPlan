@@ -237,54 +237,43 @@ class HistoryCompareController extends Controller
     }
 
     public function index2()
-    {
+    {   
         return view('history-compare2');
     }
 
     public function compare2(Request $request)
     {
-        $month = sprintf("%02d", $request->input("month"));
-        // 格式['2001', 90, '2001-01-01 00:00', '2001-03-01 00:00']
-        $year = array_map(function ($y) use ($month) {
-            return [$y, intval($y)-1911, $y."-".$month."-01 00:00", $y."-".sprintf("%02d", intval($month)+2)."-01 00:00"];
-        }, $request->input("year"));
+        $month1 = sprintf("%02d", $request->input("month"));
+        $month2 = sprintf("%02d", $request->input("month")+1);
+        $sql_time = "";
+        foreach ($request->input('year') as $key => $year) {
+            $sql_time .= "'".$year."-".$month1."',";
+            $sql_time .= "'".$year."-".$month2."'";
+            if (count($request->input('year')) > $key+1) $sql_time .= ",";
+        }
         $sitename = $request->input("sitename");
         $pollution = ($request->input("pollution")[0] == 'pm2.5') ? 'pm25' : $request->input("pollution")[0];
         
-        // 根據 $year 與 $sitename 抓取檔案，並解析檔案然後轉換成 collection
-        $collections = array_map(function ($y) use ($sitename) {
-            $path = public_path().'/history-files/'.$y[1].'j/'.$y[1].$this->TW_to_ENG[$sitename].'.json';
-            return File::exists($path) 
-                ? collect(json_decode(file_get_contents($path), true))
-                : NULL;
-        }, $year);
-
-        $data = array();
-        foreach ($collections as $i => $value) {
-            if ($value == NULL) continue; // 如果是NULL代表找不到檔案
-            $temp = $value->flatMap(function ($item) use ($i, $year, $pollution) { // 選取出正確的月份與空汙測項
-                if ($item['PublishTime'] >= substr($year[$i][2], 0, 7) AND $item['PublishTime'] < substr($year[$i][3], 0, 7)) 
-                return [
-                    $item['PublishTime'] => [
-                        $pollution => array_key_exists(strtoupper($pollution), $item)
-                            ? $item[strtoupper($pollution)] : NULL,
-                        'PublishTime' => explode(" ", $item['PublishTime'])[0]
-                    ]
-                ];
-            })
-            ->sortBy(function ($si, $sk) { // 根據 key值 去做排序
-                return $sk;
-            })
-            ->groupBy('PublishTime') // 把同一天群組起來
-            ->flatMap(function ($fi, $fk) use ($pollution) { // 將空汙測項根據每天做平均
-                $date = explode('-', $fk);
-                return array([mktime(0,0,0,$date[1],$date[2],0)*1000, round($fi->avg($pollution), 2)]);
-            })
-            ->toArray(); // collection 轉換成 array
-            
-            // highcharts 的 series 資料格式
+        $collections = DB::select("
+            select avg($pollution) as $pollution, DATE_FORMAT(publish_time, '%Y-%m-%d') as publish_time
+            from airpollutions
+            where sitename = '$sitename' and DATE_FORMAT(publish_time, '%Y-%m') in ($sql_time)
+            group by DATE_FORMAT(publish_time, '%Y-%m-%d')
+            order by publish_time asc
+        ");
+        $collections = collect($collections)
+            ->groupBy(function ($item, $key) {
+                return substr($item->publish_time, 0, 4);
+            });
+        
+        $data = [];
+        foreach ($collections as $year => $value) {
+            $temp = $value->map(function ($item, $key) use ($pollution) {
+                $time = explode('-', $item->publish_time);
+                return [mktime(0,0,0,$time[1],$time[2],0)*1000, round($item->{$pollution}, 2)];
+            });
             array_push($data, [
-                'name' => $year[$i][0]."年",
+                'name' => $year."年",
                 'data' => $temp,
                 'type' => 'spline',
                 'tooltip' => [

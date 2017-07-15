@@ -9,7 +9,7 @@
 @section('head-javascript')
 <script src="{{ asset('highstock/js/highstock.js') }}"></script>
 <script src="{{ asset('highstock/js/modules/exporting.js') }}"></script>
-<script src="{{ asset('highstock/js/themes/grid-light.js') }}"></script>
+{{-- <script src="{{ asset('highstock/js/themes/grid-light.js') }}"></script> --}}
 @stop
 
 @section("content")
@@ -331,8 +331,7 @@
                 floating: true,
                 backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'
             }
-        }
-            
+        }        
     }
 
     function drawChart(data) {
@@ -353,8 +352,54 @@
             credits: {
                 enabled: false
             },
+        });
+        $('#containerAQI').highcharts('StockChart', {
+            title: {
+                text: sitename+'站歷史空汙比較圖'
+            },
+            subtitle: {
+                text: two_month[0]+'月~'+(parseInt(two_month[0])+1)+'月之比較'
+            },
+            xAxis: setting.xAxis,
+            yAxis: {
+                title: {
+                    text: "PM2.5 AQI指標"
+                },
+                labels: {
+                    useHTML: true,
+                    formatter: function () {
+                        return isNaN(this.value) ? 12 : this.value;
+                    },
+                },
+                min: 0,
+                plotLines: [{
+                    value: 0,
+                    width: 2,
+                    color: 'silver'
+                }],
+                plotBands: [{
+                    from: 0, to: 12, color: 'rgba(00, 255, 0, 0.5)'
+                },{
+                    from: 12, to: 35, color: 'rgba(255, 255, 0, 0.5)'
+                },{
+                    from: 35, to: 55, color: 'rgba(255, 150, 00, 0.5)'
+                },{
+                    from: 55, to: 150, color: 'rgba(255, 00, 00, 0.5)'
+                },{
+                    from: 150, to: 250, color: 'rgba(255, 00, 255, 0.5)'
+                },{
+                    from: 250, to: 350, color: 'rgba(85, 00, 00, 0.5)'
+                },]
+            },
+            rangeSelector: setting.rangeSelector,
+            tooltip: setting.tooltip,
+            legend: setting.legend,
+            series: data,
+            credits: {
+                enabled: false
+            },
         })
-        loading(false)
+        loading(false);
     }
 
 </script>
